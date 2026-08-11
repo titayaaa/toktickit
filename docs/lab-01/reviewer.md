@@ -7,7 +7,7 @@
 - **Reviewed PR Links**:
   - PR #1: https://github.com/titayaaa/toktickit/pull/5 (feature/1-project-foundation -> lab1-staging)
   - PR #2: https://github.com/titayaaa/toktickit/pull/2 (feature/2-health-check -> lab1-staging)
-  - PR #3: https://github.com/titayaaa/toktickit/pull/3 (feature/3-category-seed -> lab1-staging)
+  - PR #3: https://github.com/titayaaa/toktickit/pull/7 (feature/3-category-seed -> lab1-staging)
   - PR #4: https://github.com/titayaaa/toktickit/pull/4 (feature/4-category-list -> lab1-staging)
 
 ## Submitted PR Review Evidence
