@@ -45,13 +45,13 @@
 ## Partner PR Review Evidence (เราตรวจเพื่อน)
 
 - **PR 5 (ธนากร @il0lk3):** [Link to PR](https://github.com/il0lk3/TokTickIT/pull/5)
-  **My Review Comment:** "Checked your pull request. Tests pass and UI states match requirements. Approved."
-  **Partner Response:** "Thanks for reviewing!"
+  **My Review Comment:** "This PR cleanly accomplishes the goal of setting up the project foundation, project structure, TypeScript compiler settings, test harnesses, and initial stubs."
+  **Partner Response:** *(ไม่มีการตอบกลับ)*
 
 - **PR 6 (@natthakamol1130):** [Link to PR](https://github.com/natthakamol1130/toktickit/pull/6)
-  **My Review Comment:** "Looks great! All acceptance criteria are met."
-  **Partner Response:** "Thank you!"
+  **My Review Comment:** "LGTM โค้ดทำหน้าที่ตาม Requirement ได้ถูกต้อง ไม่มีปัญหาเรื่อง Logic หรือ Syntax"
+  **Partner Response:** *(ไม่มีการตอบกลับ)*
 
 - **PR 9 (ธนากร @il0lk3):** [Link to PR](https://github.com/il0lk3/TokTickIT/pull/9)
-  **My Review Comment:** "Integration is seamless. Ready for production."
-  **Partner Response:** "Merging into main!"
+  **My Review Comment:** "โดยรวมโอเคเลย โค้ดแยกส่วนค่อนข้างชัด แล้วก็มี test ให้ด้วย แต่คิดว่าน่าจะเพิ่ม test กรณีที่ API error แล้วก็ลองเช็ก response ให้ละเอียดขึ้นว่ามี id กับ name ครบไหม ส่วน void ที่ไม่ได้ใช้ ถ้าไม่จำเป็นก็อาจจะเอาออก จะได้ทำให้โค้ดดูสะอาดขึ้น"
+  **Partner Response:** "ขอบคุณสำหรับคำแนะนำดีๆ ครับ ตอนนี้เข้าไปลบ void ที่ไม่ได้ใช้ออกให้โค้ดดูสะอาดขึ้นแล้ว และได้เพิ่ม Test สำหรับเช็คค่า id กับ name ใน Response รวมถึงเขียน Test ตรวจสอบกรณี API Error เพิ่มเติมเรียบร้อยแล้วครับบบ"
