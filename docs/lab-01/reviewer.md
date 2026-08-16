@@ -10,7 +10,7 @@
 
 **PR7: Feature 3: Category Seed**
 - **Reviewer 1**: ชัญญา พูลเขตกิจ (GitHub: @chanya06)
-- **Reviewer 2**: ศุภวิชญ์ (GitHub: @Suprawi5227)
+- **Reviewer 2**: สุประวีณ์ สุทธิเสรีนิวัฒน์ (ID: 67070505227, GitHub: @Suprawi5227)
 
 **PR8: Feature 4: Category List Display**
 - **Reviewer 1**: พัฒนาวดี แสงเงินยอด (GitHub: @jejaebubu)
