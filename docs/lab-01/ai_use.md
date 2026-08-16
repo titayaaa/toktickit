@@ -1,14 +1,14 @@
-# การใช้ AI และการทบทวน (AI Use and Reflection)
+# บันทึกการใช้งาน AI และสิ่งที่ได้เรียนรู้ (AI Use and Reflection)
 
-ผมใช้ระบบ Antigravity coding agent ผ่านบัญชี Google Cloud Platform โดยใช้โมเดล Gemini 3.5 Flash เป็นหลัก พร้อมตั้งค่าระดับการคิด (Thinking Level) ไว้ที่ Medium
+ในโปรเจกต์นี้ ผมเลือกใช้ **Antigravity coding agent** ผ่านระบบ Google Cloud Platform ครับ โดยเลือกใช้โมเดล **Gemini 3.5 Flash** และตั้งค่าการคิดวิเคราะห์ (Thinking Level) ไว้ที่ระดับ Medium
 
-## ตัวอย่าง Prompt สำคัญที่ใช้
+## รวม Prompt สำคัญที่ใช้สั่งงาน AI
 
-| ชื่อ Prompt (Prompt Name) | ข้อความ Prompt ที่ใช้จริง (Actual Prompt Text) | การทบทวนและสิ่งที่ได้ (Reflection) |
+| ขั้นตอนที่สั่ง (Prompt Name) | คำสั่งที่พิมพ์ลงไปจริงๆ (Actual Prompt Text) | ผลลัพธ์และการเรียนรู้ (Reflection) |
 | --- | --- | --- |
-| วางแผนการทำ Lab 1 | อ่านข้อกำหนดของ TokTickIT Lab 1 ที่แนบมา สรุป GitHub Issues ทั้ง 4 อัน ลำดับความต่อเนื่อง ผลลัพธ์ที่ต้องการ และ Automated Tests ที่ต้องมี เสนอลำดับการพัฒนา โดยยังไม่ต้องเขียนโค้ด | สามารถทำงานได้จบในครั้งเดียว ได้แผนการทำงานและโครงสร้างสถาปัตยกรรมที่ชัดเจน |
-| ตั้งค่าโปรเจกต์ Full-Stack | ตั้งค่า Tech Stack ของโปรเจกต์ตามที่ระบุใน Lab 1 โดยใช้ React, TypeScript, Vite และ Bootstrap สำหรับ Frontend และใช้ Node.js, Express และ TypeScript สำหรับ Backend กำหนดค่า PostgreSQL และ Prisma ใช้โครงสร้างโฟลเดอร์ตามที่กำหนด ห้ามเพิ่มฟังก์ชันที่นอกเหนือขอบเขต Lab 1 | สามารถสร้างโครงสร้างโฟลเดอร์ฝั่ง Client และ Server ตั้งค่า Dependencies และ Scripts ต่างๆ ได้สำเร็จ |
-| ทำระบบ Health Check | เพิ่ม GET /api/health เข้าไปใน Express backend ที่มีอยู่ โดยต้องคืนค่า HTTP 200 พร้อม JSON { status: "ok", service: "TokTickIT API" } และสร้าง Supertest API-01 | สร้าง Endpoint และ Test ได้ถูกต้องแม่นยำ และสามารถรัน Supertest ผ่านได้ทั้งหมด |
-| สร้างโมเดล Category และ Seed | สร้างโมเดล Prisma Category ที่มี id, name (unique), และ createdAt จากนั้นสร้างไฟล์ Migration และ Seed แบบรันซ้ำได้ (Idempotent) เพื่อเพิ่มข้อมูลหมวดหมู่: Account and Access, Hardware, Software, และ Network | สร้าง Prisma schema และ Seed script ด้วยคำสั่ง upsert ได้อย่างสมบูรณ์แบบ ทำให้รันซ้ำได้โดยไม่มีข้อมูลซ้ำซ้อน |
-| ทำ API แสดงรายการ Category | เพิ่ม GET /api/categories เพื่อดึงรายการหมวดหมู่จาก PostgreSQL ผ่าน Prisma โดยเรียงลำดับตาม ID (asc) และสร้าง Supertest API-02 | Endpoint คืนค่าข้อมูลในรูปแบบที่ถูกต้อง และ Supertest สามารถตรวจสอบความถูกต้องของ Response ได้ผ่าน |
-| สร้างและทดสอบ UI Check System | สร้างหน้าเว็บ React ด้วย Bootstrap ที่มีปุ่ม [Check System] เมื่อกดให้แสดงสถานะ Loading เรียก API health และ categories จาก Backend และแสดงสถานะระบบพร้อมหมวดหมู่ 4 อัน (หรือแสดงข้อความ Error เมื่อออฟไลน์) พร้อมเขียน Vitest: UI-01, UI-02, UI-03 | Component ของ UI สามารถจัดการสถานะ Loading, Success และ Error ได้อย่างสมบูรณ์ และชุดทดสอบ Vitest รันผ่านทุกเคส |
+| **1. วางแผนลุย Lab 1** | "อ่านโจทย์ TokTickIT Lab 1 ที่แนบมาให้หน่อย แล้วสรุป GitHub Issues ทั้ง 4 ข้อ, ลำดับการทำก่อน-หลัง, ผลลัพธ์ที่ต้องการ และเทสต์ที่ต้องมี ลองเสนอแผนการทำมาให้ดูก่อนนะ ยังไม่ต้องเขียนโค้ด" | AI เก่งมากครับ สรุปแผนงานและวางโครงสร้างระบบให้ชัดเจนได้ตั้งแต่รอบแรกเลย |
+| **2. สร้างโปรเจกต์ Full-Stack** | "ช่วยตั้งค่าโปรเจกต์ตามโจทย์ Lab 1 ให้หน่อย: ฝั่ง Frontend ใช้ React, TypeScript, Vite, Bootstrap ส่วน Backend ใช้ Node.js, Express, TypeScript แล้วตั้งค่า PostgreSQL กับ Prisma ด้วยนะ เอาโครงสร้างโฟลเดอร์ตามโจทย์เป๊ะๆ ไม่ต้องทำอะไรเกินที่สั่ง" | AI สามารถสร้างโฟลเดอร์ทั้งฝั่ง Client/Server รวมถึงลงแพ็กเกจและตั้งค่าสคริปต์ต่างๆ ได้ครบถ้วนเลยครับ |
+| **3. ทำ API เช็คสถานะระบบ (Health Check)** | "เพิ่ม Endpoint `GET /api/health` ในฝั่ง Backend ให้หน่อย ถ้าทำงานปกติให้ตอบกลับเป็น HTTP 200 พร้อม JSON `{ status: "ok", service: "TokTickIT API" }` แล้วก็เขียนเทสต์ API-01 ด้วย Supertest ให้ด้วยนะ" | เขียน API ออกมาได้แม่นยำมาก และรันเทสต์ผ่านฉลุยในรอบเดียวเลยครับ |
+| **4. สร้างฐานข้อมูลหมวดหมู่ (Category Model & Seed)** | "สร้างโมเดล Category ใน Prisma (มี id, name ที่ห้ามซ้ำ, และ createdAt) จากนั้นสร้างไฟล์ Migration และทำไฟล์ Seed ข้อมูล 4 หมวดหมู่ (Account and Access, Hardware, Software, Network) โดยไฟล์ Seed ต้องกดรันซ้ำได้โดยที่ข้อมูลไม่เบิ้ลนะ" | AI ใช้คำสั่ง `upsert` ในการทำ Seed ได้ดีมาก ทำให้เรารันสร้างข้อมูลกี่รอบก็ได้โดยที่ข้อมูลในฐานข้อมูลไม่ซ้ำซ้อนกันเลย |
+| **5. ทำ API ดึงข้อมูลหมวดหมู่** | "สร้าง Endpoint `GET /api/categories` เพื่อดึงข้อมูลหมวดหมู่จากฐานข้อมูลออกมาแสดง โดยเรียงตาม ID จากน้อยไปมากนะ แล้วเขียนเทสต์ API-02 ด้วย Supertest ให้ด้วย" | API ดึงข้อมูลออกมาได้ถูกเป๊ะตามรูปแบบที่ต้องการ และตัวเทสต์ก็รันผ่านตรวจสอบข้อมูลได้ครบถ้วน |
+| **6. สร้างหน้าเว็บ UI สำหรับตรวจสอบระบบ** | "สร้างหน้าเว็บ React ด้วย Bootstrap ที่มีปุ่ม [Check System] พอกดปุ่มปุ๊บ ให้ขึ้นโหลด (Loading) ระหว่างที่ไปเรียก API health กับ categories ถ้าสำเร็จให้โชว์ว่าระบบ Online พร้อมรายชื่อหมวดหมู่ 4 อัน แต่ถ้าพังให้ขึ้น Error ว่า Offline เสร็จแล้วเขียนเทสต์ Vitest ให้ด้วย (UI-01, UI-02, UI-03)" | AI เขียน Component ออกมาจัดการเรื่องสถานะตอนกำลังโหลด, ตอนสำเร็จ และตอนพัง ได้เนียนมากครับ ส่วนโค้ดเทสต์ Vitest ก็ครอบคลุมและรันผ่านหมด |
