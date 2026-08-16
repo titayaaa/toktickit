@@ -43,5 +43,15 @@
   **My Response:** "ขอบคุณมากน้าที่ช่วยเช็คให้อย่างละเอียด ตอนนี้เราได้เพิ่ม import { Request, Response } from 'express'; ที่ไฟล์ server/src/app.ts ให้เรียบร้อยแล้วน้า ดันโค้ดขึ้นมาอัปเดตใน PR นี้ให้แล้ว รบกวนตรวจดูอีกรอบนะะ ถ้าโค้ดเรียบร้อย แล้วรบกวนกด Approve แล้วก็ Merge เข้า main ให้ทีน้าา ขอบคุณค้าบ"
 
 ## Partner PR Review Evidence (เราตรวจเพื่อน)
-*(ใส่ข้อมูลของ Pull Request ที่คุณไปตรวจให้เพื่อนที่นี่ เช่น PR ของธนากร, พัฒนาวดี ฯลฯ)*
-- **PR (ธนากร):** "Checked your pull request. Tests pass and UI states match requirements. Approved." -> **Partner Response:** "Thanks for reviewing!"
+
+- **PR 5 (ธนากร @il0lk3):** [Link to PR](https://github.com/il0lk3/TokTickIT/pull/5)
+  **My Review Comment:** "Checked your pull request. Tests pass and UI states match requirements. Approved."
+  **Partner Response:** "Thanks for reviewing!"
+
+- **PR 6 (@natthakamol1130):** [Link to PR](https://github.com/natthakamol1130/toktickit/pull/6)
+  **My Review Comment:** "Looks great! All acceptance criteria are met."
+  **Partner Response:** "Thank you!"
+
+- **PR 9 (ธนากร @il0lk3):** [Link to PR](https://github.com/il0lk3/TokTickIT/pull/9)
+  **My Review Comment:** "Integration is seamless. Ready for production."
+  **Partner Response:** "Merging into main!"
