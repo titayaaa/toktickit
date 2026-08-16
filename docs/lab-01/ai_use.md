@@ -1,14 +1,14 @@
-# AI Use and Reflection
+# การใช้ AI และการทบทวน (AI Use and Reflection)
 
-I used the Antigravity coding agent through my Google Cloud Platform account. I mainly used Gemini 3.5 Flash as the LLM with a thinking level of Medium.
+ผมใช้ระบบ Antigravity coding agent ผ่านบัญชี Google Cloud Platform โดยใช้โมเดล Gemini 3.5 Flash เป็นหลัก พร้อมตั้งค่าระดับการคิด (Thinking Level) ไว้ที่ Medium
 
-## Selected Key Prompts
+## ตัวอย่าง Prompt สำคัญที่ใช้
 
-| Prompt Name | Actual Prompt Text | Reflection |
+| ชื่อ Prompt (Prompt Name) | ข้อความ Prompt ที่ใช้จริง (Actual Prompt Text) | การทบทวนและสิ่งที่ได้ (Reflection) |
 | --- | --- | --- |
-| Plan Lab 1 Implementation | Read the enclosed TokTickIT Lab 1 requirements. Summarize the four GitHub Issues, their dependencies, required outputs, and required automated tests. Propose an implementation order, but do not write code yet. | Worked cleanly in one shot to produce the overall structured architecture and task execution plan. |
-| Set Up Full-Stack Project | Setup the TokTickIT project tech stack as given in Lab 1 using React, TypeScript, Vite, and Bootstrap for the frontend, and Node.js, Express, and TypeScript for the backend. Configure PostgreSQL and Prisma. Use the required folder structure. Do not add functionality beyond the Lab 1 scope. | Successfully created client and server directory structures, dependency configurations, and scripts. |
-| Implement Health Check | Add GET /api/health to the existing Express backend. It must return HTTP 200 with JSON { status: "ok", service: "TokTickIT API" }. Create Supertest test API-01. | Endpoint and test were implemented accurately with Supertest assertions passing. |
-| Implement Category Model & Seed | Create the Prisma Category model with id, unique name, and createdAt. Create migration and idempotent seed inserting Account and Access, Hardware, Software, and Network. | Prisma schema and seed script using upsert were created cleanly without duplicate errors. |
-| Implement Category List API | Add GET /api/categories endpoint retrieving categories from PostgreSQL through Prisma in predictable order (ID asc). Create Supertest test API-02. | Endpoint returned expected data format and Supertest verified response. |
-| Build and Test Check System UI | Create a Bootstrap-based React page with [Check System] button. When clicked, show loading state, call backend health and categories APIs, and render system status & 4 categories (or error message when offline). Write Vitest tests UI-01, UI-02, UI-03. | UI component handles loading, success, and error states cleanly, and Vitest suite passes all assertions. |
+| วางแผนการทำ Lab 1 | อ่านข้อกำหนดของ TokTickIT Lab 1 ที่แนบมา สรุป GitHub Issues ทั้ง 4 อัน ลำดับความต่อเนื่อง ผลลัพธ์ที่ต้องการ และ Automated Tests ที่ต้องมี เสนอลำดับการพัฒนา โดยยังไม่ต้องเขียนโค้ด | สามารถทำงานได้จบในครั้งเดียว ได้แผนการทำงานและโครงสร้างสถาปัตยกรรมที่ชัดเจน |
+| ตั้งค่าโปรเจกต์ Full-Stack | ตั้งค่า Tech Stack ของโปรเจกต์ตามที่ระบุใน Lab 1 โดยใช้ React, TypeScript, Vite และ Bootstrap สำหรับ Frontend และใช้ Node.js, Express และ TypeScript สำหรับ Backend กำหนดค่า PostgreSQL และ Prisma ใช้โครงสร้างโฟลเดอร์ตามที่กำหนด ห้ามเพิ่มฟังก์ชันที่นอกเหนือขอบเขต Lab 1 | สามารถสร้างโครงสร้างโฟลเดอร์ฝั่ง Client และ Server ตั้งค่า Dependencies และ Scripts ต่างๆ ได้สำเร็จ |
+| ทำระบบ Health Check | เพิ่ม GET /api/health เข้าไปใน Express backend ที่มีอยู่ โดยต้องคืนค่า HTTP 200 พร้อม JSON { status: "ok", service: "TokTickIT API" } และสร้าง Supertest API-01 | สร้าง Endpoint และ Test ได้ถูกต้องแม่นยำ และสามารถรัน Supertest ผ่านได้ทั้งหมด |
+| สร้างโมเดล Category และ Seed | สร้างโมเดล Prisma Category ที่มี id, name (unique), และ createdAt จากนั้นสร้างไฟล์ Migration และ Seed แบบรันซ้ำได้ (Idempotent) เพื่อเพิ่มข้อมูลหมวดหมู่: Account and Access, Hardware, Software, และ Network | สร้าง Prisma schema และ Seed script ด้วยคำสั่ง upsert ได้อย่างสมบูรณ์แบบ ทำให้รันซ้ำได้โดยไม่มีข้อมูลซ้ำซ้อน |
+| ทำ API แสดงรายการ Category | เพิ่ม GET /api/categories เพื่อดึงรายการหมวดหมู่จาก PostgreSQL ผ่าน Prisma โดยเรียงลำดับตาม ID (asc) และสร้าง Supertest API-02 | Endpoint คืนค่าข้อมูลในรูปแบบที่ถูกต้อง และ Supertest สามารถตรวจสอบความถูกต้องของ Response ได้ผ่าน |
+| สร้างและทดสอบ UI Check System | สร้างหน้าเว็บ React ด้วย Bootstrap ที่มีปุ่ม [Check System] เมื่อกดให้แสดงสถานะ Loading เรียก API health และ categories จาก Backend และแสดงสถานะระบบพร้อมหมวดหมู่ 4 อัน (หรือแสดงข้อความ Error เมื่อออฟไลน์) พร้อมเขียน Vitest: UI-01, UI-02, UI-03 | Component ของ UI สามารถจัดการสถานะ Loading, Success และ Error ได้อย่างสมบูรณ์ และชุดทดสอบ Vitest รันผ่านทุกเคส |
