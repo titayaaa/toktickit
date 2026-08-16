@@ -3,27 +3,21 @@
 ## Reviewer Details
 
 **PR5: Feature 1: Project Foundation**
-- **Reviewer 1**: ธนากร พหุลรัตน์ (ID: 67070505217, GitHub: @il0lk3)
+- **Reviewer 1**: ธนากร พหุลรัตน์ (GitHub: @il0lk3)
 
 **PR6: Feature 2: Health Check**
-- **Reviewer 1**: พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: @jejaebubu)
+- **Reviewer 1**: พัฒนาวดี แสงเงินยอด (GitHub: @jejaebubu)
 
 **PR7: Feature 3: Category Seed**
-- **Reviewer 1**: พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: @jejaebubu)
-- **Reviewer 2**: ภัทร์ธิดาวดี อุ่นคำ (ID: 67070505225, GitHub: @phatthidawadi)
-- **Reviewer 3**: ชัญญา พูลเขตกิจ (ID: 67070501058, GitHub: @chanya06)
-- **Reviewer 4**: ปทิตญา แก้ววิเชียร (ID: 67070505220, GitHub: @lmaybelgracel)
-- **Reviewer 5**: @Suprawi5227
+- **Reviewer 1**: ชัญญา พูลเขตกิจ (GitHub: @chanya06)
+- **Reviewer 2**: ศุภวิชญ์ (GitHub: @Suprawi5227)
 
 **PR8: Feature 4: Category List Display**
-- **Reviewer 1**: พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: @jejaebubu)
-- **Reviewer 2**: ชัญญา พูลเขตกิจ (ID: 67070501058, GitHub: @chanya06)
-- **Reviewer 3**: ภัทร์ธิดาวดี อุ่นคำ (ID: 67070505225, GitHub: @phatthidawadi)
-- **Reviewer 4**: ปทิตญา แก้ววิเชียร (ID: 67070505220, GitHub: @lmaybelgracel)
+- **Reviewer 1**: พัฒนาวดี แสงเงินยอด (GitHub: @jejaebubu)
+- **Reviewer 2**: ชัญญา พูลเขตกิจ (GitHub: @chanya06)
 
 **PR9: Lab 1 Integration to Production**
-- **Reviewer 1**: ฑิตญา ผ่องสกุล (ID: 67070505201, GitHub: @titayaaa)
-- **Reviewer 2**: อชิรญา อินตา (ID: 67070505229, GitHub: @Achikan)
+- **Reviewer 1**: อชิรญา อินตา (GitHub: @Achikan)
 
 ## Submitted PR Review Evidence (เพื่อนตรวจเรา)
 
