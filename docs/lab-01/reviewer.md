@@ -25,7 +25,7 @@
 - **Reviewer 2**: อชิรญา อินตา (ID: 67070505229, GitHub: @Achikan)
 
 ## Submitted PR Review Evidence (เพื่อนตรวจเรา)
-- **PR 5 (ธนากร):** "The implementation follows the requested architecture and file structure. Acceptance criteria and tests are met. LGTM!" -> **My Response:** "Thank you for the review! Merging PR into lab1-staging."
+- **PR 5 (ธนากร):** "ได้ตรวจสอบโครงสร้างโปรเจกต์ (React+Vite, Express, Prisma) และการติดตั้ง package สำหรับการเทสแล้ว มีไฟล์ .env.example และ .gitignore คิดว่าถูกต้องตามที่ Issue1 ต้องการครับ Good Girl!" -> **My Response:** "Thank you for the review! Merging PR into lab1-staging."
 - **PR 6 (พัฒนาวดี):** "Tested locally and everything works perfectly. Approve!" -> **My Response:** "Thanks!"
 - **PR 7 (พัฒนาวดี, ภัทร์ธิดาวดี, ชัญญา, ปทิตญา):** "LGTM!" -> **My Response:** "Thanks everyone!"
 - **PR 8 (พัฒนาวดี, ชัญญา, ภัทร์ธิดาวดี, ปทิตญา):** "Looks great. Approved." -> **My Response:** "Thank you!"
