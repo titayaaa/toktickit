@@ -2,21 +2,21 @@
 
 ## Reviewer Details
 
-**PR5: Feature 1: Project Foundation** ([Link to PR](https://github.com/titayaaa/toktickit/pull/5))
+**PR5: Feature 1: Project Foundation** ลิงก์ https://github.com/titayaaa/toktickit/pull/5
 - **Reviewer 1**: ธนากร พหุลรัตน์ (ID: 67070505217, GitHub: @il0lk3)
 
-**PR6: Feature 2: Health Check** ([Link to PR](https://github.com/titayaaa/toktickit/pull/6))
+**PR6: Feature 2: Health Check** ลิงก์ https://github.com/titayaaa/toktickit/pull/6
 - **Reviewer 1**: พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: @jejaebubu)
 
-**PR7: Feature 3: Category Seed** ([Link to PR](https://github.com/titayaaa/toktickit/pull/7))
+**PR7: Feature 3: Category Seed** ลิงก์ https://github.com/titayaaa/toktickit/pull/7
 - **Reviewer 1**: ชัญญา พูลเขตกิจ (ID: 67070501058, GitHub: @chanya06)
 - **Reviewer 2**: สุประวีณ์ สุทธิเสรีนิวัฒน์ (ID: 67070505227, GitHub: @Suprawi5227)
 
-**PR8: Feature 4: Category List Display** ([Link to PR](https://github.com/titayaaa/toktickit/pull/8))
+**PR8: Feature 4: Category List Display** ลิงก์ https://github.com/titayaaa/toktickit/pull/8
 - **Reviewer 1**: พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: @jejaebubu)
 - **Reviewer 2**: ชัญญา พูลเขตกิจ (ID: 67070501058, GitHub: @chanya06)
 
-**PR9: Lab 1 Integration to Production** ([Link to PR](https://github.com/titayaaa/toktickit/pull/9))
+**PR9: Lab 1 Integration to Production** ลิงก์ https://github.com/titayaaa/toktickit/pull/9
 - **Reviewer 1**: อชิรญา อินตา (ID: 67070505229, GitHub: @Achikan)
 
 ## Submitted PR Review Evidence (เพื่อนตรวจเรา)
@@ -44,14 +44,14 @@
 
 ## Partner PR Review Evidence (เราตรวจเพื่อน)
 
-- **PR 5 (ธนากร @il0lk3):** [Link to PR](https://github.com/il0lk3/TokTickIT/pull/5)
+- **PR 5 (ธนากร @il0lk3):** ลิงก์ https://github.com/il0lk3/TokTickIT/pull/5
   **My Review Comment:** "This PR cleanly accomplishes the goal of setting up the project foundation, project structure, TypeScript compiler settings, test harnesses, and initial stubs."
   **Partner Response:** *(ไม่มีการตอบกลับ)*
 
-- **PR 6 (@natthakamol1130):** [Link to PR](https://github.com/natthakamol1130/toktickit/pull/6)
+- **PR 6 (@natthakamol1130):** ลิงก์ https://github.com/natthakamol1130/toktickit/pull/6
   **My Review Comment:** "LGTM โค้ดทำหน้าที่ตาม Requirement ได้ถูกต้อง ไม่มีปัญหาเรื่อง Logic หรือ Syntax"
   **Partner Response:** *(ไม่มีการตอบกลับ)*
 
-- **PR 9 (ธนากร @il0lk3):** [Link to PR](https://github.com/il0lk3/TokTickIT/pull/9)
+- **PR 9 (ธนากร @il0lk3):** ลิงก์ https://github.com/il0lk3/TokTickIT/pull/9
   **My Review Comment:** "โดยรวมโอเคเลย โค้ดแยกส่วนค่อนข้างชัด แล้วก็มี test ให้ด้วย แต่คิดว่าน่าจะเพิ่ม test กรณีที่ API error แล้วก็ลองเช็ก response ให้ละเอียดขึ้นว่ามี id กับ name ครบไหม ส่วน void ที่ไม่ได้ใช้ ถ้าไม่จำเป็นก็อาจจะเอาออก จะได้ทำให้โค้ดดูสะอาดขึ้น"
   **Partner Response:** "ขอบคุณสำหรับคำแนะนำดีๆ ครับ ตอนนี้เข้าไปลบ void ที่ไม่ได้ใช้ออกให้โค้ดดูสะอาดขึ้นแล้ว และได้เพิ่ม Test สำหรับเช็คค่า id กับ name ใน Response รวมถึงเขียน Test ตรวจสอบกรณี API Error เพิ่มเติมเรียบร้อยแล้วครับบบ"
