@@ -2,21 +2,21 @@
 
 ## Reviewer Details
 
-**PR5: Feature 1: Project Foundation**
+**PR5: Feature 1: Project Foundation** ([Link to PR](https://github.com/titayaaa/toktickit/pull/5))
 - **Reviewer 1**: ธนากร พหุลรัตน์ (ID: 67070505217, GitHub: @il0lk3)
 
-**PR6: Feature 2: Health Check**
+**PR6: Feature 2: Health Check** ([Link to PR](https://github.com/titayaaa/toktickit/pull/6))
 - **Reviewer 1**: พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: @jejaebubu)
 
-**PR7: Feature 3: Category Seed**
+**PR7: Feature 3: Category Seed** ([Link to PR](https://github.com/titayaaa/toktickit/pull/7))
 - **Reviewer 1**: ชัญญา พูลเขตกิจ (ID: 67070501058, GitHub: @chanya06)
 - **Reviewer 2**: สุประวีณ์ สุทธิเสรีนิวัฒน์ (ID: 67070505227, GitHub: @Suprawi5227)
 
-**PR8: Feature 4: Category List Display**
+**PR8: Feature 4: Category List Display** ([Link to PR](https://github.com/titayaaa/toktickit/pull/8))
 - **Reviewer 1**: พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: @jejaebubu)
 - **Reviewer 2**: ชัญญา พูลเขตกิจ (ID: 67070501058, GitHub: @chanya06)
 
-**PR9: Lab 1 Integration to Production**
+**PR9: Lab 1 Integration to Production** ([Link to PR](https://github.com/titayaaa/toktickit/pull/9))
 - **Reviewer 1**: อชิรญา อินตา (ID: 67070505229, GitHub: @Achikan)
 
 ## Submitted PR Review Evidence (เพื่อนตรวจเรา)
