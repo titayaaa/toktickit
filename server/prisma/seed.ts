@@ -19,6 +19,40 @@ async function main() {
     });
   }
 
+  const relatedSystems = [
+    { name: 'Email' },
+    { name: 'Campus Wi-Fi' },
+    { name: 'VPN' },
+    { name: 'LEB2 App' },
+    { name: 'Grade Submission App' },
+    { name: 'Printer' },
+    { name: 'Corporate Laptop' },
+  ];
+
+  for (const system of relatedSystems) {
+    await prisma.relatedSystem.upsert({
+      where: { name: system.name },
+      update: {},
+      create: system,
+    });
+  }
+
+  const requesters = [
+    { name: 'Jennifer Anderson', email: 'jennifer.anderson@example.com', isActive: true },
+    { name: 'Michael Brown', email: 'michael.brown@example.com', isActive: true },
+    { name: 'Sarah Johnson', email: 'sarah.johnson@example.com', isActive: true },
+    { name: 'David Lee', email: 'david.lee@example.com', isActive: true },
+    { name: 'Inactive User', email: 'inactive.user@example.com', isActive: false },
+  ];
+
+  for (const req of requesters) {
+    await prisma.requesterUser.upsert({
+      where: { email: req.email },
+      update: { isActive: req.isActive, name: req.name },
+      create: req,
+    });
+  }
+
   console.log('Seeding completed successfully!');
 }
 
