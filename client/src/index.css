@@ -1,0 +1,57 @@
+:root {
+  --primary-green: #006B3C;
+  --secondary-green: #0B7A46;
+  --pale-green: #EAF6EF;
+  --page-background: #F5F7F6;
+  --text-dark: #1A2B22;
+  --error-red: #A31220;
+}
+
+body {
+  background-color: var(--page-background);
+  color: var(--text-dark);
+  font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+}
+
+/* Zen Green Component Overrides */
+.btn-primary {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--secondary-green) !important;
+  border-color: var(--secondary-green) !important;
+}
+
+.text-primary-green {
+  color: var(--primary-green);
+}
+
+.bg-pale-green {
+  background-color: var(--pale-green);
+}
+
+/* Card and Surface */
+.zen-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 107, 60, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+/* Forms */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--secondary-green);
+  box-shadow: 0 0 0 0.25rem rgba(11, 122, 70, 0.25);
+}
+
+.text-danger {
+  color: var(--error-red) !important;
+}
