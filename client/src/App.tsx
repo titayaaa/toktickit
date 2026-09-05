@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useRequester } from './contexts/RequesterContext';
+import DevelopmentRequesterSelection from './components/DevelopmentRequesterSelection';
 
 interface Category {
   id: number;
@@ -6,6 +8,8 @@ interface Category {
 }
 
 const App: React.FC = () => {
+  const { selectedRequester, setRequester } = useRequester();
+  
   const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -45,8 +49,25 @@ const App: React.FC = () => {
     }
   };
 
+  if (!selectedRequester) {
+    return <DevelopmentRequesterSelection />;
+  }
+
   return (
     <div className="container py-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <span className="text-muted me-2">Logged in as:</span>
+          <span className="fw-bold text-primary-green">{selectedRequester.name}</span>
+        </div>
+        <button 
+          className="btn btn-sm btn-outline-secondary" 
+          onClick={() => setRequester(null)}
+        >
+          Change Requester
+        </button>
+      </div>
+
       <div className="card shadow-sm border-0 mx-auto" style={{ maxWidth: '600px' }}>
         <div className="card-body p-4">
           <h1 className="h3 font-weight-bold text-success mb-4">TokTickIT IT Service Desk</h1>

@@ -1,14 +1,29 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
+import { RequesterProvider } from './contexts/RequesterContext';
 
 describe('TokTickIT UI Tests (Lab 1)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    
+    // Mock the localStorage or context so we bypass the login screen
+    // Since we wrapped App in RequesterProvider, we can just mock localStorage
+    localStorage.setItem('toktickit_dev_requester', JSON.stringify({
+      id: 1, name: 'Test User', email: 'test@example.com'
+    }));
+  });
+
+  afterEach(() => {
+    localStorage.removeItem('toktickit_dev_requester');
   });
 
   it('UI-01: TokTickIT heading renders', () => {
-    render(<App />);
+    render(
+      <RequesterProvider>
+        <App />
+      </RequesterProvider>
+    );
     expect(screen.getByRole('heading', { name: /TokTickIT IT Service Desk/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Check System/i })).toBeInTheDocument();
   });
@@ -37,7 +52,11 @@ describe('TokTickIT UI Tests (Lab 1)', () => {
       return Promise.reject(new Error('Unknown URL'));
     });
 
-    render(<App />);
+    render(
+      <RequesterProvider>
+        <App />
+      </RequesterProvider>
+    );
     const checkBtn = screen.getByRole('button', { name: /Check System/i });
     fireEvent.click(checkBtn);
 
@@ -57,7 +76,11 @@ describe('TokTickIT UI Tests (Lab 1)', () => {
       Promise.reject(new Error('Network error'))
     );
 
-    render(<App />);
+    render(
+      <RequesterProvider>
+        <App />
+      </RequesterProvider>
+    );
     const checkBtn = screen.getByRole('button', { name: /Check System/i });
     fireEvent.click(checkBtn);
 
