@@ -15,8 +15,12 @@ const RequesterContext = createContext<RequesterContextType | undefined>(undefin
 
 export const RequesterProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [selectedRequester, setSelectedRequester] = useState<RequesterUser | null>(() => {
-    const saved = localStorage.getItem('toktickit_dev_requester');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('toktickit_dev_requester');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
   useEffect(() => {

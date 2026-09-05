@@ -57,7 +57,7 @@ const App: React.FC = () => {
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <span className="text-muted me-2">Logged in as:</span>
+          <span className="text-muted me-2">Current Requester:</span>
           <span className="fw-bold text-primary-green">{selectedRequester.name}</span>
         </div>
         <button 

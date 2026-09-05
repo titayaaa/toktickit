@@ -13,8 +13,10 @@ describe('GET /api/requesters', () => {
     // Based on our seed data, we should have active requesters
     expect(response.body.length).toBeGreaterThan(0);
     
-    // It should not return inactive requesters
-    const hasInactive = response.body.some((r: any) => r.isActive === false);
-    expect(hasInactive).toBe(false);
+    // It should not return inactive requesters (BR-07)
+    // The endpoint only returns id, name, and email. It does not return isActive.
+    // So we verify that the known inactive user ("inactive.user@example.com") from our seed is NOT in the list.
+    const inactiveUserEmails = response.body.map((r: any) => r.email);
+    expect(inactiveUserEmails).not.toContain('inactive.user@example.com');
   });
 });

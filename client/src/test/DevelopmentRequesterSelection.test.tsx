@@ -59,4 +59,24 @@ describe('DevelopmentRequesterSelection', () => {
       expect(screen.getByText(/Unable to load requesters/i)).toBeInTheDocument();
     });
   });
+
+  it('renders empty state when no requesters are found', async () => {
+    (global.fetch as any).mockResolvedValue({
+      ok: true,
+      json: async () => [], // Empty array
+    });
+
+    render(
+      <RequesterProvider>
+        <DevelopmentRequesterSelection />
+      </RequesterProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/No active requesters found in the database/i)).toBeInTheDocument();
+    });
+    
+    // Continue button should not be present or should be disabled since there is no selector
+    expect(screen.queryByRole('button', { name: /Continue/i })).not.toBeInTheDocument();
+  });
 });

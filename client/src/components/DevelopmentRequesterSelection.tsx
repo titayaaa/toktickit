@@ -100,13 +100,6 @@ const DevelopmentRequesterSelection: React.FC = () => {
             <div className="d-flex justify-content-end mt-4">
               <button 
                 type="button" 
-                className="btn btn-outline-secondary me-2" 
-                disabled
-              >
-                Cancel
-              </button>
-              <button 
-                type="button" 
                 className="btn btn-primary px-4" 
                 onClick={handleContinue}
                 disabled={!selectedId}

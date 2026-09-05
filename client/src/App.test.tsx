@@ -90,4 +90,37 @@ describe('TokTickIT UI Tests (Lab 1)', () => {
 
     expect(screen.getByText('Unable to connect to TokTickIT API')).toBeInTheDocument();
   });
+
+  it('UI-04: Renders Requester Selection when no requester is selected', async () => {
+    // Clear the localStorage for this specific test
+    localStorage.removeItem('toktickit_dev_requester');
+    
+    // Mock fetch for the requesters API
+    const mockRequesters = [
+      { id: 1, name: 'John Doe', email: 'john@example.com', isActive: true },
+    ];
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (url === '/api/requesters') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockRequesters),
+        } as Response);
+      }
+      return Promise.reject(new Error('Unknown URL'));
+    });
+
+    render(
+      <RequesterProvider>
+        <App />
+      </RequesterProvider>
+    );
+
+    // Should see the selection screen
+    await waitFor(() => {
+      expect(screen.getByText(/Select Development Requester/i)).toBeInTheDocument();
+    });
+    
+    // Should NOT see the main app UI
+    expect(screen.queryByRole('heading', { name: /TokTickIT IT Service Desk/i })).not.toBeInTheDocument();
+  });
 });
