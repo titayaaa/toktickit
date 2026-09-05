@@ -12,13 +12,16 @@ Coverage will include:
 
 | Test ID | Type | Requirement / AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
+| UNIT-01 | Unit | BR-01 | Ticket number generator format | Generated string matches TKT-YYYY-XXXXXX | `server/tests/lab-02/ticket-number.test.ts` | TBD |
 | API-01 | API | AC-01 | Create valid ticket | 201; one saved Ticket; number returned | `server/tests/lab-02/create-ticket.api.test.ts` | TBD |
 | API-02 | API | AC-03 | Prevent cross-requester access | 403 Forbidden | `server/tests/lab-02/ticket-detail.api.test.ts` | TBD |
 | API-03 | API | AC-04 | Reject >5MB attachment | 400 Bad Request; message | `server/tests/lab-02/attachments.api.test.ts` | TBD |
 | UI-01 | UI | AC-02 | No Requester selected on My Tickets | Redirect to Selector screen | `client/.../lab-02 tests/MyTickets.test.tsx` | TBD |
 | UI-02 | UI | AC-01 | Submit without Summary | Field error message; API not called | `client/.../lab-02 tests/CreateTicket.test.tsx` | TBD |
 | UI-03 | UI | AC-06 | Soft-remove attachment with reason | File disappears from active list; marked removed | `client/.../lab-02 tests/AttachmentSection.test.tsx` | TBD |
+| UI-04 | UI | AC-07 | Switch Development Requester context | Only tickets owned by new requester are shown | `client/.../lab-02 tests/RequesterContext.test.tsx` | TBD |
 | E2E-01 | E2E | AC-01, AC-05 | Complete responsive submission flow | Confirmation shows official number | `e2e/lab-02/requester-ticket-flow.spec.ts` | TBD |
+| E2E-02 | E2E | UI Specs | Responsive layout visual test (Playwright screenshot) | Snapshots match expected layout | `e2e/lab-02/visual-regression.spec.ts` | TBD |
 
 ## 3. Acceptance-Criterion Traceability
 

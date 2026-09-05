@@ -21,6 +21,9 @@
 - **Read-only field**: Soft gray-green or warm ivory shading that is distinct from editable fields but remains readable.
 - **Required fields**: Marked with a red asterisk `*`. This asterisk does not replace validation text.
 - **Validation Messages**: Must appear immediately below the associated field (Dark red text).
+- **Badges**: Must use consistent coloring for Priority and Status across the app.
+  - Priority: LOW (Gray/Blue), MEDIUM (Green), HIGH (Orange/Amber), CRITICAL (Red).
+  - Status: NEW (Blue), IN_PROGRESS (Amber), RESOLVED (Green), CLOSED (Gray).
 - **Buttons**:
   - Primary: Solid Primary green background, white text.
   - Secondary: Outline style or lighter background.
@@ -30,6 +33,11 @@
 - **Keyboard accessibility**: Focus indicators must remain visible.
 
 ## 4. Screen Layouts
+
+### 4.0 App Shell & Navigation
+- **Header**: Must display the app name ("TokTickIT") and main navigation links (e.g., "Create Ticket", "My Tickets").
+- **Active Page**: The current page must be visually highlighted in the navigation menu.
+- **Requester Identity**: The currently selected Development Requester's name must be clearly displayed in the header or top corner.
 
 ### 4.1 Development Requester Selection Screen
 - **Elements**: TokTickIT title, short explanation text, Dropdown of active Requesters, "Continue" button.

@@ -40,6 +40,9 @@ The IT department needs a professional end-user ticketing interface. Requesters 
 - **BR-06**: Required fields for Create Ticket include Summary (1-200 chars), Description (1-2000 chars), Category, Related System, and Requested Priority.
 - **BR-07**: Inactive Requesters must not appear in the Development Requester selector.
 - **BR-08**: A Ticket must be strictly owned by the currently selected Requester.
+- **BR-09**: The system must implement duplicate-submission prevention on the Create Ticket form (e.g., disabling the submit button while processing).
+- **BR-10**: If ticket submission fails, the data entered in the form must be retained so the user does not have to re-enter it.
+- **BR-11**: The UI must distinguish between an "empty state" (the user has never created any tickets) and a "no-results state" (the user's search/filter criteria yielded no tickets).
 
 ## 6. UI Specification Summary
 The UI follows the "Zen Green Theme" detailed in `ui-spec.md`.

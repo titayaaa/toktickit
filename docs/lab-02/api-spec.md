@@ -50,6 +50,7 @@
   - `categoryId`, `status`, `priority`: filters
   - `page`, `limit`: pagination (default page=1, limit=10)
   - `sortBy`, `sortDir`: sorting
+- **Validation**: If query parameters are invalid (e.g., invalid status enum, negative page number), return `400 Bad Request` with error details.
 - **Response**: `200 OK`
 - **Body**:
   ```json
@@ -71,7 +72,7 @@
 ### 3.1 Upload Attachment
 `POST /api/tickets/:id/attachments`
 - **Content-Type**: `multipart/form-data`
-- **Validation**: Max 5 active attachments per ticket. Max 5MB per file. Allowed types: JPG, PNG, WEBP, PDF.
+- **Validation**: Max 5 active attachments per ticket. Max 5MB per file (return `413 Payload Too Large` if exceeded). Allowed types: JPG, PNG, WEBP, PDF (return `415 Unsupported Media Type` or `400` if invalid).
 - **Security**: Must own the ticket.
 - **Response**: `201 Created`
 - **Body**: Created Attachment metadata.
