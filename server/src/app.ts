@@ -100,49 +100,67 @@ app.post('/api/tickets', async (req: Request, res: Response): Promise<void> => {
     }
 
     const category = await prisma.category.findUnique({ where: { id: categoryId } });
-    if (!category) {
-      res.status(400).json({ error: 'Category not found' });
+    if (!category || !category.isActive) {
+      res.status(400).json({ error: 'Category not found or inactive' });
       return;
     }
 
     const relatedSystem = await prisma.relatedSystem.findUnique({ where: { id: relatedSystemId } });
-    if (!relatedSystem) {
-      res.status(400).json({ error: 'Related System not found' });
+    if (!relatedSystem || !relatedSystem.isActive) {
+      res.status(400).json({ error: 'Related System not found or inactive' });
       return;
     }
 
     const currentYear = new Date().getFullYear();
     const prefix = `TKT-${currentYear}-`;
     
-    // Find the latest ticket for the current year
-    const latestTicket = await prisma.ticket.findFirst({
-      where: { ticketNumber: { startsWith: prefix } },
-      orderBy: { ticketNumber: 'desc' },
-    });
+    let newTicket = null;
+    let retries = 0;
+    const MAX_RETRIES = 3;
 
-    let nextNumber = 1;
-    if (latestTicket) {
-      const lastNumStr = latestTicket.ticketNumber.replace(prefix, '');
-      const parsedNum = parseInt(lastNumStr, 10);
-      if (!isNaN(parsedNum)) {
-        nextNumber = parsedNum + 1;
+    while (retries < MAX_RETRIES && !newTicket) {
+      try {
+        // Find the latest ticket for the current year
+        const latestTicket = await prisma.ticket.findFirst({
+          where: { ticketNumber: { startsWith: prefix } },
+          orderBy: { ticketNumber: 'desc' },
+        });
+
+        let nextNumber = 1;
+        if (latestTicket) {
+          const lastNumStr = latestTicket.ticketNumber.replace(prefix, '');
+          const parsedNum = parseInt(lastNumStr, 10);
+          if (!isNaN(parsedNum)) {
+            nextNumber = parsedNum + 1;
+          }
+        }
+
+        const ticketNumber = `${prefix}${String(nextNumber).padStart(6, '0')}`;
+
+        newTicket = await prisma.ticket.create({
+          data: {
+            ticketNumber,
+            requesterId,
+            categoryId,
+            relatedSystemId,
+            summary,
+            description,
+            requestedPriority,
+            currentStatus: 'NEW',
+          },
+        });
+      } catch (err: any) {
+        if (err.code === 'P2002') {
+          retries++;
+          if (retries >= MAX_RETRIES) {
+            res.status(500).json({ error: 'System is busy, please try again' });
+            return;
+          }
+        } else {
+          throw err;
+        }
       }
     }
-
-    const ticketNumber = `${prefix}${String(nextNumber).padStart(6, '0')}`;
-
-    const newTicket = await prisma.ticket.create({
-      data: {
-        ticketNumber,
-        requesterId,
-        categoryId,
-        relatedSystemId,
-        summary,
-        description,
-        requestedPriority,
-        currentStatus: 'NEW',
-      },
-    });
 
     res.status(201).json(newTicket);
   } catch (error) {
