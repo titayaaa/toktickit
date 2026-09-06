@@ -184,8 +184,7 @@ describe('API-04: Create Ticket Endpoint', () => {
     const inactiveSystem = await prisma.relatedSystem.findFirst({ where: { isActive: false } });
 
     if (!inactiveCategory || !inactiveSystem) {
-      console.warn('Skipping inactive category/system test because seed data is missing');
-      return;
+      expect.fail('Missing inactive category or inactive related system in seed data for testing');
     }
 
     const payloadInactiveCategory = {
