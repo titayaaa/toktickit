@@ -198,6 +198,28 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
     const descList = resDesc.body.data;
     expect(descList[0].ticketNumber).toBe(`${TEST_TICKET_PREFIX}000003`);
     expect(descList[2].ticketNumber).toBe(`${TEST_TICKET_PREFIX}000001`);
+
+    // Sort by requestedPriority desc (must order by severity: CRITICAL > HIGH > LOW)
+    const resPrioDesc = await request(app)
+      .get(`/api/tickets?search=${TEST_TICKET_PREFIX}&sortBy=requestedPriority&sortDir=desc`)
+      .set('Authorization', `Bearer dev_requester_${ownerId}`);
+
+    expect(resPrioDesc.status).toBe(200);
+    const prioList = resPrioDesc.body.data;
+    expect(prioList[0].requestedPriority).toBe('CRITICAL');
+    expect(prioList[1].requestedPriority).toBe('HIGH');
+    expect(prioList[2].requestedPriority).toBe('LOW');
+
+    // Sort by requestedPriority asc (LOW < HIGH < CRITICAL)
+    const resPrioAsc = await request(app)
+      .get(`/api/tickets?search=${TEST_TICKET_PREFIX}&sortBy=requestedPriority&sortDir=asc`)
+      .set('Authorization', `Bearer dev_requester_${ownerId}`);
+
+    expect(resPrioAsc.status).toBe(200);
+    const prioAscList = resPrioAsc.body.data;
+    expect(prioAscList[0].requestedPriority).toBe('LOW');
+    expect(prioAscList[1].requestedPriority).toBe('HIGH');
+    expect(prioAscList[2].requestedPriority).toBe('CRITICAL');
   });
 
   it('API-10: Pagination with page and limit and meta fields', async () => {

@@ -207,6 +207,39 @@ describe('MyTickets Component (Issue 13 UI Tests)', () => {
     });
   });
 
+  it('UI-04: Sorts by Priority and ensures Critical appears before Low', async () => {
+    const unorderedTickets = [
+      { ...mockTickets[1], requestedPriority: 'LOW' },
+      { ...mockTickets[0], requestedPriority: 'CRITICAL' },
+    ];
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        tickets: unorderedTickets,
+        meta: { totalCount: 2, page: 1, limit: 10, totalPages: 1 },
+      }),
+    } as Response);
+
+    render(
+      <RequesterProvider>
+        <MyTickets categories={mockCategories} onNavigateToCreate={onNavigateToCreate} />
+      </RequesterProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText('TKT-2026-000001')[0]).toBeInTheDocument();
+    });
+
+    const sortSelect = screen.getByRole('combobox', { name: /sort tickets/i });
+    fireEvent.change(sortSelect, { target: { value: 'requestedPriority_desc' } });
+
+    await waitFor(() => {
+      const badges = screen.getAllByText(/CRITICAL|LOW/);
+      expect(badges[0].textContent).toBe('CRITICAL');
+    });
+  });
+
   it('UI-04: Handles pagination controls and disables Prev/Next at boundaries', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,

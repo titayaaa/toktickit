@@ -95,8 +95,23 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate })
       }
 
       const data = await res.json();
-      const ticketList = data.data || data.tickets || [];
+      const ticketList: TicketItem[] = [...(data.data || data.tickets || [])];
       const meta = data.meta || {};
+
+      // Ensure priority sort strictly orders by severity (CRITICAL > HIGH > MEDIUM > LOW)
+      if (sortBy === 'requestedPriority' || sortBy === 'priority') {
+        const PRIORITY_ORDER: Record<string, number> = {
+          CRITICAL: 4,
+          HIGH: 3,
+          MEDIUM: 2,
+          LOW: 1,
+        };
+        ticketList.sort((a, b) => {
+          const weightA = PRIORITY_ORDER[a.requestedPriority?.toUpperCase()] ?? 0;
+          const weightB = PRIORITY_ORDER[b.requestedPriority?.toUpperCase()] ?? 0;
+          return sortDir === 'asc' ? weightA - weightB : weightB - weightA;
+        });
+      }
 
       setTickets(ticketList);
       setTotalPages(meta.totalPages || 1);
@@ -317,7 +332,8 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate })
                 <option value="createdAt_asc">Oldest First</option>
                 <option value="ticketNumber_asc">Ticket No (A-Z)</option>
                 <option value="ticketNumber_desc">Ticket No (Z-A)</option>
-                <option value="requestedPriority_desc">Priority</option>
+                <option value="requestedPriority_desc">Priority (High to Low)</option>
+                <option value="requestedPriority_asc">Priority (Low to High)</option>
                 <option value="currentStatus_asc">Status</option>
               </select>
             </div>
