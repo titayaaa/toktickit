@@ -333,21 +333,51 @@ app.get('/api/tickets', async (req: Request, res: Response): Promise<void> => {
       orderBy['createdAt'] = 'desc';
     }
 
-    // Query count & records
-    const [totalCount, tickets] = await Promise.all([
-      prisma.ticket.count({ where }),
-      prisma.ticket.findMany({
+    const PRIORITY_ORDER: Record<string, number> = {
+      CRITICAL: 4,
+      HIGH: 3,
+      MEDIUM: 2,
+      LOW: 1,
+    };
+
+    const isPrioritySort = sortField === 'requestedPriority' || sortField === 'priority';
+    let tickets: any[];
+    let totalCount: number;
+
+    if (isPrioritySort) {
+      const allMatching = await prisma.ticket.findMany({
         where,
-        orderBy,
-        skip: (pageNum - 1) * limitNum,
-        take: limitNum,
         include: {
           category: { select: { id: true, name: true } },
           relatedSystem: { select: { id: true, name: true } },
           attachments: { select: { id: true, originalFilename: true, sizeBytes: true, removedAt: true } },
         },
-      }),
-    ]);
+      });
+
+      totalCount = allMatching.length;
+      allMatching.sort((a, b) => {
+        const weightA = PRIORITY_ORDER[a.requestedPriority] ?? 0;
+        const weightB = PRIORITY_ORDER[b.requestedPriority] ?? 0;
+        return dir === 'asc' ? weightA - weightB : weightB - weightA;
+      });
+
+      tickets = allMatching.slice((pageNum - 1) * limitNum, pageNum * limitNum);
+    } else {
+      [totalCount, tickets] = await Promise.all([
+        prisma.ticket.count({ where }),
+        prisma.ticket.findMany({
+          where,
+          orderBy,
+          skip: (pageNum - 1) * limitNum,
+          take: limitNum,
+          include: {
+            category: { select: { id: true, name: true } },
+            relatedSystem: { select: { id: true, name: true } },
+            attachments: { select: { id: true, originalFilename: true, sizeBytes: true, removedAt: true } },
+          },
+        }),
+      ]);
+    }
 
     const totalPages = Math.ceil(totalCount / limitNum);
 
