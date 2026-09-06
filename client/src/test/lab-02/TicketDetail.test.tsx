@@ -167,4 +167,43 @@ describe('TicketDetail Component (Issue 14 UI Tests)', () => {
 
     expect(onBackMock).toHaveBeenCalledTimes(1);
   });
+
+  it('UI-05: Renders generic error state on network/server error and supports Retry', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: async () => ({ error: 'Internal server error' }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockTicketData,
+      } as Response);
+
+    render(
+      <RequesterProvider>
+        <TicketDetail ticketId={42} onBack={onBackMock} />
+      </RequesterProvider>
+    );
+
+    // Shows generic error state
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-detail-error')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Unable to Load Ticket')).toBeInTheDocument();
+    expect(screen.getByText('Internal server error')).toBeInTheDocument();
+
+    // Clicking Retry attempts fetch again and loads detail
+    const retryBtn = screen.getByRole('button', { name: /Retry/i });
+    fireEvent.click(retryBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-detail-view')).toBeInTheDocument();
+    });
+
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(screen.getByText('TKT-2026-000042')).toBeInTheDocument();
+  });
 });
