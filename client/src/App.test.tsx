@@ -1,14 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 import { RequesterProvider } from './contexts/RequesterContext';
 
-describe('TokTickIT UI Tests (Lab 1)', () => {
+describe('TokTickIT UI Tests (Lab 1 & 2)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     
     // Mock the localStorage or context so we bypass the login screen
-    // Since we wrapped App in RequesterProvider, we can just mock localStorage
     localStorage.setItem('toktickit_dev_requester', JSON.stringify({
       id: 1, name: 'Test User', email: 'test@example.com'
     }));
@@ -18,35 +17,21 @@ describe('TokTickIT UI Tests (Lab 1)', () => {
     localStorage.removeItem('toktickit_dev_requester');
   });
 
-  it('UI-01: TokTickIT heading renders', () => {
-    render(
-      <RequesterProvider>
-        <App />
-      </RequesterProvider>
-    );
-    expect(screen.getByRole('heading', { name: /TokTickIT IT Service Desk/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Check System/i })).toBeInTheDocument();
-  });
-
-  it('UI-02: Loading state changes to category list', async () => {
-    const mockCategories = [
-      { id: 1, name: 'Account and Access' },
-      { id: 2, name: 'Hardware' },
-      { id: 3, name: 'Software' },
-      { id: 4, name: 'Network' },
-    ];
+  it('UI-01: TokTickIT heading renders and fetches reference data on mount', async () => {
+    const mockCategories = [{ id: 1, name: 'Account and Access' }];
+    const mockSystems = [{ id: 1, name: 'Campus Wi-Fi' }];
 
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
-      if (url === '/api/health') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ status: 'ok', service: 'TokTickIT API' }),
-        } as Response);
-      }
       if (url === '/api/categories') {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockCategories),
+        } as Response);
+      }
+      if (url === '/api/related-systems') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockSystems),
         } as Response);
       }
       return Promise.reject(new Error('Unknown URL'));
@@ -57,21 +42,16 @@ describe('TokTickIT UI Tests (Lab 1)', () => {
         <App />
       </RequesterProvider>
     );
-    const checkBtn = screen.getByRole('button', { name: /Check System/i });
-    fireEvent.click(checkBtn);
-
+    
+    expect(screen.getByRole('heading', { name: /TokTickIT IT Service Desk/i })).toBeInTheDocument();
+    
+    // Wait for the loading to finish and form to appear
     await waitFor(() => {
-      expect(screen.getByText(/System Status:/i)).toBeInTheDocument();
-      expect(screen.getByText('Online')).toBeInTheDocument();
+      expect(screen.getByText(/Create New Ticket/i)).toBeInTheDocument();
     });
-
-    expect(screen.getByText('Account and Access')).toBeInTheDocument();
-    expect(screen.getByText('Hardware')).toBeInTheDocument();
-    expect(screen.getByText('Software')).toBeInTheDocument();
-    expect(screen.getByText('Network')).toBeInTheDocument();
   });
 
-  it('UI-03: API failure displays a useful error message', async () => {
+  it('UI-03: API failure displays a useful error message when fetching reference data', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
       Promise.reject(new Error('Network error'))
     );
@@ -81,14 +61,10 @@ describe('TokTickIT UI Tests (Lab 1)', () => {
         <App />
       </RequesterProvider>
     );
-    const checkBtn = screen.getByRole('button', { name: /Check System/i });
-    fireEvent.click(checkBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('Offline')).toBeInTheDocument();
+      expect(screen.getByText('Unable to connect to TokTickIT API')).toBeInTheDocument();
     });
-
-    expect(screen.getByText('Unable to connect to TokTickIT API')).toBeInTheDocument();
   });
 
   it('UI-04: Renders Requester Selection when no requester is selected', async () => {
