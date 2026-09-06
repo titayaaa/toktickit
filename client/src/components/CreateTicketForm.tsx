@@ -107,7 +107,11 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({
       setRequestedPriority('LOW');
       setErrors({});
     } catch (err: any) {
-      setGlobalError(err.message || 'An unexpected error occurred');
+      if (err.name === 'TypeError' || err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+        setGlobalError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        setGlobalError(err.message || 'An unexpected error occurred. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }
