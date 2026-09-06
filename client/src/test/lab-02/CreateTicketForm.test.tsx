@@ -102,4 +102,45 @@ describe('CreateTicketForm (Issue 10 UI tests)', () => {
       })
     }));
   });
+
+  it('UI-04: Displays error alert and preserves form values when API fails', async () => {
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Server error occurred while creating ticket' })
+    });
+
+    render(<CreateTicketForm categories={mockCategories} relatedSystems={mockSystems} />);
+
+    // Fill form
+    await userEvent.type(screen.getByLabelText(/Summary/i), '  Test Summary  ');
+    await userEvent.type(screen.getByLabelText(/Description/i), '  Test Description  ');
+    await userEvent.selectOptions(screen.getByLabelText(/Category/i), '1');
+    await userEvent.selectOptions(screen.getByLabelText(/Related System/i), '2');
+
+    const submitButton = screen.getByRole('button', { name: /Submit Ticket/i });
+    await userEvent.click(submitButton);
+
+    // Check error alert
+    await waitFor(() => {
+      expect(screen.getByText('Server error occurred while creating ticket')).toBeInTheDocument();
+    });
+
+    // Form inputs should still retain their values
+    expect(screen.getByLabelText(/Summary/i)).toHaveValue('  Test Summary  ');
+    expect(screen.getByLabelText(/Description/i)).toHaveValue('  Test Description  ');
+    expect(screen.getByLabelText(/Category/i)).toHaveValue('1');
+    expect(screen.getByLabelText(/Related System/i)).toHaveValue('2');
+
+    // Also verify summary and description were trimmed when payload was sent
+    expect(global.fetch).toHaveBeenCalledWith('/api/tickets', expect.objectContaining({
+      body: JSON.stringify({
+        summary: 'Test Summary',
+        description: 'Test Description',
+        categoryId: 1,
+        relatedSystemId: 2,
+        requestedPriority: 'LOW'
+      })
+    }));
+  });
 });
+

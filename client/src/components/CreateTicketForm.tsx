@@ -79,8 +79,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ categories, related
           'Authorization': `Bearer dev_requester_${selectedRequester.id}`
         },
         body: JSON.stringify({
-          summary,
-          description,
+          summary: summary.trim(),
+          description: description.trim(),
           categoryId,
           relatedSystemId,
           requestedPriority
