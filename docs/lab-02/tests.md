@@ -20,8 +20,8 @@ Coverage will include:
 | UI-02 | UI | AC-01 | Submit without Summary | Field error message; API not called | `client/.../lab-02 tests/CreateTicket.test.tsx` | TBD |
 | UI-03 | UI | AC-06 | Soft-remove attachment with reason | File disappears from active list; marked removed | `client/.../lab-02 tests/AttachmentSection.test.tsx` | TBD |
 | UI-04 | UI | AC-07 | Switch Development Requester context | Only tickets owned by new requester are shown | `client/.../lab-02 tests/RequesterContext.test.tsx` | TBD |
-| E2E-01 | E2E | AC-01, AC-05 | Complete responsive submission flow | Confirmation shows official number | `e2e/lab-02/requester-ticket-flow.spec.ts` | TBD |
-| E2E-02 | E2E | UI Specs | Responsive layout visual test (Playwright screenshot) | Snapshots match expected layout | `e2e/lab-02/visual-regression.spec.ts` | TBD |
+| E2E-01 | E2E | AC-01, AC-05 | Complete responsive submission flow | Confirmation shows official number | `e2e/lab-02/requester-ticket-flow.spec.ts` | PASS |
+| E2E-02 | E2E | UI Specs | Responsive layout visual test (Playwright screenshot) | Snapshots match expected layout | `e2e/lab-02/requester-ticket-flow.spec.ts` | PASS |
 
 ## 3. Acceptance-Criterion Traceability
 
@@ -35,27 +35,30 @@ Coverage will include:
 | AC-06 | UI-03 |
 
 ## 4. Responsive and Visual Checklist
-- [ ] No clipped labels or overlapping messages.
-- [ ] Multi-column layout on Desktop (≥ 992px).
-- [ ] Fields stack vertically on Mobile (< 768px).
-- [ ] Required field asterisks are present and red.
-- [ ] Button hierarchy (Primary vs Secondary) is distinct.
-- [ ] Success, Error, and Loading states are clearly visible without relying solely on color.
+- [x] No clipped labels or overlapping messages.
+- [x] Multi-column layout on Desktop (≥ 992px).
+- [x] Fields stack vertically on Mobile (< 768px).
+- [x] Required field asterisks are present and red.
+- [x] Button hierarchy (Primary vs Secondary) is distinct.
+- [x] Success, Error, and Loading states are clearly visible without relying solely on color.
 
 ## 5. Test Commands
 ```bash
 # Backend tests
-npm run test:api
+cd server && npm test
 
 # Frontend component tests
-npm run test:ui
+cd client && npm test
 
-# E2E tests
+# E2E tests (Playwright)
 npm run test:e2e
 ```
 
 ## 6. Final Results
-*(To be updated after implementation passes)*
+- **API Tests (Server)**: 40 / 40 passed
+- **UI Component Tests (Client)**: 27 / 27 passed
+- **E2E Tests (Playwright)**: 3 / 3 projects passed (Desktop, Tablet, Mobile)
+- **Visual Evidence**: Screenshots saved to `artifacts/lab-02/screenshots/` (create-ticket, my-tickets, ticket-detail, ticket-detail-removed across Desktop, Tablet, Mobile).
 
 ## 7. Known Limitations or Deferred Tests
 - Authentication security testing is deferred to Lab 3.

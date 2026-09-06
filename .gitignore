@@ -8,4 +8,6 @@ build/
 coverage/
 server/uploads/
 uploads/
+test-results/
+playwright-report/
 

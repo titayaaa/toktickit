@@ -158,7 +158,7 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
 
   it('Filters by multiple parameters simultaneously (category + status + priority)', async () => {
     const res = await request(app)
-      .get(`/api/tickets?categoryId=${category1Id}&status=NEW&priority=HIGH`)
+      .get(`/api/tickets?categoryId=${category1Id}&status=NEW&priority=HIGH&limit=50`)
       .set('Authorization', `Bearer dev_requester_${ownerId}`);
 
     expect(res.status).toBe(200);
