@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import App from './App';
 import { RequesterProvider } from './contexts/RequesterContext';
 
@@ -98,5 +98,53 @@ describe('TokTickIT UI Tests (Lab 1 & 2)', () => {
     
     // Should NOT see the main app UI
     expect(screen.queryByRole('heading', { name: /TokTickIT IT Service Desk/i })).not.toBeInTheDocument();
+  });
+
+  it('UI-05: Switches between Create Ticket and My Tickets navigation tabs', async () => {
+    const mockCategories = [{ id: 1, name: 'Account and Access' }];
+    const mockSystems = [{ id: 1, name: 'Campus Wi-Fi' }];
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const urlStr = url.toString();
+      if (urlStr.includes('/api/categories')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(mockCategories) } as Response);
+      }
+      if (urlStr.includes('/api/related-systems')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(mockSystems) } as Response);
+      }
+      if (urlStr.includes('/api/tickets')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ tickets: [], meta: { totalCount: 0 } }),
+        } as Response);
+      }
+      return Promise.reject(new Error('Unknown URL'));
+    });
+
+    render(
+      <RequesterProvider>
+        <App />
+      </RequesterProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Create New Ticket/i)).toBeInTheDocument();
+    });
+
+    // Switch to My Tickets tab
+    const myTicketsTab = screen.getByRole('button', { name: /My Tickets tab/i });
+    fireEvent.click(myTicketsTab);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /My Tickets/i })).toBeInTheDocument();
+    });
+
+    // Switch back to Create Ticket tab
+    const createTicketTab = screen.getByRole('button', { name: /Create Ticket tab/i });
+    fireEvent.click(createTicketTab);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Create New Ticket/i)).toBeInTheDocument();
+    });
   });
 });

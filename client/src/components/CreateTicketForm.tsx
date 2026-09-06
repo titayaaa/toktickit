@@ -15,12 +15,14 @@ interface CreateTicketFormProps {
   categories: Category[];
   relatedSystems: RelatedSystem[];
   isLoadingReferenceData?: boolean;
+  onNavigateToMyTickets?: () => void;
 }
 
 const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ 
   categories, 
   relatedSystems, 
-  isLoadingReferenceData = false 
+  isLoadingReferenceData = false,
+  onNavigateToMyTickets
 }) => {
   const { selectedRequester } = useRequester();
   
@@ -123,8 +125,19 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({
         <h2 className="h4 text-success font-weight-bold mb-4">Create New Ticket</h2>
         
         {successTicketNumber && (
-          <div className="alert alert-success" role="alert">
-            Ticket successfully created! Ticket Number: <strong>{successTicketNumber}</strong>
+          <div className="alert alert-success d-flex flex-wrap justify-content-between align-items-center" role="alert">
+            <div>
+              Ticket successfully created! Ticket Number: <strong>{successTicketNumber}</strong>
+            </div>
+            {onNavigateToMyTickets && (
+              <button 
+                type="button" 
+                className="btn btn-sm btn-outline-success mt-2 mt-sm-0"
+                onClick={onNavigateToMyTickets}
+              >
+                View in My Tickets &rarr;
+              </button>
+            )}
           </div>
         )}
 
