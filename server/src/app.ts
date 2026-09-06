@@ -239,6 +239,155 @@ app.post('/api/tickets', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// GET /api/tickets (Issue 12 - My Tickets API)
+app.get('/api/tickets', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const requesterId = extractRequesterId(req);
+    if (!requesterId) {
+      res.status(401).json({ error: 'Unauthorized: Missing or invalid mock token' });
+      return;
+    }
+
+    const {
+      search,
+      category,
+      categoryId,
+      status,
+      priority,
+      page = '1',
+      limit = '10',
+      sortBy = 'createdAt',
+      sort,
+      sortDir = 'desc',
+      order,
+    } = req.query;
+
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = parseInt(limit as string, 10);
+
+    if (isNaN(pageNum) || pageNum < 1 || isNaN(limitNum) || limitNum < 1) {
+      res.status(400).json({ error: 'Invalid page or limit parameter' });
+      return;
+    }
+
+    // Build Prisma where filter (Enforce Ownership: only own tickets)
+    const where: any = {
+      requesterId,
+    };
+
+    // Category filter (supports either category or categoryId)
+    const catFilter = category || categoryId;
+    if (catFilter) {
+      const parsedCatId = parseInt(catFilter as string, 10);
+      if (!isNaN(parsedCatId)) {
+        where.categoryId = parsedCatId;
+      }
+    }
+
+    // Status filter
+    if (status && typeof status === 'string' && status.trim() !== '') {
+      const validStatuses = ['NEW', 'OPEN', 'IN_PROGRESS', 'PENDING', 'RESOLVED', 'CLOSED', 'CANCELLED'];
+      // Map friendly UI wording if needed
+      const normalizedStatus = status.trim().toUpperCase().replace(/\s+/g, '_');
+      if (validStatuses.includes(normalizedStatus)) {
+        where.currentStatus = normalizedStatus;
+      } else {
+        res.status(400).json({ error: `Invalid status parameter: ${status}` });
+        return;
+      }
+    }
+
+    // Priority filter
+    if (priority && typeof priority === 'string' && priority.trim() !== '') {
+      const validPriorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+      const normalizedPriority = priority.trim().toUpperCase();
+      if (validPriorities.includes(normalizedPriority)) {
+        where.requestedPriority = normalizedPriority;
+      } else {
+        res.status(400).json({ error: `Invalid priority parameter: ${priority}` });
+        return;
+      }
+    }
+
+    // Search filter (ticketNumber or summary case-insensitive)
+    if (search && typeof search === 'string' && search.trim() !== '') {
+      const queryStr = search.trim();
+      where.OR = [
+        { ticketNumber: { contains: queryStr, mode: 'insensitive' } },
+        { summary: { contains: queryStr, mode: 'insensitive' } },
+      ];
+    }
+
+    // Sorting
+    const sortField = (sort as string) || (sortBy as string) || 'createdAt';
+    const sortDirection = ((order as string) || (sortDir as string) || 'desc').toLowerCase();
+    const validSortDirections = ['asc', 'desc'];
+    const dir = validSortDirections.includes(sortDirection) ? sortDirection : 'desc';
+
+    const orderBy: any = {};
+    if (['ticketNumber', 'summary', 'requestedPriority', 'currentStatus', 'createdAt', 'updatedAt'].includes(sortField)) {
+      orderBy[sortField] = dir;
+    } else {
+      orderBy['createdAt'] = 'desc';
+    }
+
+    // Query count & records
+    const [totalCount, tickets] = await Promise.all([
+      prisma.ticket.count({ where }),
+      prisma.ticket.findMany({
+        where,
+        orderBy,
+        skip: (pageNum - 1) * limitNum,
+        take: limitNum,
+        include: {
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+          attachments: { select: { id: true, originalFilename: true, sizeBytes: true, removedAt: true } },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limitNum);
+
+    // Format items to support both data/tickets properties
+    const formattedTickets = tickets.map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      summary: t.summary,
+      description: t.description,
+      requestedPriority: t.requestedPriority,
+      itPriority: t.itPriority,
+      status: t.currentStatus,
+      currentStatus: t.currentStatus,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+      categoryId: t.categoryId,
+      categoryName: t.category.name,
+      category: t.category,
+      relatedSystemId: t.relatedSystemId,
+      relatedSystemName: t.relatedSystem.name,
+      relatedSystem: t.relatedSystem,
+      attachments: t.attachments,
+    }));
+
+    res.status(200).json({
+      data: formattedTickets,
+      tickets: formattedTickets,
+      meta: {
+        total: totalCount,
+        totalCount,
+        page: pageNum,
+        currentPage: pageNum,
+        limit: limitNum,
+        totalPages,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching tickets:', error);
+    res.status(500).json({ error: 'Failed to fetch tickets' });
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Attachment Endpoints (Issue 11)
 // ---------------------------------------------------------------------------
