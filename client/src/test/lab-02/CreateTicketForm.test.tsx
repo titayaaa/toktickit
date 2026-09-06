@@ -29,7 +29,7 @@ describe('CreateTicketForm (Issue 10 UI tests)', () => {
     });
     
     // Mock fetch globally
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   it('UI-02: Form shows validation errors (red asterisks/text) when missing fields on submit', async () => {
@@ -45,7 +45,7 @@ describe('CreateTicketForm (Issue 10 UI tests)', () => {
     await userEvent.click(submitButton);
     
     // API should not be called
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
     
     // Validation messages should appear
     expect(screen.getByText('Summary is required')).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('CreateTicketForm (Issue 10 UI tests)', () => {
       resolveFetch = resolve;
     });
     
-    (global.fetch as any).mockReturnValue(fetchPromise);
+    (globalThis.fetch as any).mockReturnValue(fetchPromise);
 
     render(<CreateTicketForm categories={mockCategories} relatedSystems={mockSystems} />);
     
@@ -94,8 +94,8 @@ describe('CreateTicketForm (Issue 10 UI tests)', () => {
     });
     
     // Verify API call arguments
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith('/api/tickets', expect.objectContaining({
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalledWith('/api/tickets', expect.objectContaining({
       method: 'POST',
       headers: expect.objectContaining({
         'Authorization': 'Bearer dev_requester_1'
@@ -104,7 +104,7 @@ describe('CreateTicketForm (Issue 10 UI tests)', () => {
   });
 
   it('UI-04: Displays error alert and preserves form values when API fails', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
+    (globalThis.fetch as any).mockResolvedValueOnce({
       ok: false,
       json: async () => ({ error: 'Server error occurred while creating ticket' })
     });
@@ -132,7 +132,7 @@ describe('CreateTicketForm (Issue 10 UI tests)', () => {
     expect(screen.getByLabelText(/Related System/i)).toHaveValue('2');
 
     // Also verify summary and description were trimmed when payload was sent
-    expect(global.fetch).toHaveBeenCalledWith('/api/tickets', expect.objectContaining({
+    expect(globalThis.fetch).toHaveBeenCalledWith('/api/tickets', expect.objectContaining({
       body: JSON.stringify({
         summary: 'Test Summary',
         description: 'Test Description',

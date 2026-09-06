@@ -5,12 +5,12 @@ import DevelopmentRequesterSelection from '../components/DevelopmentRequesterSel
 import { RequesterProvider } from '../contexts/RequesterContext';
 
 // Mock fetch globally
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('DevelopmentRequesterSelection', () => {
   it('renders loading state initially', () => {
     // Return a pending promise to keep it in loading state
-    (global.fetch as any).mockReturnValue(new Promise(() => {}));
+    (globalThis.fetch as any).mockReturnValue(new Promise(() => {}));
     
     render(
       <RequesterProvider>
@@ -26,7 +26,7 @@ describe('DevelopmentRequesterSelection', () => {
       { id: 1, name: 'John Doe', email: 'john@example.com', isActive: true },
     ];
     
-    (global.fetch as any).mockResolvedValue({
+    (globalThis.fetch as any).mockResolvedValue({
       ok: true,
       json: async () => mockRequesters,
     });
@@ -45,7 +45,7 @@ describe('DevelopmentRequesterSelection', () => {
   });
 
   it('renders error state when fetch fails', async () => {
-    (global.fetch as any).mockResolvedValue({
+    (globalThis.fetch as any).mockResolvedValue({
       ok: false,
     });
 
@@ -61,7 +61,7 @@ describe('DevelopmentRequesterSelection', () => {
   });
 
   it('renders empty state when no requesters are found', async () => {
-    (global.fetch as any).mockResolvedValue({
+    (globalThis.fetch as any).mockResolvedValue({
       ok: true,
       json: async () => [], // Empty array
     });
