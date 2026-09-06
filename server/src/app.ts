@@ -279,9 +279,11 @@ app.get('/api/tickets', async (req: Request, res: Response): Promise<void> => {
     const catFilter = category || categoryId;
     if (catFilter) {
       const parsedCatId = parseInt(catFilter as string, 10);
-      if (!isNaN(parsedCatId)) {
-        where.categoryId = parsedCatId;
+      if (isNaN(parsedCatId) || parsedCatId <= 0) {
+        res.status(400).json({ error: `Invalid category parameter: ${catFilter}` });
+        return;
       }
+      where.categoryId = parsedCatId;
     }
 
     // Status filter
