@@ -420,6 +420,80 @@ app.get('/api/tickets', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// GET /api/tickets/:id (Issue 14 - Ticket Detail View)
+app.get('/api/tickets/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const requesterId = extractRequesterId(req);
+    if (!requesterId) {
+      res.status(401).json({ error: 'Unauthorized: Missing or invalid mock token' });
+      return;
+    }
+
+    const id = parseInt(req.params.id as string, 10);
+    if (isNaN(id) || id <= 0) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id },
+      include: {
+        category: { select: { id: true, name: true } },
+        relatedSystem: { select: { id: true, name: true } },
+        attachments: {
+          select: {
+            id: true,
+            ticketId: true,
+            originalFilename: true,
+            storagePath: true,
+            mimeType: true,
+            sizeBytes: true,
+            removedAt: true,
+            removalReason: true,
+            createdAt: true,
+          },
+          orderBy: { id: 'asc' },
+        },
+      },
+    });
+
+    if (!ticket) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+
+    // AC-03 & FR-07: Prevent cross-requester access (Ownership protection)
+    if (ticket.requesterId !== requesterId) {
+      res.status(403).json({ error: 'Forbidden: You do not have permission to view this ticket' });
+      return;
+    }
+
+    res.status(200).json({
+      id: ticket.id,
+      ticketNumber: ticket.ticketNumber,
+      requesterId: ticket.requesterId,
+      summary: ticket.summary,
+      description: ticket.description,
+      requestedPriority: ticket.requestedPriority,
+      itPriority: ticket.itPriority,
+      status: ticket.currentStatus,
+      currentStatus: ticket.currentStatus,
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      categoryId: ticket.categoryId,
+      categoryName: ticket.category.name,
+      category: ticket.category,
+      relatedSystemId: ticket.relatedSystemId,
+      relatedSystemName: ticket.relatedSystem.name,
+      relatedSystem: ticket.relatedSystem,
+      attachments: ticket.attachments,
+    });
+  } catch (error) {
+    console.error('Error fetching ticket detail:', error);
+    res.status(500).json({ error: 'Failed to fetch ticket detail' });
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Attachment Endpoints (Issue 11)
 // ---------------------------------------------------------------------------
@@ -432,7 +506,7 @@ app.post('/api/tickets/:id/attachments', async (req: Request, res: Response): Pr
     return;
   }
 
-  const ticketId = parseInt(req.params.id, 10);
+  const ticketId = parseInt(req.params.id as string, 10);
   if (isNaN(ticketId)) {
     res.status(404).json({ error: 'Ticket not found' });
     return;
@@ -518,7 +592,7 @@ app.get('/api/attachments/:id/download', async (req: Request, res: Response): Pr
       return;
     }
 
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) {
       res.status(404).json({ error: 'Attachment not found' });
       return;
@@ -568,7 +642,7 @@ app.delete('/api/attachments/:id', async (req: Request, res: Response): Promise<
       return;
     }
 
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) {
       res.status(404).json({ error: 'Attachment not found' });
       return;
