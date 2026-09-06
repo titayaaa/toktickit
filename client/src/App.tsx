@@ -71,25 +71,17 @@ const App: React.FC = () => {
       <div className="mx-auto" style={{ maxWidth: '800px' }}>
         <h1 className="h3 font-weight-bold text-success mb-4 text-center">TokTickIT IT Service Desk</h1>
 
-        {loading && (
-          <div className="text-center my-5 fs-5 text-muted">
-            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Loading reference data...
-          </div>
-        )}
-
-        {!loading && error && (
+        {error && (
           <div className="alert alert-danger" role="alert">
             {error}
           </div>
         )}
 
-        {!loading && !error && (
-          <CreateTicketForm 
-            categories={categories} 
-            relatedSystems={relatedSystems} 
-          />
-        )}
+        <CreateTicketForm 
+          categories={categories} 
+          relatedSystems={relatedSystems} 
+          isLoadingReferenceData={loading}
+        />
       </div>
     </div>
   );

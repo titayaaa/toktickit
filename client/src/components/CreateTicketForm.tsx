@@ -14,9 +14,14 @@ interface RelatedSystem {
 interface CreateTicketFormProps {
   categories: Category[];
   relatedSystems: RelatedSystem[];
+  isLoadingReferenceData?: boolean;
 }
 
-const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ categories, relatedSystems }) => {
+const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ 
+  categories, 
+  relatedSystems, 
+  isLoadingReferenceData = false 
+}) => {
   const { selectedRequester } = useRequester();
   
   const [summary, setSummary] = useState('');
@@ -166,8 +171,9 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ categories, related
                 className={`form-select ${errors.categoryId ? 'is-invalid' : ''}`}
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value === '' ? '' : Number(e.target.value))}
+                disabled={isLoadingReferenceData}
               >
-                <option value="">Select Category...</option>
+                <option value="">{isLoadingReferenceData ? 'Loading categories...' : 'Select Category...'}</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
@@ -184,8 +190,9 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ categories, related
                 className={`form-select ${errors.relatedSystemId ? 'is-invalid' : ''}`}
                 value={relatedSystemId}
                 onChange={(e) => setRelatedSystemId(e.target.value === '' ? '' : Number(e.target.value))}
+                disabled={isLoadingReferenceData}
               >
-                <option value="">Select System...</option>
+                <option value="">{isLoadingReferenceData ? 'Loading systems...' : 'Select System...'}</option>
                 {relatedSystems.map((sys) => (
                   <option key={sys.id} value={sys.id}>{sys.name}</option>
                 ))}
