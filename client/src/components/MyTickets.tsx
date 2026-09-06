@@ -25,9 +25,10 @@ interface TicketItem {
 interface MyTicketsProps {
   categories: Category[];
   onNavigateToCreate: () => void;
+  onSelectTicket?: (ticketId: number) => void;
 }
 
-const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate }) => {
+const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, onSelectTicket }) => {
   const { selectedRequester } = useRequester();
 
   const [tickets, setTickets] = useState<TicketItem[]>([]);
@@ -439,7 +440,20 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate })
                     </thead>
                     <tbody>
                       {tickets.map((ticket) => (
-                        <tr key={ticket.id}>
+                        <tr
+                          key={ticket.id}
+                          className={onSelectTicket ? 'clickable-row' : ''}
+                          onClick={() => onSelectTicket?.(ticket.id)}
+                          tabIndex={onSelectTicket ? 0 : undefined}
+                          role={onSelectTicket ? 'button' : undefined}
+                          aria-label={onSelectTicket ? `View details for ticket ${ticket.ticketNumber}` : undefined}
+                          onKeyDown={(e) => {
+                            if ((e.key === 'Enter' || e.key === ' ') && onSelectTicket) {
+                              e.preventDefault();
+                              onSelectTicket(ticket.id);
+                            }
+                          }}
+                        >
                           <td>
                             <span className="fw-bold text-primary-green">
                               {ticket.ticketNumber}
@@ -487,7 +501,20 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate })
                 {/* Ticket Cards (Mobile: < 768px) */}
                 <div className="d-block d-md-none">
                   {tickets.map((ticket) => (
-                    <div key={ticket.id} className="ticket-mobile-card p-3 mb-3">
+                    <div
+                      key={ticket.id}
+                      className={`ticket-mobile-card p-3 mb-3 ${onSelectTicket ? 'clickable-card' : ''}`}
+                      onClick={() => onSelectTicket?.(ticket.id)}
+                      tabIndex={onSelectTicket ? 0 : undefined}
+                      role={onSelectTicket ? 'button' : undefined}
+                      aria-label={onSelectTicket ? `View details for ticket ${ticket.ticketNumber}` : undefined}
+                      onKeyDown={(e) => {
+                        if ((e.key === 'Enter' || e.key === ' ') && onSelectTicket) {
+                          e.preventDefault();
+                          onSelectTicket(ticket.id);
+                        }
+                      }}
+                    >
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <span className="fw-bold text-primary-green">
                           {ticket.ticketNumber}

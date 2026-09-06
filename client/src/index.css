@@ -155,3 +155,29 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* Read-only Box per Zen Green Spec (Soft gray-green shading distinct from editable fields) */
+.zen-readonly-box {
+  background-color: #F4F7F5;
+  border: 1px solid rgba(0, 107, 60, 0.12);
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  color: var(--text-dark);
+}
+
+.zen-table tbody tr.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.zen-table tbody tr.clickable-row:hover {
+  background-color: #EAF6EF;
+}
+
+.ticket-mobile-card.clickable-card {
+  cursor: pointer;
+}
+
+.ticket-mobile-card.clickable-card:hover {
+  border-color: var(--secondary-green);
+}
+

@@ -3,6 +3,7 @@ import { useRequester } from './contexts/RequesterContext';
 import DevelopmentRequesterSelection from './components/DevelopmentRequesterSelection';
 import CreateTicketForm from './components/CreateTicketForm';
 import MyTickets from './components/MyTickets';
+import TicketDetail from './components/TicketDetail';
 
 interface Category {
   id: number;
@@ -19,6 +20,7 @@ type TabType = 'create' | 'my-tickets';
 const App: React.FC = () => {
   const { selectedRequester, setRequester } = useRequester();
   const [activeTab, setActiveTab] = useState<TabType>('create');
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
@@ -82,16 +84,22 @@ const App: React.FC = () => {
       <div className="d-flex gap-2 mb-4">
         <button
           type="button"
-          className={`zen-nav-tab ${activeTab === 'create' ? 'active' : ''}`}
-          onClick={() => setActiveTab('create')}
+          className={`zen-nav-tab ${activeTab === 'create' && !selectedTicketId ? 'active' : ''}`}
+          onClick={() => {
+            setSelectedTicketId(null);
+            setActiveTab('create');
+          }}
           aria-label="Create Ticket tab"
         >
           Create Ticket
         </button>
         <button
           type="button"
-          className={`zen-nav-tab ${activeTab === 'my-tickets' ? 'active' : ''}`}
-          onClick={() => setActiveTab('my-tickets')}
+          className={`zen-nav-tab ${activeTab === 'my-tickets' || selectedTicketId !== null ? 'active' : ''}`}
+          onClick={() => {
+            setSelectedTicketId(null);
+            setActiveTab('my-tickets');
+          }}
           aria-label="My Tickets tab"
         >
           My Tickets
@@ -105,20 +113,34 @@ const App: React.FC = () => {
       )}
 
       {/* Active Tab View */}
-      {activeTab === 'create' ? (
+      {selectedTicketId !== null ? (
+        <div className="mx-auto" style={{ maxWidth: '950px' }}>
+          <TicketDetail
+            ticketId={selectedTicketId}
+            onBack={() => setSelectedTicketId(null)}
+          />
+        </div>
+      ) : activeTab === 'create' ? (
         <div className="mx-auto" style={{ maxWidth: '850px' }}>
           <CreateTicketForm
             categories={categories}
             relatedSystems={relatedSystems}
             isLoadingReferenceData={loading}
-            onNavigateToMyTickets={() => setActiveTab('my-tickets')}
+            onNavigateToMyTickets={() => {
+              setSelectedTicketId(null);
+              setActiveTab('my-tickets');
+            }}
           />
         </div>
       ) : (
         <div className="mx-auto" style={{ maxWidth: '1150px' }}>
           <MyTickets
             categories={categories}
-            onNavigateToCreate={() => setActiveTab('create')}
+            onNavigateToCreate={() => {
+              setSelectedTicketId(null);
+              setActiveTab('create');
+            }}
+            onSelectTicket={(ticketId) => setSelectedTicketId(ticketId)}
           />
         </div>
       )}
