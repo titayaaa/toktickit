@@ -73,6 +73,17 @@ describe('Attachment Management API (Issue 11)', () => {
     if (fs.existsSync(largeFilePath)) fs.unlinkSync(largeFilePath);
     if (fs.existsSync(invalidFilePath)) fs.unlinkSync(invalidFilePath);
 
+    // Clean up physical uploaded files created during tests
+    const attachments = await prisma.attachment.findMany({
+      where: { ticketId: { in: [ticketId, otherTicketId] } },
+    });
+    for (const att of attachments) {
+      const physicalPath = path.join(process.cwd(), 'uploads', att.storagePath);
+      if (fs.existsSync(physicalPath)) {
+        fs.unlinkSync(physicalPath);
+      }
+    }
+
     // Clean up database
     await prisma.attachment.deleteMany({ where: { ticketId: { in: [ticketId, otherTicketId] } } });
     await prisma.ticket.deleteMany({ where: { id: { in: [ticketId, otherTicketId] } } });
@@ -176,6 +187,35 @@ describe('Attachment Management API (Issue 11)', () => {
         .set('Authorization', `Bearer dev_requester_${otherRequesterId}`);
 
       expect(res.status).toBe(403);
+    });
+
+    it('Ownership Protection: Rejects delete if another requester attempts to delete it (403)', async () => {
+      const res = await request(app)
+        .delete(`/api/attachments/${attachmentId}`)
+        .set('Authorization', `Bearer dev_requester_${otherRequesterId}`)
+        .send({ reason: 'Attempt unauthorized removal' });
+
+      expect(res.status).toBe(403);
+      expect(res.body.error).toContain('Forbidden');
+    });
+
+    it('Returns 404 when downloading non-existent attachment ID', async () => {
+      const res = await request(app)
+        .get('/api/attachments/999999/download')
+        .set('Authorization', `Bearer dev_requester_${ownerId}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toContain('not found');
+    });
+
+    it('Returns 404 when deleting non-existent attachment ID', async () => {
+      const res = await request(app)
+        .delete('/api/attachments/999999')
+        .set('Authorization', `Bearer dev_requester_${ownerId}`)
+        .send({ reason: 'Testing non-existent attachment' });
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toContain('not found');
     });
 
     it('AC-06: Soft-remove without reason returns 400 Bad Request', async () => {
