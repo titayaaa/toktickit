@@ -5,34 +5,36 @@ const prisma = new PrismaClient();
 // This seed script is designed to be idempotent and safe to run multiple times.
 async function main() {
   const categories = [
-    { name: 'Account and Access' },
-    { name: 'Hardware' },
-    { name: 'Software' },
-    { name: 'Network' },
+    { name: 'Account and Access', isActive: true },
+    { name: 'Hardware', isActive: true },
+    { name: 'Software', isActive: true },
+    { name: 'Network', isActive: true },
+    { name: 'Legacy Hardware', isActive: false },
   ];
 
   for (const category of categories) {
     await prisma.category.upsert({
       where: { name: category.name },
-      update: {},
+      update: { isActive: category.isActive },
       create: category,
     });
   }
 
   const relatedSystems = [
-    { name: 'Email' },
-    { name: 'Campus Wi-Fi' },
-    { name: 'VPN' },
-    { name: 'LEB2 App' },
-    { name: 'Grade Submission App' },
-    { name: 'Printer' },
-    { name: 'Corporate Laptop' },
+    { name: 'Email', isActive: true },
+    { name: 'Campus Wi-Fi', isActive: true },
+    { name: 'VPN', isActive: true },
+    { name: 'LEB2 App', isActive: true },
+    { name: 'Grade Submission App', isActive: true },
+    { name: 'Printer', isActive: true },
+    { name: 'Corporate Laptop', isActive: true },
+    { name: 'Old Intranet', isActive: false },
   ];
 
   for (const system of relatedSystems) {
     await prisma.relatedSystem.upsert({
       where: { name: system.name },
-      update: {},
+      update: { isActive: system.isActive },
       create: system,
     });
   }
