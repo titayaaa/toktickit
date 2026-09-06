@@ -8,7 +8,13 @@ describe('API-02: Categories Endpoint', () => {
     
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
+    // Should return 4 active categories, ignoring the 1 inactive "Legacy Hardware"
     expect(response.body.length).toBe(4);
+    
+    // Explicitly verify "Legacy Hardware" is not returned
+    const categoryNames = response.body.map((c: any) => c.name);
+    expect(categoryNames).not.toContain('Legacy Hardware');
+
     expect(response.body).toEqual([
       { id: 1, name: 'Account and Access' },
       { id: 2, name: 'Hardware' },
