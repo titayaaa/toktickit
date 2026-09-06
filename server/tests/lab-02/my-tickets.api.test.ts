@@ -156,6 +156,28 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
     expect(statTickets[0].currentStatus).toBe('RESOLVED');
   });
 
+  it('Filters by multiple parameters simultaneously (category + status + priority)', async () => {
+    const res = await request(app)
+      .get(`/api/tickets?categoryId=${category1Id}&status=NEW&priority=HIGH`)
+      .set('Authorization', `Bearer dev_requester_${ownerId}`);
+
+    expect(res.status).toBe(200);
+    const filtered = res.body.data.filter((t: any) => t.ticketNumber.startsWith(TEST_TICKET_PREFIX));
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].ticketNumber).toBe(`${TEST_TICKET_PREFIX}000001`);
+  });
+
+  it('Returns empty array and 0 total when search matches no tickets', async () => {
+    const res = await request(app)
+      .get('/api/tickets?search=nonexistentkeyword12345')
+      .set('Authorization', `Bearer dev_requester_${ownerId}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.meta.total).toBe(0);
+    expect(res.body.meta.totalPages).toBe(0);
+  });
+
   it('API-09: Sorting by field and direction', async () => {
     // Sort by createdAt asc
     const resAsc = await request(app)
@@ -200,7 +222,7 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
     expect(resPage2.body.meta.page).toBe(2);
   });
 
-  it('Validation: Returns 400 Bad Request on invalid page or invalid status parameter', async () => {
+  it('Validation: Returns 400 Bad Request on invalid page, status, or category parameter', async () => {
     const resInvalidPage = await request(app)
       .get('/api/tickets?page=-1')
       .set('Authorization', `Bearer dev_requester_${ownerId}`);
@@ -213,6 +235,20 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
 
     expect(resInvalidStatus.status).toBe(400);
     expect(resInvalidStatus.body.error).toContain('Invalid status parameter');
+
+    const resInvalidCategory = await request(app)
+      .get('/api/tickets?categoryId=abc')
+      .set('Authorization', `Bearer dev_requester_${ownerId}`);
+
+    expect(resInvalidCategory.status).toBe(400);
+    expect(resInvalidCategory.body.error).toContain('Invalid category parameter');
+
+    const resInvalidCategory2 = await request(app)
+      .get('/api/tickets?category=invalid')
+      .set('Authorization', `Bearer dev_requester_${ownerId}`);
+
+    expect(resInvalidCategory2.status).toBe(400);
+    expect(resInvalidCategory2.body.error).toContain('Invalid category parameter');
   });
 
   it('Authentication: Returns 401 Unauthorized when token is missing', async () => {
