@@ -27,6 +27,11 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
     const system = await prisma.relatedSystem.findFirst({ where: { isActive: true } });
     systemId = system!.id;
 
+    // Clean up any previous test artifacts before seeding
+    await prisma.ticket.deleteMany({
+      where: { ticketNumber: { startsWith: TEST_TICKET_PREFIX } },
+    });
+
     // Seed test tickets for owner
     await prisma.ticket.createMany({
       data: [
@@ -35,7 +40,7 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
           requesterId: ownerId,
           categoryId: category1Id,
           relatedSystemId: systemId,
-          summary: 'Cannot connect to campus Wi-Fi network',
+          summary: 'Cannot connect to campus Wi-Fi network alphaunique',
           description: 'Wi-Fi drops connection every 5 minutes in dorm A',
           requestedPriority: 'HIGH',
           currentStatus: 'NEW',
@@ -46,7 +51,7 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
           requesterId: ownerId,
           categoryId: category2Id,
           relatedSystemId: systemId,
-          summary: 'Printer paper jam in library',
+          summary: 'Printer paper jam in library betaunique',
           description: 'Library floor 2 printer is showing jam error',
           requestedPriority: 'LOW',
           currentStatus: 'RESOLVED',
@@ -57,7 +62,7 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
           requesterId: ownerId,
           categoryId: category1Id,
           relatedSystemId: systemId,
-          summary: 'Email sync failure on Outlook',
+          summary: 'Email sync failure on Outlook gammaunique',
           description: 'Emails not loading on mobile device',
           requestedPriority: 'CRITICAL',
           currentStatus: 'IN_PROGRESS',
@@ -107,7 +112,7 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
   it('API-07: Search - Matches ticketNumber or summary case-insensitively', async () => {
     // Search by summary keyword
     const resSummary = await request(app)
-      .get('/api/tickets?search=wi-fi')
+      .get('/api/tickets?search=ALPHAUNIQUE')
       .set('Authorization', `Bearer dev_requester_${ownerId}`);
 
     expect(resSummary.status).toBe(200);
