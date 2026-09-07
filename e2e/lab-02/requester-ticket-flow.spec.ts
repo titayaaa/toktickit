@@ -77,6 +77,7 @@ test.describe('E2E-01: Requester Ticket Flow (full journey)', () => {
 
     // Screenshot 1: Create Ticket form filled
     await page.screenshot({ path: shot(project, 'create-ticket', 'create-ticket'), fullPage: true });
+    await expect(page).toHaveScreenshot('e2e-create-ticket-form.png', { maxDiffPixelRatio: 0.05 });
 
     // Submit ticket
     await page.getByRole('button', { name: /Submit Ticket/i }).click();
@@ -106,6 +107,10 @@ test.describe('E2E-01: Requester Ticket Flow (full journey)', () => {
 
     // Screenshot 2: My Tickets list view
     await page.screenshot({ path: shot(project, 'my-tickets', 'my-tickets'), fullPage: true });
+    await expect(page).toHaveScreenshot('e2e-my-tickets-list.png', {
+      maxDiffPixelRatio: 0.05,
+      mask: [ticketRowOrCard],
+    });
 
     // --- Step 4: Click to open Ticket Detail ---
     await ticketRowOrCard.click();
@@ -131,6 +136,10 @@ test.describe('E2E-01: Requester Ticket Flow (full journey)', () => {
 
     // Screenshot 3: Ticket Detail with active attachment
     await page.screenshot({ path: shot(project, 'ticket-detail', 'ticket-detail'), fullPage: true });
+    await expect(page).toHaveScreenshot('e2e-ticket-detail.png', {
+      maxDiffPixelRatio: 0.05,
+      mask: [page.locator('h2'), page.locator(`text=${summary}`)],
+    });
 
     // --- Step 6: Soft-Remove Attachment with reason ---
     const removeBtn = page.locator('[data-testid^="btn-remove-"]').first();
@@ -150,6 +159,10 @@ test.describe('E2E-01: Requester Ticket Flow (full journey)', () => {
 
     // Screenshot 4: Ticket Detail after soft-removal
     await page.screenshot({ path: shot(project, 'ticket-detail', 'ticket-detail-removed'), fullPage: true });
+    await expect(page).toHaveScreenshot('e2e-ticket-detail-removed.png', {
+      maxDiffPixelRatio: 0.05,
+      mask: [page.locator('h2'), page.locator(`text=${summary}`)],
+    });
 
     // --- Step 7: Back Navigation ---
     await page.getByRole('button', { name: /Back to My Tickets/i }).click();
