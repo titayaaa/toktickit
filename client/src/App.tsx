@@ -1,101 +1,149 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRequester } from './contexts/RequesterContext';
+import DevelopmentRequesterSelection from './components/DevelopmentRequesterSelection';
+import CreateTicketForm from './components/CreateTicketForm';
+import MyTickets from './components/MyTickets';
+import TicketDetail from './components/TicketDetail';
 
 interface Category {
   id: number;
   name: string;
 }
 
+interface RelatedSystem {
+  id: number;
+  name: string;
+}
+
+type TabType = 'create' | 'my-tickets';
+
 const App: React.FC = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [status, setStatus] = useState<string | null>(null);
+  const { selectedRequester, setRequester } = useRequester();
+  const [activeTab, setActiveTab] = useState<TabType>('create');
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const handleCheckSystem = async () => {
-    setLoading(true);
-    setError(null);
-    setStatus(null);
-    setCategories([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [catRes, sysRes] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/related-systems'),
+        ]);
 
-    try {
-      const healthRes = await fetch('/api/health');
-      if (!healthRes.ok) {
-        throw new Error('Backend health check failed');
-      }
-      const healthData = await healthRes.json();
+        if (!catRes.ok || !sysRes.ok) {
+          throw new Error('Failed to fetch reference data');
+        }
 
-      const catRes = await fetch('/api/categories');
-      if (!catRes.ok) {
-        throw new Error('Failed to fetch categories');
-      }
-      const catData = await catRes.json();
+        const catData = await catRes.json();
+        const sysData = await sysRes.json();
 
-      if (healthData.status === 'ok') {
-        setStatus('Online');
         setCategories(catData);
-      } else {
-        setStatus('Offline');
+        setRelatedSystems(sysData);
+      } catch (err) {
         setError('Unable to connect to TokTickIT API');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setStatus('Offline');
-      setError('Unable to connect to TokTickIT API');
-    } finally {
-      setLoading(false);
+    };
+
+    if (selectedRequester) {
+      fetchData();
     }
-  };
+  }, [selectedRequester]);
+
+  if (!selectedRequester) {
+    return <DevelopmentRequesterSelection />;
+  }
 
   return (
-    <div className="container py-5">
-      <div className="card shadow-sm border-0 mx-auto" style={{ maxWidth: '600px' }}>
-        <div className="card-body p-4">
-          <h1 className="h3 font-weight-bold text-success mb-4">TokTickIT IT Service Desk</h1>
-
-          <button
-            onClick={handleCheckSystem}
-            disabled={loading}
-            className="btn btn-outline-success btn-lg mb-4"
-          >
-            {loading ? '⌛ loading...' : 'Check System'}
-          </button>
-
-          {loading && (
-            <div className="text-muted my-3 fs-5">
-              ⌛ loading...
-            </div>
-          )}
-
-          {!loading && status && (
-            <div className="mt-3">
-              <div className="fs-5 mb-3">
-                <strong>System Status:</strong>{' '}
-                <span className={status === 'Online' ? 'text-success font-weight-bold' : 'text-danger font-weight-bold'}>
-                  {status}
-                </span>
-              </div>
-
-              {status === 'Online' && categories.length > 0 && (
-                <div>
-                  <h5 className="mt-3 text-secondary">Supported Request Categories:</h5>
-                  <ol className="list-group list-group-numbered mt-2">
-                    {categories.map((cat) => (
-                      <li key={cat.id} className="list-group-item">
-                        {cat.name}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-
-              {status === 'Offline' && error && (
-                <div className="alert alert-danger mt-3" role="alert">
-                  {error}
-                </div>
-              )}
-            </div>
-          )}
+    <div className="container py-4">
+      {/* App Header & Identity Banner */}
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm border">
+        <div>
+          <h1 className="h4 font-weight-bold text-success mb-1">TokTickIT IT Service Desk</h1>
+          <div className="small">
+            <span className="text-muted me-1">Current Requester:</span>
+            <span className="fw-bold text-primary-green">{selectedRequester.name}</span>
+            <span className="text-muted ms-1">({selectedRequester.email})</span>
+          </div>
         </div>
+        <button
+          className="btn btn-sm btn-outline-secondary mt-2 mt-sm-0"
+          onClick={() => setRequester(null)}
+          aria-label="Change Requester"
+        >
+          Change Requester
+        </button>
       </div>
+
+      {/* Main Navigation Tabs */}
+      <div className="d-flex gap-2 mb-4">
+        <button
+          type="button"
+          className={`zen-nav-tab ${activeTab === 'create' && !selectedTicketId ? 'active' : ''}`}
+          onClick={() => {
+            setSelectedTicketId(null);
+            setActiveTab('create');
+          }}
+          aria-label="Create Ticket tab"
+        >
+          Create Ticket
+        </button>
+        <button
+          type="button"
+          className={`zen-nav-tab ${activeTab === 'my-tickets' || selectedTicketId !== null ? 'active' : ''}`}
+          onClick={() => {
+            setSelectedTicketId(null);
+            setActiveTab('my-tickets');
+          }}
+          aria-label="My Tickets tab"
+        >
+          My Tickets
+        </button>
+      </div>
+
+      {error && (
+        <div className="alert alert-danger mb-4" role="alert">
+          {error}
+        </div>
+      )}
+
+      {/* Active Tab View */}
+      {selectedTicketId !== null ? (
+        <div className="mx-auto" style={{ maxWidth: '950px' }}>
+          <TicketDetail
+            ticketId={selectedTicketId}
+            onBack={() => setSelectedTicketId(null)}
+          />
+        </div>
+      ) : activeTab === 'create' ? (
+        <div className="mx-auto" style={{ maxWidth: '850px' }}>
+          <CreateTicketForm
+            categories={categories}
+            relatedSystems={relatedSystems}
+            isLoadingReferenceData={loading}
+            onNavigateToMyTickets={() => {
+              setSelectedTicketId(null);
+              setActiveTab('my-tickets');
+            }}
+          />
+        </div>
+      ) : (
+        <div className="mx-auto" style={{ maxWidth: '1150px' }}>
+          <MyTickets
+            categories={categories}
+            onNavigateToCreate={() => {
+              setSelectedTicketId(null);
+              setActiveTab('create');
+            }}
+            onSelectTicket={(ticketId) => setSelectedTicketId(ticketId)}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -6,3 +6,8 @@ build/
 *.log
 .DS_Store
 coverage/
+server/uploads/
+uploads/
+test-results/
+playwright-report/
+

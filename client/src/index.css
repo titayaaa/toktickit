@@ -1,0 +1,183 @@
+:root {
+  --primary-green: #006B3C;
+  --secondary-green: #0B7A46;
+  --pale-green: #EAF6EF;
+  --page-background: #F5F7F6;
+  --text-dark: #1A2B22;
+  --error-red: #A31220;
+}
+
+body {
+  background-color: var(--page-background);
+  color: var(--text-dark);
+  font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+}
+
+/* Zen Green Component Overrides */
+.btn-primary {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--secondary-green) !important;
+  border-color: var(--secondary-green) !important;
+}
+
+.text-primary-green {
+  color: var(--primary-green);
+}
+
+.bg-pale-green {
+  background-color: var(--pale-green);
+}
+
+/* Card and Surface */
+.zen-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 107, 60, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+/* Forms */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--secondary-green);
+  box-shadow: 0 0 0 0.25rem rgba(11, 122, 70, 0.25);
+}
+
+.text-danger {
+  color: var(--error-red) !important;
+}
+
+/* Zen Navigation */
+.zen-nav-tab {
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  border-radius: 6px;
+  color: var(--text-dark);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.zen-nav-tab:hover {
+  background-color: var(--pale-green);
+  color: var(--secondary-green);
+}
+
+.zen-nav-tab.active {
+  background-color: var(--primary-green);
+  color: #FFFFFF;
+  border-color: var(--primary-green);
+}
+
+/* Badges for Priority */
+.badge-priority-low {
+  background-color: #E8F0FE;
+  color: #1A73E8;
+  border: 1px solid rgba(26, 115, 232, 0.2);
+}
+
+.badge-priority-medium {
+  background-color: #EAF6EF;
+  color: #006B3C;
+  border: 1px solid rgba(0, 107, 60, 0.2);
+}
+
+.badge-priority-high {
+  background-color: #FEF7E0;
+  color: #B06000;
+  border: 1px solid rgba(176, 96, 0, 0.2);
+}
+
+.badge-priority-critical {
+  background-color: #FCE8E6;
+  color: #C5221F;
+  border: 1px solid rgba(197, 34, 31, 0.2);
+}
+
+/* Badges for Status */
+.badge-status-new {
+  background-color: #E8F0FE;
+  color: #1A73E8;
+  border: 1px solid rgba(26, 115, 232, 0.2);
+}
+
+.badge-status-open, .badge-status-in-progress {
+  background-color: #FEF7E0;
+  color: #B06000;
+  border: 1px solid rgba(176, 96, 0, 0.2);
+}
+
+.badge-status-resolved {
+  background-color: #EAF6EF;
+  color: #006B3C;
+  border: 1px solid rgba(0, 107, 60, 0.2);
+}
+
+.badge-status-closed, .badge-status-cancelled {
+  background-color: #F1F3F4;
+  color: #5F6368;
+  border: 1px solid rgba(95, 99, 104, 0.2);
+}
+
+/* Table styling */
+.zen-table th {
+  background-color: #F9FAF9;
+  color: var(--text-dark);
+  font-weight: 600;
+  border-bottom: 2px solid rgba(0, 107, 60, 0.15);
+}
+
+.zen-table tbody tr:hover {
+  background-color: #F4F8F5;
+}
+
+/* Mobile Ticket Card */
+.ticket-mobile-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ticket-mobile-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Read-only Box per Zen Green Spec (Soft gray-green shading distinct from editable fields) */
+.zen-readonly-box {
+  background-color: #F4F7F5;
+  border: 1px solid rgba(0, 107, 60, 0.12);
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  color: var(--text-dark);
+}
+
+.zen-table tbody tr.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.zen-table tbody tr.clickable-row:hover {
+  background-color: #EAF6EF;
+}
+
+.ticket-mobile-card.clickable-card {
+  cursor: pointer;
+}
+
+.ticket-mobile-card.clickable-card:hover {
+  border-color: var(--secondary-green);
+}
+
