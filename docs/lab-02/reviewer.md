@@ -15,6 +15,8 @@
 | **PR #33** | Feature: Ticket Detail View & Ownership Protection | Issue #14 (#19) | `feature/lab2-ticket-detail` | พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: [@jejaebubu](https://github.com/jejaebubu)) |
 | **PR #38** | Feature: E2E Testing & Visual Checking with Playwright | Issue #15 (#20) | `feature/lab2-e2e-visual-tests-reopen` | พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: [@jejaebubu](https://github.com/jejaebubu)) |
 | **PR #39** | Docs: Release Integration, README & Review Documentation | Issue #16 (#21) | `feature/lab2-release-docs-reopen` | พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: [@jejaebubu](https://github.com/jejaebubu)) |
+| **PR #40** | Lab 2 Release Integration (lab2-staging → main) | Release | `lab2-staging` | พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: [@jejaebubu](https://github.com/jejaebubu)) |
+| **PR #41** | Post-Merge Verification & Docs Final Sync | Release Sync | `chore/lab02-docs-final-sync` | พัฒนาวดี แสงเงินยอด (ID: 67070505222, GitHub: [@jejaebubu](https://github.com/jejaebubu)) |
 
 ---
 
@@ -147,6 +149,34 @@
   > "README กับ ai-use.md ครบและอ่านเข้าใจง่ายดีเลย ขอแก้ docs/lab-02/reviewer.md ให้ mapping ของ PR number / Feature / Issue number ตรงกับ GitHub จริงทั้งหมด เพื่อให้ reviewer evidence และ traceability ถูกต้องก่อนนะ"
 - **Author Response & Resolution**:
   > "ได้ทำการตรวจสอบประวัติ GitHub PRs และบันทึกรีวิวทั้งหมดใน repo `titayaaa/toktickit` และ `jejaebubu/toktickit` อย่างละเอียด และแก้ไข mapping ของทุก PR (#22 ถึง #39) พร้อม reviewer ID, comments, และ responses ให้ตรงกับ GitHub จริง 100% เรียบร้อยแล้วค่ะ"
+- **Approval Comment**:
+  > "อนุมัติเรียบร้อย ครบถ้วนแล้วจ้า"
+
+---
+
+### 12. PR #40: Lab 2 Release Integration (lab2-staging → main)
+- **PR Link**: `https://github.com/titayaaa/toktickit/pull/40`
+- **Reviewer**: พัฒนาวดี แสงเงินยอด ([@jejaebubu](https://github.com/jejaebubu))
+- **Review Comment**:
+  > "เช็กรอบนี้ละเอียดอีกรอบแล้ว ตรวจ base/head แล้วเป็น `lab2-staging → main` ถูกต้อง และไล่ดู commit history ของ feature PR หลัก ๆ แล้ว พบว่า PR ที่เกี่ยวกับ Lab 2 ถูก merge เข้า `lab2-staging` ก่อนหน้า PR #40 ครบแล้ว รวมถึง PR #38 และ #39 ด้วย
+  > เช็ก release documentation กับ test evidence เพิ่มแล้ว
+  > * Server API 40/40
+  > * Client UI 27/27
+  > * E2E & Visual Regression 12/12
+  > * README / tests.md / reviewer.md อยู่ใน release branch แล้ว
+  > รอบนี้ **Approve & Merge เข้า `main` ได้เลย**"
+- **Author Response & Resolution**:
+  > "ขอบคุณมากสำหรับการตรวจทานตลอดทั้ง Sprint Lab 2 น้า ตอนนี้ PR #40 ได้รับการ Approve และ Merge รวมโค้ดทั้งหมดเข้าสู่ branch `main` ของ TokTickIT เรียบร้อยแล้วค่ะ"
+- **Approval & Merge Status**: Approved & Merged into `main`
+
+---
+
+### 13. PR #41: Post-Merge Verification & Docs Final Sync
+- **PR Link**: `https://github.com/titayaaa/toktickit/pull/41`
+- **Reviewer**: พัฒนาวดี แสงเงินยอด ([@jejaebubu](https://github.com/jejaebubu))
+- **Status**: Pending Review (รอเพื่อนเข้ามาตรวจทานและคอมเมนต์)
+- **Review Comment**: *(รอเพื่อนเข้ามาตรวจทานบน GitHub)*
+- **Author Response**: *(รอตอบกลับหลังเพื่อนรีวิว)*
 
 ---
 
@@ -155,6 +185,24 @@
 Repository: `https://github.com/jejaebubu/toktickit`  
 Developer: พัฒนาวดี แสงเงินยอด ([@jejaebubu](https://github.com/jejaebubu))  
 Reviewer: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
+
+| PR # | Feature / Description | GitHub Issue | Branch | Reviewer | Verdict |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **[#21](https://github.com/jejaebubu/toktickit/pull/21)** | feat(db): add Prisma models and migration for Lab 2 | Issue #2 | `feature/lab02-02-db-models` | @titayaaa | Approved |
+| **[#22](https://github.com/jejaebubu/toktickit/pull/22)** | feat(db): update seed script to initialize categories, requesters, and related systems | Issue #3 (#14) | `feature/lab02-03-seed-data` | @titayaaa | Approved |
+| **[#23](https://github.com/jejaebubu/toktickit/pull/23)** | feat(auth): implement Development Requester Selector API, Context, and UI | Issue #4 | `feature/lab02-04-requester-context` | @titayaaa | Approved |
+| **[#24](https://github.com/jejaebubu/toktickit/pull/24)** | feat(api): implement Create Ticket REST API (POST /api/tickets) with validation | Issue #5 | `feature/lab02-05-create-ticket-api` | @titayaaa | Approved |
+| **[#25](https://github.com/jejaebubu/toktickit/pull/25)** | feat(ui): implement Create Ticket UI Screen with Zen Green theme and validation | Issue #6 | `feature/lab02-06-create-ticket-ui` | @titayaaa | Approved |
+| **[#28](https://github.com/jejaebubu/toktickit/pull/28)** | Issue 7: My Tickets List REST API (Search/Filter/Sort + Pagination) | Issue #7 | `feature/lab02-07-my-tickets-api` | @titayaaa | Approved |
+| **[#29](https://github.com/jejaebubu/toktickit/pull/29)** | Issue 8: My Tickets UI Screen & Interactive Controls | Issue #8 | `feature/lab02-08-my-tickets-ui` | @titayaaa | Approved |
+| **[#30](https://github.com/jejaebubu/toktickit/pull/30)** | Issue 9: Requester Ticket Detail & Soft-Remove Attachments | Issue #9 | `feature/lab02-09-ticket-detail-attachments` | @titayaaa | Approved |
+| **[#31](https://github.com/jejaebubu/toktickit/pull/31)** | Issue 10: E2E Test, Visual Inspection & Submission Evidence | Issue #10 | `feature/lab02-10-e2e-visual-evidence` | @titayaaa | Approved |
+| **[#32](https://github.com/jejaebubu/toktickit/pull/32)** | docs: prepare release notes — README + full reviewer.md | Issue 11 | `feature/lab02-11-release-preparation` | @titayaaa | Approved |
+| **[#33 & #35](https://github.com/jejaebubu/toktickit/pull/33)** | Issue 11: Lab 2 Release Integration (lab2-staging → main) | Issue 11 | `lab2-staging → main` | @titayaaa | Approved |
+| **[#36](https://github.com/jejaebubu/toktickit/pull/36)** | test(lab02): add missing API-05f test (soft-remove guard) | Issue 11 (API-05f) | `fix/lab02-missing-api-05f-test` | @titayaaa | Approved |
+| **[#37](https://github.com/jejaebubu/toktickit/pull/37)** | release(lab02): post-merge verification + report docs final sync | Release Sync | `release/lab02-post-merge-verification → main` | @titayaaa | Approved |
+
+---
 
 ### 1. PR #21: feat(db): add Prisma models and migration for Lab 2 (Issue #2)
 - **PR Link**: `https://github.com/jejaebubu/toktickit/pull/21`
@@ -287,3 +335,50 @@ Reviewer: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
 - **My Approval Comment (Approved on PR #35 & PR #33)**:
   > "ตรวจเช็กโค้ดที่แก้ตามคอมเมนต์ทั้ง 6 จุดเรียบร้อยแล้วน้า แก้ไขได้ถูกต้องครบถ้วนและรอบคอบมากเลย ผ่านเกณฑ์การ Release ของ Lab 2 ครบถ้วนทุกข้อแล้วว Approved พร้อม Merge ได้เลย!"
 - **Status**: Approved & Merged into `lab2-staging` (PR #35) and `main` (PR #33)
+
+---
+
+### 12. PR #36: test(lab02): add missing API-05f test (soft-remove guard)
+- **PR Link**: `https://github.com/jejaebubu/toktickit/pull/36`
+- **Feature**: `test(lab02): add missing API-05f test (soft-remove guard)`
+- **GitHub Issue**: Issue 11 (API-05f soft-remove guard)
+- **Branch**: `fix/lab02-missing-api-05f-test`
+- **Merge commit**: `ebc6460`
+- **Reviewer**: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
+- **My Review Comment (Changes Requested)**:
+  > "ตรวจโค้ดใน PR #36 แล้ว มีจุดสำคัญที่อยากให้ช่วยแก้นิดนึงก่อน Merge น้า
+  > ในไฟล์ `server/tests/lab-02/attachments.api.test.ts` (เทส API-05f): ตรงบรรทัด `if (!removed) return;` ถ้าเวลารันเทสแยกเดี่ยวแล้วหาไฟล์ที่ลบไม่เจอ ตัวเทสจะ return จบไปเลย ทำให้ Vitest มองว่าเทส PASS ทั้งที่ยังไม่ได้รัน expect จริง ๆ (เกิด False Positive)
+  > รบกวนเปลี่ยนจาก `if (!removed) return;` เป็น: `expect(removed).toBeTruthy();` เพื่อบังคับเช็คว่ามีข้อมูลก่อนยิง API จริง ถ้าไม่มีจะได้ Fail ให้เห็นชัดเจน ไม่ปล่อยผ่านเงียบ ๆ จ้า แก้จุดนี้จุดเดียวแล้ว Push ขึ้นมาใหม่ได้เลยนะ เดี๋ยวเรากด Approve ให้เลย"
+- **Partner Response**:
+  > "แก้ตามที่รีวิวมาแล้วนะ:
+  > - API-05f: เปลี่ยนจาก `if (!removed) return;` เป็น `expect(removed).toBeTruthy();` แล้ว เพื่อให้ถ้าหาไฟล์ที่ลบไปแล้วไม่เจอ เทสจะ Fail ให้เห็นชัดเจน ไม่ปล่อยให้ผ่านเงียบ ๆ แบบ False Positive
+  > - นอกจากนี้เจอ pattern เดียวกันใน API-05d เลยแก้ให้พร้อมกันด้วย จะได้ป้องกันไม่ให้เกิดปัญหาแบบเดียวกันอีกรอบ
+  > ผลรันจริง: `attachments.api.test.ts` → 13/13 ผ่าน (รวม API-05f และ API-05d), Server test suite ทั้งหมด → 41/41 ผ่าน Push การแก้ไขไว้ที่ commit `da0db1f` แล้วนะ"
+- **My Approval Comment**:
+  > "Approved"
+- **Status**: Approved & Merged into `lab2-staging`
+
+---
+
+### 13. PR #37: release(lab02): post-merge verification + report docs final sync
+- **PR Link**: `https://github.com/jejaebubu/toktickit/pull/37`
+- **Feature**: `release(lab02): post-merge verification + report docs final sync`
+- **GitHub Issue**: Release Sync
+- **Branch**: `release/lab02-post-merge-verification → main`
+- **Merge commit**: `0145fbd`
+- **Reviewer**: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
+- **My Review Comment (Changes Requested & Discussion)**:
+  > "ตรวจเช็กโค้ด Diff และเอกสารใน PR #37 อย่างละเอียดให้แล้วน้า:
+  > - ใน `attachments.api.test.ts` แก้ปัญหา False Positive ด้วย `expect(removed).toBeTruthy();` ครบทั้ง API-05d และ API-05f ได้ถูกต้องและรัดกุมมาก เทสต์ Server 41/41 ผ่านครบถ้วนตรงกับเอกสารแล้ว
+  > - มี 2 จุดเล็ก ๆ ใน `docs/lab-02/reviewer.md` ที่อยากให้แก้ให้เป๊ะก่อน Merge เข้า main น้า:
+  > 1. หัวข้อผู้ตรวจ (Reviewers ด้านบน): บรรทัดของ @titayaaa ยังเขียนว่า (PR #21–#32, #34–#35 และ PR release #33) อยู่ ฝากอัปเดตให้ครอบคลุม PR #36 และ #37 ด้วยน้า (แก้เป็น PR #21–#32, #34–#37)
+  > 2. ในตาราง แถว PR #37: ช่อง Branch เขียนว่า `lab2-staging → main` ฝากแก้เป็น `release/lab02-post-merge-verification → main` ให้ตรงกับชื่อ Head branch จริงบน GitHub
+  > ส่วนเนื้อหาอื่น ๆ ใน README.md และ tests.md ยอดเทสต์ 41/41 ตรงกันครบถ้วนดีมากแล้วว"
+- **Partner Response**:
+  > "แก้ให้เรียบร้อยแล้วครับ/ค่ะ ตามที่ชี้ทั้ง 2 จุด 👍
+  > 1. หัวข้อ Reviewers: เปลี่ยนเป็น `@titayaaa — ตรวจ PR implementation ทั้งหมด (PR #21–#32, #34–#37)` — ครอบคลุม #36 และ #37 แล้ว
+  > 2. แถว PR #37: Branch แก้เป็น `release/lab02-post-merge-verification → main` ตรงกับชื่อ Head branch จริง
+  > push ไว้ที่ commit `0145fbd` — Approved แล้วรบกวน Merge เข้า main ได้เลยครับ/ค่ะ 🚀"
+- **My Approval Comment**:
+  > "1. Test Assertions (`attachments.api.test.ts`): ปรับแก้ใน API-05d ตัดปัญหา False Positive และเพิ่มเคส API-05f ดักลบซ้ำตอบ 400 ยอดเทสต์ 41/41 สมบูรณ์ 2. Docs & Spec Synchronization: อัปเดตตัวอย่างเลขตั๋วเป็น TKT-2026-* และติ๊ก DoD ครบ 3. .gitignore: เพิ่ม coverage/ เรียบร้อยดี เยี่ยมมาก เดี๋ยว Approve และ merge ให้เลยย"
+- **Status**: Approved & Merged into `main`
