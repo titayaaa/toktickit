@@ -186,6 +186,24 @@ Repository: `https://github.com/jejaebubu/toktickit`
 Developer: พัฒนาวดี แสงเงินยอด ([@jejaebubu](https://github.com/jejaebubu))  
 Reviewer: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
 
+| PR # | Feature / Description | GitHub Issue | Branch | Reviewer | Verdict |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **[#21](https://github.com/jejaebubu/toktickit/pull/21)** | feat(db): add Prisma models and migration for Lab 2 | Issue #2 | `feature/lab02-02-db-models` | @titayaaa | Approved |
+| **[#22](https://github.com/jejaebubu/toktickit/pull/22)** | feat(db): update seed script to initialize categories, requesters, and related systems | Issue #3 (#14) | `feature/lab02-03-seed-data` | @titayaaa | Approved |
+| **[#23](https://github.com/jejaebubu/toktickit/pull/23)** | feat(auth): implement Development Requester Selector API, Context, and UI | Issue #4 | `feature/lab02-04-requester-context` | @titayaaa | Approved |
+| **[#24](https://github.com/jejaebubu/toktickit/pull/24)** | feat(api): implement Create Ticket REST API (POST /api/tickets) with validation | Issue #5 | `feature/lab02-05-create-ticket-api` | @titayaaa | Approved |
+| **[#25](https://github.com/jejaebubu/toktickit/pull/25)** | feat(ui): implement Create Ticket UI Screen with Zen Green theme and validation | Issue #6 | `feature/lab02-06-create-ticket-ui` | @titayaaa | Approved |
+| **[#28](https://github.com/jejaebubu/toktickit/pull/28)** | Issue 7: My Tickets List REST API (Search/Filter/Sort + Pagination) | Issue #7 | `feature/lab02-07-my-tickets-api` | @titayaaa | Approved |
+| **[#29](https://github.com/jejaebubu/toktickit/pull/29)** | Issue 8: My Tickets UI Screen & Interactive Controls | Issue #8 | `feature/lab02-08-my-tickets-ui` | @titayaaa | Approved |
+| **[#30](https://github.com/jejaebubu/toktickit/pull/30)** | Issue 9: Requester Ticket Detail & Soft-Remove Attachments | Issue #9 | `feature/lab02-09-ticket-detail-attachments` | @titayaaa | Approved |
+| **[#31](https://github.com/jejaebubu/toktickit/pull/31)** | Issue 10: E2E Test, Visual Inspection & Submission Evidence | Issue #10 | `feature/lab02-10-e2e-visual-evidence` | @titayaaa | Approved |
+| **[#32](https://github.com/jejaebubu/toktickit/pull/32)** | docs: prepare release notes — README + full reviewer.md | Issue 11 | `feature/lab02-11-release-preparation` | @titayaaa | Approved |
+| **[#33 & #35](https://github.com/jejaebubu/toktickit/pull/33)** | Issue 11: Lab 2 Release Integration (lab2-staging → main) | Issue 11 | `lab2-staging → main` | @titayaaa | Approved |
+| **[#36](https://github.com/jejaebubu/toktickit/pull/36)** | test(lab02): add missing API-05f test (soft-remove guard) | Issue 11 (API-05f) | `fix/lab02-missing-api-05f-test` | @titayaaa | Approved |
+| **[#37](https://github.com/jejaebubu/toktickit/pull/37)** | release(lab02): post-merge verification + report docs final sync | Release Sync | `release/lab02-post-merge-verification → main` | @titayaaa | Approved |
+
+---
+
 ### 1. PR #21: feat(db): add Prisma models and migration for Lab 2 (Issue #2)
 - **PR Link**: `https://github.com/jejaebubu/toktickit/pull/21`
 - **My Review Comment**:
@@ -322,6 +340,11 @@ Reviewer: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
 
 ### 12. PR #36: test(lab02): add missing API-05f test (soft-remove guard)
 - **PR Link**: `https://github.com/jejaebubu/toktickit/pull/36`
+- **Feature**: `test(lab02): add missing API-05f test (soft-remove guard)`
+- **GitHub Issue**: Issue 11 (API-05f soft-remove guard)
+- **Branch**: `fix/lab02-missing-api-05f-test`
+- **Merge commit**: `ebc6460`
+- **Reviewer**: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
 - **My Review Comment (Changes Requested)**:
   > "ตรวจโค้ดใน PR #36 แล้ว มีจุดสำคัญที่อยากให้ช่วยแก้นิดนึงก่อน Merge น้า
   > ในไฟล์ `server/tests/lab-02/attachments.api.test.ts` (เทส API-05f): ตรงบรรทัด `if (!removed) return;` ถ้าเวลารันเทสแยกเดี่ยวแล้วหาไฟล์ที่ลบไม่เจอ ตัวเทสจะ return จบไปเลย ทำให้ Vitest มองว่าเทส PASS ทั้งที่ยังไม่ได้รัน expect จริง ๆ (เกิด False Positive)
@@ -333,12 +356,17 @@ Reviewer: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
   > ผลรันจริง: `attachments.api.test.ts` → 13/13 ผ่าน (รวม API-05f และ API-05d), Server test suite ทั้งหมด → 41/41 ผ่าน Push การแก้ไขไว้ที่ commit `da0db1f` แล้วนะ"
 - **My Approval Comment**:
   > "Approved"
-- **Status**: Approved & Merged
+- **Status**: Approved & Merged into `lab2-staging`
 
 ---
 
-### 13. PR #37: release(lab02): post-merge verification + report docs final sync (#37)
+### 13. PR #37: release(lab02): post-merge verification + report docs final sync
 - **PR Link**: `https://github.com/jejaebubu/toktickit/pull/37`
+- **Feature**: `release(lab02): post-merge verification + report docs final sync`
+- **GitHub Issue**: Release Sync
+- **Branch**: `release/lab02-post-merge-verification → main`
+- **Merge commit**: `0145fbd`
+- **Reviewer**: ธิตยาภรณ์ ([@titayaaa](https://github.com/titayaaa))
 - **My Review Comment (Changes Requested & Discussion)**:
   > "ตรวจเช็กโค้ด Diff และเอกสารใน PR #37 อย่างละเอียดให้แล้วน้า:
   > - ใน `attachments.api.test.ts` แก้ปัญหา False Positive ด้วย `expect(removed).toBeTruthy();` ครบทั้ง API-05d และ API-05f ได้ถูกต้องและรัดกุมมาก เทสต์ Server 41/41 ผ่านครบถ้วนตรงกับเอกสารแล้ว
