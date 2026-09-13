@@ -174,11 +174,9 @@
 ### 13. PR #41: Post-Merge Verification & Docs Final Sync
 - **PR Link**: `https://github.com/titayaaa/toktickit/pull/41`
 - **Reviewer**: พัฒนาวดี แสงเงินยอด ([@jejaebubu](https://github.com/jejaebubu))
-- **Review Comment**:
-  > "ตรวจเช็กเอกสารรอบสุดท้ายใน PR #41 เรียบร้อยแล้วนะ บันทึกประวัติ PR #40, #36, #37 ครบถ้วนตรงกับ GitHub จริง 100% เอกสารและเทสต์พร้อมส่งงานแล้ว Approve & Merge ได้เลยจ้า"
-- **Author Response & Resolution**:
-  > "ขอบคุณมากน้า สรุปครบถ้วนทุกจุดแล้วจ้า"
-- **Approval & Merge Status**: Approved & Merged into `main`
+- **Status**: Pending Review (รอเพื่อนเข้ามาตรวจทานและคอมเมนต์)
+- **Review Comment**: *(รอเพื่อนเข้ามาตรวจทานบน GitHub)*
+- **Author Response**: *(รอตอบกลับหลังเพื่อนรีวิว)*
 
 ---
 
