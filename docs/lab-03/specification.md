@@ -274,3 +274,12 @@ model InternalNote {
 6. Vitest test suite and Playwright E2E tests passing without failure.
 7. Peer review conducted and merged into `lab3-staging` and subsequently into `main`.
 8. 9-Part final PDF report compiled with verifiable evidence.
+
+---
+
+## 10. Assumptions and Decisions
+1. **Password Hashing:** `bcrypt` with salt rounds = 10 is chosen for secure one-way hashing of user credentials. Plaintext passwords are never stored or logged.
+2. **Session Storage:** Authentication sessions will be maintained via secure HTTP-only cookies storing a signed token or session ID to guard against Cross-Site Scripting (XSS) token theft.
+3. **IT Priority Initialization:** When a ticket is created by a Requester, the database initializes `itPriority` to mirror `requestedPriority`. Only `IT_STAFF` or `ADMINISTRATOR` can subsequently modify `itPriority`.
+4. **Reopened Ticket Behavior:** When a ticket is reopened (`RESOLVED` -> `REOPENED` -> `IN_PROGRESS`), existing `resolutionSummary` is preserved as historical record until an IT Staff member re-resolves the ticket with a newly updated resolution summary.
+
