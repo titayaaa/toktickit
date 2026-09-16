@@ -7,21 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  REQUESTER
+  IT_STAFF
+  ADMINISTRATOR
+}
+
 enum TicketPriority {
   LOW
   MEDIUM
   HIGH
   CRITICAL
+  URGENT
 }
 
 enum TicketStatus {
   NEW
   OPEN
   IN_PROGRESS
+  WAITING_FOR_REQUESTER
   PENDING
   RESOLVED
   CLOSED
+  REOPENED
   CANCELLED
+}
+
+model User {
+  id                 Int      @id @default(autoincrement())
+  email              String   @unique
+  fullName           String
+  passwordHash       String
+  role               Role     @default(REQUESTER)
+  isActive           Boolean  @default(true)
+  mustChangePassword Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  createdTickets  Ticket[]        @relation("TicketRequester")
+  assignedTickets Ticket[]        @relation("TicketOwner")
+  publicComments  PublicComment[]
+  internalNotes   InternalNote[]
+
+  @@map("users")
 }
 
 model RequesterUser {
@@ -57,13 +85,25 @@ model Ticket {
   requestedPriority TicketPriority
   itPriority        TicketPriority?
   currentStatus     TicketStatus    @default(NEW)
+  resolutionSummary String?
+  ownerId           Int?
+  userId            Int?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
-  requester     RequesterUser @relation(fields: [requesterId], references: [id])
-  category      Category      @relation(fields: [categoryId], references: [id])
-  relatedSystem RelatedSystem @relation(fields: [relatedSystemId], references: [id])
-  attachments   Attachment[]
+  requesterUser  RequesterUser?  @relation(fields: [requesterId], references: [id])
+  requester      User?           @relation("TicketRequester", fields: [userId], references: [id])
+  owner          User?           @relation("TicketOwner", fields: [ownerId], references: [id])
+  category       Category        @relation(fields: [categoryId], references: [id])
+  relatedSystem  RelatedSystem   @relation(fields: [relatedSystemId], references: [id])
+  attachments    Attachment[]
+  publicComments PublicComment[]
+  internalNotes  InternalNote[]
+
+  @@index([currentStatus])
+  @@index([ownerId])
+  @@index([userId])
+  @@index([requesterId])
 }
 
 model Attachment {
@@ -78,4 +118,32 @@ model Attachment {
   createdAt        DateTime  @default(now())
 
   ticket Ticket @relation(fields: [ticketId], references: [id])
+}
+
+model PublicComment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  userId    Int
+  content   String
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("public_comments")
+}
+
+model InternalNote {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  userId    Int
+  content   String
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("internal_notes")
 }

@@ -1,9 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role, TicketPriority, TicketStatus } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// This seed script is designed to be idempotent and safe to run multiple times.
+// Idempotent seed script safe to run repeatedly
 async function main() {
+  console.log('Seeding categories and related systems...');
   const categories = [
     { name: 'Account and Access', isActive: true },
     { name: 'Hardware', isActive: true },
@@ -39,20 +41,117 @@ async function main() {
     });
   }
 
-  const requesters = [
-    { name: 'Jennifer Anderson', email: 'jennifer.anderson@example.com', isActive: true },
-    { name: 'Michael Brown', email: 'michael.brown@example.com', isActive: true },
-    { name: 'Sarah Johnson', email: 'sarah.johnson@example.com', isActive: true },
-    { name: 'David Lee', email: 'david.lee@example.com', isActive: true },
-    { name: 'Inactive User', email: 'inactive.user@example.com', isActive: false },
+  console.log('Seeding users for Lab 3 (Requesters, IT Staff, Administrator)...');
+  const defaultPasswordHash = await bcrypt.hash('Password123', 10);
+
+  const users = [
+    // 5 Active Requesters + 1 Inactive Requester
+    {
+      email: 'jennifer.anderson@example.com',
+      fullName: 'Jennifer Anderson',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'michael.brown@example.com',
+      fullName: 'Michael Brown',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'sarah.johnson@example.com',
+      fullName: 'Sarah Johnson',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'david.lee@example.com',
+      fullName: 'David Lee',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'alex.thompson@example.com',
+      fullName: 'Alex Thompson',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'inactive.user@example.com',
+      fullName: 'Inactive Requester',
+      role: Role.REQUESTER,
+      isActive: false,
+      mustChangePassword: false,
+    },
+
+    // 3 Active IT Staff + 1 Inactive IT Staff
+    {
+      email: 'staff.alice@toktickit.com',
+      fullName: 'Alice IT Support',
+      role: Role.IT_STAFF,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'staff.bob@toktickit.com',
+      fullName: 'Bob Network Tech',
+      role: Role.IT_STAFF,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'staff.charlie@toktickit.com',
+      fullName: 'Charlie Systems Eng',
+      role: Role.IT_STAFF,
+      isActive: true,
+      mustChangePassword: false,
+    },
+    {
+      email: 'staff.inactive@toktickit.com',
+      fullName: 'Inactive Staff Member',
+      role: Role.IT_STAFF,
+      isActive: false,
+      mustChangePassword: false,
+    },
+
+    // 1 Active Administrator
+    {
+      email: 'admin.john@toktickit.com',
+      fullName: 'John Administrator',
+      role: Role.ADMINISTRATOR,
+      isActive: true,
+      mustChangePassword: false,
+    },
   ];
 
-  for (const req of requesters) {
-    await prisma.requesterUser.upsert({
-      where: { email: req.email },
-      update: { isActive: req.isActive, name: req.name },
-      create: req,
+  for (const u of users) {
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: {
+        fullName: u.fullName,
+        role: u.role,
+        isActive: u.isActive,
+        mustChangePassword: u.mustChangePassword,
+      },
+      create: {
+        ...u,
+        passwordHash: defaultPasswordHash,
+      },
     });
+
+    // Also keep RequesterUser synced for backward compatibility with Lab 2
+    if (u.role === Role.REQUESTER) {
+      await prisma.requesterUser.upsert({
+        where: { email: u.email },
+        update: { isActive: u.isActive, name: u.fullName },
+        create: { email: u.email, name: u.fullName, isActive: u.isActive },
+      });
+    }
   }
 
   console.log('Seeding completed successfully!');
