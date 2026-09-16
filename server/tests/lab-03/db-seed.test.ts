@@ -51,11 +51,30 @@ describe('Issue 18: Database Evolution and Seed Verification', () => {
     expect(activeAdmins).toBeGreaterThanOrEqual(1);
   });
 
-  it('can create public comments and internal notes with relations', async () => {
-    // Verify models can be queried without error
+  it('verifies backfill of userId and itPriority on existing tickets', async () => {
+    const ticketsWithoutPriority = await prisma.ticket.count({
+      where: { itPriority: null },
+    });
+    expect(ticketsWithoutPriority).toBe(0);
+
+    const ticketsWithUserId = await prisma.ticket.count({
+      where: { userId: { not: null } },
+    });
+    expect(ticketsWithUserId).toBeGreaterThan(0);
+  });
+
+  it('contains realistic sample tickets, public comments, and internal notes', async () => {
     const commentCount = await prisma.publicComment.count();
     const noteCount = await prisma.internalNote.count();
-    expect(commentCount).toBeGreaterThanOrEqual(0);
-    expect(noteCount).toBeGreaterThanOrEqual(0);
+    expect(commentCount).toBeGreaterThanOrEqual(2);
+    expect(noteCount).toBeGreaterThanOrEqual(1);
+
+    const sampleTicket = await prisma.ticket.findUnique({
+      where: { ticketNumber: 'TKT-2026-000101' },
+      include: { publicComments: true, internalNotes: true },
+    });
+    expect(sampleTicket).toBeDefined();
+    expect(sampleTicket?.publicComments.length).toBeGreaterThanOrEqual(2);
+    expect(sampleTicket?.internalNotes.length).toBeGreaterThanOrEqual(1);
   });
 });
