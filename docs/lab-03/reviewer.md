@@ -5,7 +5,7 @@
 - **Feature Branch:** `feature/17-spec-and-tests`
 - **Target Branch:** `lab3-staging`
 - **Author:** ฑิตญา ผ่องสกุล (GitHub: `@titayaaa` / Student ID: 67070505201)
-- **Peer Reviewer:** ปทิตตา แก้ววิเชียร (GitHub: `@lmaybelgracel` / Student ID: 67070505220)
+- **Peer Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 - **Pull Request:** [PR #52](https://github.com/titayaaa/toktickit/pull/52)
 
 ---
@@ -26,7 +26,7 @@
 
 ## 3. Review Discussion, Feedback & Resolution History
 
-### Peer Review Comments (@lmaybelgracel)
+### Peer Review Comments (@chanya06)
 > **Peer Review: Approved (PR #52)**
 > ตรวจทานเอกสาร Sprint 3 Engineering Contract & Specifications ใน `docs/lab-03/` เรียบร้อย เอกสารทำออกมาได้ละเอียด ครบถ้วน และครอบคลุมตามข้อกำหนดใน Lab 3
 > 
@@ -41,6 +41,26 @@
 - อัปเดต PR Link เป็น PR #52 และบันทึกผลการตรวจสอบในตาราง Checklist เรียบร้อย
 
 ### Final Approval
-- **Status:** ✅ Approved by @lmaybelgracel
+- **Status:** ✅ Approved by @chanya06
 - **Approval Date:** 2026-09-17
-- **Merged by:** ฑิตญา ผ่องสกุล
+- **Merged by:** @chanya06
+
+---
+
+## 4. PR #53 Review Record: Issue 18 Database Migration, Schema Evolution & Seed Data
+- **Feature Branch:** `feature/18-db-and-seed`
+- **Pull Request:** [PR #53](https://github.com/titayaaa/toktickit/pull/53)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
+
+### Peer Review Comments (@chanya06)
+> 1. Backfill userId และ itPriority สำหรับตั๋วเดิม
+> 2. Seed ข้อมูล Ticket, Public Comments และ Internal Notes ตัวอย่าง
+> 3. Commit Prisma Migration File ลง server/prisma/migrations/
+
+### Author Responses & Revisions (@titayaaa)
+- เพิ่ม logic backfill userId และ itPriority ใน `seed.ts`
+- เพิ่ม realistic tickets, public comments, และ internal notes ตัวอย่างใน `seed.ts`
+- สร้างและ commit ไฟล์ migration SQL ลงใน `server/prisma/migrations/20260917000000_lab3_users_and_workflow/migration.sql`
+- เพิ่ม automated verification tests ใน `db-seed.test.ts` (6 tests passed 100%)
+
+
