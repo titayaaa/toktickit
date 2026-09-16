@@ -62,5 +62,21 @@
 - เพิ่ม realistic tickets, public comments, และ internal notes ตัวอย่างใน `seed.ts`
 - สร้างและ commit ไฟล์ migration SQL ลงใน `server/prisma/migrations/20260917000000_lab3_users_and_workflow/migration.sql`
 - เพิ่ม automated verification tests ใน `db-seed.test.ts` (6 tests passed 100%)
+- **Status:** ✅ Approved and Merged by @chanya06
+
+---
+
+## 5. PR Review Record: Issue 19 Authentication & Authorization Backend API
+- **Feature Branch:** `feature/19-auth-api`
+- **Pull Request:** [PR # (Pending Open)](https://github.com/titayaaa/toktickit/pull/)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
+
+### Scope Delivered:
+- Server-side authentication endpoints (`/api/auth/login`, `/logout`, `/me`, `/change-password`).
+- Password complexity verification (min 8 chars, uppercase, lowercase, numeric digit).
+- Authentication and Role-based middleware with HTTP-only cookie and Bearer token support.
+- Mandatory first-login password rotation enforcement (`mustChangePassword` guard returns 403 on operational routes).
+- 12 automated test cases passing across `auth.api.test.ts` and `authorization.api.test.ts`.
+
 
 
