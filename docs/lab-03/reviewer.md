@@ -135,7 +135,7 @@
 
 ## 8. PR Review Record: Issue 22 IT Staff Ticket Queue UI & Dashboard
 - **Feature Branch:** `feature/22-staff-queue-ui`
-- **Pull Request:** [PR Placeholder](#)
+- **Pull Request:** [PR #57](https://github.com/titayaaa/toktickit/pull/57)
 - **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
 ### Scope Delivered:
