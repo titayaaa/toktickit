@@ -147,8 +147,33 @@
 - Role-aware navigation in `App.tsx` conditionally exposing the "Ticket Queue" tab only to IT Staff and Administrator roles.
 - 7 automated component unit tests in `StaffTicketQueue.test.tsx` verifying render, search, filters, sorting, empty states, pagination, and detail navigation. All 41 client unit tests passing 100%.
 
+### Peer Review Comments (@chanya06)
+> **Peer Review: Approved (PR #57)**
+> ตรวจทานโค้ดและทดสอบ UI ของ Issue 22 (IT Staff Ticket Queue UI & Dashboard) เรียบร้อยแล้ว
+> 1. **UX/UI & Design System:** การจัดวางสไตล์ Zen Green สวยงาม สอดคล้องตาม Tokens รองรับทั้ง Desktop Table และ Mobile Card Stack (<768px) อย่างสมบูรณ์
+> 2. **Filtering & Search:** ค้นหาแบบ Real-time ร่วมกับการกรอง Status, IT Priority, Category, และ Assignment Tab (All / Unassigned / Assigned to Me) ทำงานลื่นไหล
+> 3. **Role-Aware Navigation:** เมนู Ticket Queue แสดงเฉพาะ Staff/Admin และซ่อนจาก Requester อย่างถูกต้อง
+> 4. **Test Verification:** ผ่าน Component Unit Tests ครบ 7 เคสใน `StaffTicketQueue.test.tsx` และ Client Tests ผ่าน 100% (41/41)
+> ผลการตรวจทานเรียบร้อยดีมาก อนุมัติ Merge เข้า `lab3-staging` ได้เลยครับ
 
+### Final Approval
+- **Status:** ✅ Approved by @chanya06
+- **Approval Date:** 2026-09-17
+- **Merged by:** @chanya06
 
+---
 
+## 9. PR Review Record: Issue 23 Ticket Operations, Ownership & Notes API
+- **Feature Branch:** `feature/23-ticket-ops-api`
+- **Pull Request:** [PR #58](https://github.com/titayaaa/toktickit/pull/58)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
-
+### Scope Planned:
+- IT Staff Claim ticket endpoint (`PATCH /api/staff/tickets/:id/claim` -> sets `ownerId = req.user.id`, transitions `NEW` -> `OPEN`).
+- IT Staff Reassign ticket endpoint (`PATCH /api/staff/tickets/:id/assign` -> reassigns to active IT staff/admin).
+- IT Priority update endpoint (`PATCH /api/staff/tickets/:id/priority`).
+- Ticket Status transition endpoint (`PATCH /api/staff/tickets/:id/status` enforcing state transition matrix, rejects `RESOLVED` with 422).
+- Ticket Resolution endpoint (`PATCH /api/staff/tickets/:id/resolve` requiring `resolutionSummary` 3-500 chars).
+- Public Comments endpoints (`POST /api/tickets/:id/comments` and `GET /api/tickets/:id/comments`).
+- Role-restricted Internal Notes endpoints (`POST /api/tickets/:id/notes` and `GET /api/tickets/:id/notes`, strictly 403 for Requesters).
+- Comprehensive integration tests in `server/tests/lab-03/ticket-operations.api.test.ts`.

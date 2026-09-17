@@ -119,7 +119,14 @@ async function main() {
       mustChangePassword: false,
     },
 
-    // 1 Active Administrator
+    // Active Administrators
+    {
+      email: 'admin.bew@toktickit.com',
+      fullName: 'Bew Administrator',
+      role: Role.ADMINISTRATOR,
+      isActive: true,
+      mustChangePassword: false,
+    },
     {
       email: 'admin.john@toktickit.com',
       fullName: 'John Administrator',
