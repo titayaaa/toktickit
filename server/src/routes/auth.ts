@@ -6,6 +6,9 @@ import { AuthRequest, authenticate, generateToken } from '../middleware/auth';
 const router = Router();
 const prisma = new PrismaClient();
 
+// Email format regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 // Password complexity regex: at least 8 chars, 1 uppercase, 1 lowercase, 1 digit
 const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
@@ -20,6 +23,11 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      res.status(401).json({ error: 'Invalid email or password' });
+      return;
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: normalizedEmail },
     });
@@ -53,6 +61,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
+        name: user.fullName, // Backward-compatible alias for Lab 2 client components
         role: user.role,
         mustChangePassword: user.mustChangePassword,
       },
@@ -81,6 +90,7 @@ router.get('/me', authenticate, (req: AuthRequest, res: Response): void => {
       id: req.user.id,
       email: req.user.email,
       fullName: req.user.fullName,
+      name: req.user.fullName, // Backward-compatible alias
       role: req.user.role,
       mustChangePassword: req.user.mustChangePassword,
     },
@@ -133,12 +143,23 @@ router.post('/change-password', authenticate, async (req: AuthRequest, res: Resp
       },
     });
 
+    // Re-issue fresh token and update cookie reflecting mustChangePassword = false
+    const newToken = generateToken(updatedUser);
+    res.cookie('toktickit_token', newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({
       message: 'Password changed successfully',
+      token: newToken,
       user: {
         id: updatedUser.id,
         email: updatedUser.email,
         fullName: updatedUser.fullName,
+        name: updatedUser.fullName,
         role: updatedUser.role,
         mustChangePassword: updatedUser.mustChangePassword,
       },

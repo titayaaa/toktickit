@@ -135,4 +135,43 @@ describe('Issue 19: Authentication APIs (auth.api.test.ts)', () => {
     expect(weakRes.status).toBe(422);
     expect(weakRes.body.error).toContain('at least 8 characters');
   });
+
+  it('AUTH-08: Change password rejects reusing the exact same password', async () => {
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email: TEST_EMAIL, password: 'NewSecretPassword456' });
+
+    const token = loginRes.body.token;
+
+    const samePasswordRes = await request(app)
+      .post('/api/auth/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'NewSecretPassword456',
+        newPassword: 'NewSecretPassword456',
+      });
+
+    expect(samePasswordRes.status).toBe(422);
+    expect(samePasswordRes.body.error).toContain('different from current password');
+  });
+
+  it('AUTH-09: Login and Me responses include name alias for backward compatibility', async () => {
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email: TEST_EMAIL, password: 'NewSecretPassword456' });
+
+    expect(loginRes.status).toBe(200);
+    expect(loginRes.body.user).toHaveProperty('fullName');
+    expect(loginRes.body.user).toHaveProperty('name');
+    expect(loginRes.body.user.name).toBe(loginRes.body.user.fullName);
+
+    const token = loginRes.body.token;
+    const meRes = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(meRes.status).toBe(200);
+    expect(meRes.body.user.name).toBe(meRes.body.user.fullName);
+  });
 });
+
