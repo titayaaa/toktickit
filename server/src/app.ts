@@ -7,6 +7,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import authRouter from './routes/auth';
+import staffRouter from './routes/staff';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -16,8 +17,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Lab 3 Authentication Routes
+// Lab 3 Authentication & Staff Operational Routes
 app.use('/api/auth', authRouter);
+app.use('/api/staff', staffRouter);
 
 
 // Multer configuration for attachments
