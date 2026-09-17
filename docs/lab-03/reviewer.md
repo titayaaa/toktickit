@@ -168,7 +168,7 @@
 - **Pull Request:** [PR #58](https://github.com/titayaaa/toktickit/pull/58)
 - **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
-### Scope Planned:
+### Scope Delivered:
 - IT Staff Claim ticket endpoint (`PATCH /api/staff/tickets/:id/claim` -> sets `ownerId = req.user.id`, transitions `NEW` -> `OPEN`).
 - IT Staff Reassign ticket endpoint (`PATCH /api/staff/tickets/:id/assign` -> reassigns to active IT staff/admin).
 - IT Priority update endpoint (`PATCH /api/staff/tickets/:id/priority`).
@@ -176,4 +176,36 @@
 - Ticket Resolution endpoint (`PATCH /api/staff/tickets/:id/resolve` requiring `resolutionSummary` 3-500 chars).
 - Public Comments endpoints (`POST /api/tickets/:id/comments` and `GET /api/tickets/:id/comments`).
 - Role-restricted Internal Notes endpoints (`POST /api/tickets/:id/notes` and `GET /api/tickets/:id/notes`, strictly 403 for Requesters).
-- Comprehensive integration tests in `server/tests/lab-03/ticket-operations.api.test.ts`.
+- Requester Problem Appears Resolved endpoint (`POST /api/tickets/:id/resolve-indication`).
+- Enhanced `GET /api/tickets/:id` verifying internal notes are never disclosed to Requesters.
+- 29 comprehensive integration tests in `server/tests/lab-03/ticket-operations.api.test.ts` (100% pass).
+
+### Peer Review Comments (@chanya06)
+> **Peer Review: Approved (PR #58)**
+> ตรวจทานโค้ดและชุดทดสอบของ Issue 23 (Ticket Operations, Ownership & Notes API) เรียบร้อยแล้ว
+> 1. **Operation Workflow:** ระบบ Claim, Assign, ปรับ Priority และ Status Transition ปฏิบัติตาม Transition Matrix ครบถ้วน
+> 2. **Resolution Guard:** การ Resolve บังคับใส่ `resolutionSummary` ความยาว 3-500 ตัวอักษรอย่างถูกต้องตามเกณฑ์
+> 3. **Data Protection & Privacy:** การแยก Public Comments และ Internal Notes ชัดเจน โดย Requesters ถูกบล็อก 403 จากการเข้าถึงโน้ตลับภายใน และไม่พบการรั่วไหลของข้อมูลลับ
+> 4. **Test Verification:** Integration Tests ทั้ง 29 เคสผ่าน 100% รวมเทสฝั่ง Server Lab 3 ผ่านครบ 58/58 เคส
+> อนุมัติ Merge เข้า `lab3-staging` ได้เลยครับ
+
+### Final Approval
+- **Status:** ✅ Approved by @chanya06
+- **Approval Date:** 2026-09-18
+- **Merged by:** @chanya06
+
+---
+
+## 10. PR Review Record: Issue 24 IT Staff Ticket Operations & Confidential Notes UI
+- **Feature Branch:** `feature/24-ticket-ops-ui`
+- **Pull Request:** [PR #59](https://github.com/titayaaa/toktickit/pull/59)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
+
+### Scope Planned:
+- Enhanced ticket detail with IT operations toolbar (Claim, Assign, Priority, Status transition, Resolve modal).
+- Dual-stream conversation interface:
+  - Public Comments thread with light green `#EAF6EF` bubble styling and composer.
+  - Confidential Internal Notes with distinct amber `#FFF8E1` styling, lock badge 🔒, and privacy notice (strictly restricted to IT Staff/Admin).
+- Requester "Problem Appears Resolved" indication action and resolution summary view.
+- Comprehensive client unit tests verifying operations, dual comments/notes, modal, and requester privacy.
+

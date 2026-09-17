@@ -181,3 +181,35 @@ body {
   border-color: var(--secondary-green);
 }
 
+/* Dual-stream Communication Styles (Public Comments vs Internal Notes) */
+.comment-bubble-green {
+  background-color: #EAF6EF;
+  border: 1px solid rgba(0, 107, 60, 0.2);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+}
+
+.note-bubble-amber {
+  background-color: #FFF8E1;
+  border: 1px solid #FFA000;
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+}
+
+.confidential-banner {
+  background-color: #FFF3CD;
+  border: 1px solid #FFEEBA;
+  color: #856404;
+  border-radius: 6px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.resolution-summary-card {
+  background-color: #EAF6EF;
+  border: 1.5px solid #006B3C;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
