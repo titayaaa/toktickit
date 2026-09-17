@@ -10,6 +10,7 @@ import jwt from 'jsonwebtoken';
 import authRouter from './routes/auth';
 import staffRouter from './routes/staff';
 import ticketsRouter from './routes/tickets';
+import adminRouter from './routes/admin';
 import { extractToken } from './middleware/auth';
 
 const app = express();
@@ -20,10 +21,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Lab 3 Authentication, Staff Operational & Ticket Communication Routes
+// Lab 3 Authentication, Staff Operational, Ticket Communication & Admin Routes
 app.use('/api/auth', authRouter);
 app.use('/api/staff', staffRouter);
 app.use('/api/tickets', ticketsRouter);
+app.use('/api/admin', adminRouter);
 
 
 // Multer configuration for attachments
