@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useRequester } from './contexts/RequesterContext';
-import DevelopmentRequesterSelection from './components/DevelopmentRequesterSelection';
+import { AuthProvider, useAuth, UserRole } from './contexts/AuthContext';
+import { RequesterProvider } from './contexts/RequesterContext';
+import Login from './components/Login';
+import ChangePassword from './components/ChangePassword';
 import CreateTicketForm from './components/CreateTicketForm';
 import MyTickets from './components/MyTickets';
 import TicketDetail from './components/TicketDetail';
@@ -17,8 +19,29 @@ interface RelatedSystem {
 
 type TabType = 'create' | 'my-tickets';
 
-const App: React.FC = () => {
-  const { selectedRequester, setRequester } = useRequester();
+const ROLE_CONFIG: Record<UserRole, { label: string; bg: string; color: string; border: string }> = {
+  REQUESTER: {
+    label: 'Requester',
+    bg: '#E8F5E9',
+    color: '#2E7D32',
+    border: '1px solid #A5D6A7',
+  },
+  IT_STAFF: {
+    label: 'IT Staff',
+    bg: '#E3F2FD',
+    color: '#1565C0',
+    border: '1px solid #90CAF9',
+  },
+  ADMINISTRATOR: {
+    label: 'Administrator',
+    bg: '#EDE7F6',
+    color: '#512DA8',
+    border: '1px solid #B39DDB',
+  },
+};
+
+const MainApplication: React.FC = () => {
+  const { user, logout, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('create');
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,21 +66,38 @@ const App: React.FC = () => {
 
         setCategories(catData);
         setRelatedSystems(sysData);
-      } catch (err) {
+      } catch {
         setError('Unable to connect to TokTickIT API');
       } finally {
         setLoading(false);
       }
     };
 
-    if (selectedRequester) {
+    if (user && !user.mustChangePassword) {
       fetchData();
     }
-  }, [selectedRequester]);
+  }, [user]);
 
-  if (!selectedRequester) {
-    return <DevelopmentRequesterSelection />;
+  // Loading indicator while initializing auth
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5F7F6' }}>
+        <span style={{ color: '#006B3C', fontSize: '16px', fontWeight: '600' }}>Loading TokTickIT...</span>
+      </div>
+    );
   }
+
+  // Mandatory Login view when unauthenticated
+  if (!user) {
+    return <Login />;
+  }
+
+  // Mandatory Change Password view for users with mustChangePassword = true
+  if (user.mustChangePassword) {
+    return <ChangePassword />;
+  }
+
+  const roleBadge = ROLE_CONFIG[user.role] || ROLE_CONFIG.REQUESTER;
 
   return (
     <div className="container py-4">
@@ -65,22 +105,35 @@ const App: React.FC = () => {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm border">
         <div>
           <h1 className="h4 font-weight-bold text-success mb-1">TokTickIT IT Service Desk</h1>
-          <div className="small">
-            <span className="text-muted me-1">Current Requester:</span>
-            <span className="fw-bold text-primary-green">{selectedRequester.name}</span>
-            <span className="text-muted ms-1">({selectedRequester.email})</span>
+          <div className="d-flex align-items-center gap-2 small mt-1">
+            <span className="text-muted">Signed in as:</span>
+            <span className="fw-bold text-dark">{user.fullName || user.name}</span>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: '600',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                backgroundColor: roleBadge.bg,
+                color: roleBadge.color,
+                border: roleBadge.border,
+              }}
+            >
+              {roleBadge.label}
+            </span>
+            <span className="text-muted">({user.email})</span>
           </div>
         </div>
         <button
-          className="btn btn-sm btn-outline-secondary mt-2 mt-sm-0"
-          onClick={() => setRequester(null)}
-          aria-label="Change Requester"
+          className="btn btn-sm btn-outline-danger mt-2 mt-sm-0"
+          onClick={() => logout()}
+          aria-label="Sign Out"
         >
-          Change Requester
+          Sign Out
         </button>
       </div>
 
-      {/* Main Navigation Tabs */}
+      {/* Navigation Tabs */}
       <div className="d-flex gap-2 mb-4">
         <button
           type="button"
@@ -140,11 +193,23 @@ const App: React.FC = () => {
               setSelectedTicketId(null);
               setActiveTab('create');
             }}
-            onSelectTicket={(ticketId) => setSelectedTicketId(ticketId)}
+            onSelectTicket={(ticketId: number) => {
+              setSelectedTicketId(ticketId);
+            }}
           />
         </div>
       )}
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <RequesterProvider>
+        <MainApplication />
+      </RequesterProvider>
+    </AuthProvider>
   );
 };
 

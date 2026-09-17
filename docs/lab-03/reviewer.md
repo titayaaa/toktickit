@@ -92,6 +92,21 @@
 - **Approval Date:** 2026-09-17
 - **Merged by:** @chanya06
 
+---
+
+## 6. PR Review Record: Issue 20 Login & Mandatory Password Change UI
+- **Feature Branch:** `feature/20-login-ui`
+- **Pull Request:** [PR #55](https://github.com/titayaaa/toktickit/pull/55)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
+
+### Scope Delivered:
+- Client-side `AuthContext` with JWT token persistence (`toktickit_auth_token`), session inspection (`/api/auth/me`), login, logout, and password change methods.
+- Zen Green branded `Login` component (`#006B3C`, `#0B7A46`, `#EAF6EF`, `#F5F7F6`, `#1A2E23`) with error banner and password visibility toggle.
+- `ChangePassword` component with amber warning alert notice (`#FFF8E1`, `#FFA000`), real-time 4-point password complexity checklist, confirmation matching validation, and busy state.
+- Integration into `App.tsx` replacing Development Requester selector with authentication gate, rendering role badges (Requester, IT Staff, Administrator) on header.
+- 7 automated Vitest unit tests across `Login.test.tsx` and `ChangePassword.test.tsx`, plus zero regressions on Lab 1 & 2 UI suites (34 tests passing 100%).
+
+
 
 
 
