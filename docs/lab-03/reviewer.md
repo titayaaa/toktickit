@@ -96,7 +96,7 @@
 
 ## 6. PR Review Record: Issue 20 Login & Mandatory Password Change UI
 - **Feature Branch:** `feature/20-login-ui`
-- **Pull Request:** [PR Placeholder](#)
+- **Pull Request:** [PR #55](https://github.com/titayaaa/toktickit/pull/55)
 - **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
 ### Scope Delivered:
