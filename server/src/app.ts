@@ -5,9 +5,12 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 import authRouter from './routes/auth';
 import staffRouter from './routes/staff';
+import ticketsRouter from './routes/tickets';
+import { extractToken } from './middleware/auth';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -17,9 +20,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Lab 3 Authentication & Staff Operational Routes
+// Lab 3 Authentication, Staff Operational & Ticket Communication Routes
 app.use('/api/auth', authRouter);
 app.use('/api/staff', staffRouter);
+app.use('/api/tickets', ticketsRouter);
 
 
 // Multer configuration for attachments
@@ -225,6 +229,7 @@ app.post('/api/tickets', async (req: Request, res: Response): Promise<void> => {
             summary,
             description,
             requestedPriority,
+            itPriority: requestedPriority,
             currentStatus: 'NEW',
           },
         });
@@ -429,12 +434,26 @@ app.get('/api/tickets', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// GET /api/tickets/:id (Issue 14 - Ticket Detail View)
+// GET /api/tickets/:id (Issue 14 - Ticket Detail View & Lab 3 RBAC)
 app.get('/api/tickets/:id', async (req: Request, res: Response): Promise<void> => {
   try {
+    let authenticatedUser: any = null;
+    const token = extractToken(req);
+    if (token) {
+      try {
+        const decoded: any = jwt.verify(
+          token,
+          process.env.JWT_SECRET || 'toktickit-super-secret-key-2026'
+        );
+        authenticatedUser = await prisma.user.findUnique({ where: { id: decoded.id } });
+      } catch (e) {
+        // Invalid or expired token
+      }
+    }
+
     const requesterId = extractRequesterId(req);
-    if (!requesterId) {
-      res.status(401).json({ error: 'Unauthorized: Missing or invalid mock token' });
+    if (!authenticatedUser && !requesterId) {
+      res.status(401).json({ error: 'Unauthorized: Missing or invalid authentication token' });
       return;
     }
 
@@ -449,6 +468,18 @@ app.get('/api/tickets/:id', async (req: Request, res: Response): Promise<void> =
       include: {
         category: { select: { id: true, name: true } },
         relatedSystem: { select: { id: true, name: true } },
+        requester: { select: { id: true, fullName: true, email: true, role: true } },
+        requesterUser: { select: { id: true, name: true, email: true } },
+        owner: { select: { id: true, fullName: true, email: true, role: true } },
+        publicComments: {
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            author: { select: { id: true, fullName: true, email: true, role: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
         attachments: {
           select: {
             id: true,
@@ -471,32 +502,67 @@ app.get('/api/tickets/:id', async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // AC-03 & FR-07: Prevent cross-requester access (Ownership protection)
-    if (ticket.requesterId !== requesterId) {
-      res.status(403).json({ error: 'Forbidden: You do not have permission to view this ticket' });
-      return;
+    // RBAC & Ownership Protection:
+    if (authenticatedUser) {
+      if (authenticatedUser.role === Role.REQUESTER) {
+        const isOwner =
+          ticket.userId === authenticatedUser.id ||
+          ticket.requesterId === authenticatedUser.id ||
+          (ticket.requester && ticket.requester.id === authenticatedUser.id) ||
+          (ticket.requesterUser && ticket.requesterUser.email === authenticatedUser.email);
+
+        if (!isOwner) {
+          res.status(403).json({
+            error: 'Forbidden: You do not have permission to view this ticket',
+          });
+          return;
+        }
+      }
+      // IT_STAFF and ADMINISTRATOR have full access to view all tickets
+    } else if (requesterId) {
+      if (ticket.requesterId !== requesterId) {
+        res.status(403).json({
+          error: 'Forbidden: You do not have permission to view this ticket',
+        });
+        return;
+      }
     }
 
+    const requesterInfo = ticket.requester
+      ? { id: ticket.requester.id, fullName: ticket.requester.fullName, email: ticket.requester.email }
+      : ticket.requesterUser
+      ? { id: ticket.requesterUser.id, fullName: ticket.requesterUser.name, email: ticket.requesterUser.email }
+      : null;
+
+    // AC-05: Internal notes are strictly excluded from the general detail payload
     res.status(200).json({
       id: ticket.id,
       ticketNumber: ticket.ticketNumber,
       requesterId: ticket.requesterId,
+      requester: requesterInfo,
+      ownerId: ticket.ownerId,
+      owner: ticket.owner
+        ? { id: ticket.owner.id, fullName: ticket.owner.fullName, email: ticket.owner.email, role: ticket.owner.role }
+        : null,
       summary: ticket.summary,
       description: ticket.description,
       requestedPriority: ticket.requestedPriority,
       itPriority: ticket.itPriority,
       status: ticket.currentStatus,
       currentStatus: ticket.currentStatus,
+      resolutionSummary: ticket.resolutionSummary,
       createdAt: ticket.createdAt.toISOString(),
       updatedAt: ticket.updatedAt.toISOString(),
       categoryId: ticket.categoryId,
       categoryName: ticket.category.name,
       category: ticket.category,
       relatedSystemId: ticket.relatedSystemId,
-      relatedSystemName: ticket.relatedSystem.name,
+      relatedSystemName: ticket.relatedSystem ? ticket.relatedSystem.name : null,
       relatedSystem: ticket.relatedSystem,
       attachments: ticket.attachments,
+      publicComments: ticket.publicComments,
     });
+
   } catch (error) {
     console.error('Error fetching ticket detail:', error);
     res.status(500).json({ error: 'Failed to fetch ticket detail' });
