@@ -201,11 +201,30 @@
 - **Pull Request:** [PR #59](https://github.com/titayaaa/toktickit/pull/59)
 - **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
-### Scope Planned:
+### Scope Delivered:
 - Enhanced ticket detail with IT operations toolbar (Claim, Assign, Priority, Status transition, Resolve modal).
+- Handled complete state transitions including `PENDING` without terminal deadlock.
+- Complete 5-level IT Priority options matching Prisma Schema (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`, `URGENT`).
 - Dual-stream conversation interface:
   - Public Comments thread with light green `#EAF6EF` bubble styling and composer.
   - Confidential Internal Notes with distinct amber `#FFF8E1` styling, lock badge 🔒, and privacy notice (strictly restricted to IT Staff/Admin).
 - Requester "Problem Appears Resolved" indication action and resolution summary view.
-- Comprehensive client unit tests verifying operations, dual comments/notes, modal, and requester privacy.
+- Title Case status formatting in status transition dropdown.
+- Top-level `useAuth` hook compliance with safe context fallback.
+- 8 comprehensive client unit tests (OP-01 to OP-08) in `TicketOperations.test.tsx` (100% pass, 49/49 total client tests).
+
+### Peer Review Comments (@chanya06)
+> **Peer Review: Approved (PR #59)**
+> ตรวจทานโค้ดที่แก้ไขเพิ่มเติมใน Commit `9d2e307` ของ Issue 24 (IT Staff Ticket Operations & Confidential Notes UI) เรียบร้อยแล้ว
+> 1. **State Transition Matrix & PENDING Support:** จัดการ State Transition ครบถ้วน รวมถึง `PENDING` ทั้งขาเข้าและขาออก ไม่เกิดปัญหาตั๋วติด Terminal ค้างอีกต่อไป
+> 2. **Complete Priority Options:** เพิ่มตัวเลือก `CRITICAL` ใน IT Priority Select ครบทั้ง 5 ระดับตาม Prisma Schema
+> 3. **React Rules of Hooks Compliance:** ย้าย `useAuth()` ออกมาที่ Top-level พร้อมเสริม Fallback ปลอดภัยใน `AuthContext` ถูกต้องตาม Best Practices
+> 4. **UI Polishing & Typography:** แปลงข้อความแสดงผลสถานะใน Dropdown เป็น Title Case สวยงาม สะอาดตา ตรงตามมาตรฐาน Zen Green Design System
+> 5. **Test Verification:** Unit Tests ทั้ง 8 เคส (OP-01 ถึง OP-08) ครอบคลุมทุกฟังก์ชัน รวมเทสต์ฝั่ง Client ผ่านครบ 49/49 เคส
+> โค้ดมีคุณภาพสูงและแก้ไขได้ครบถ้วนสมบูรณ์
+
+### Final Approval
+- **Status:** ✅ Approved by @chanya06
+- **Approval Date:** 2026-09-18
+- **Merged by:** @chanya06
 
