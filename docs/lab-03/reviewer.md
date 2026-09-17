@@ -114,7 +114,7 @@
 
 ## 7. PR Review Record: Issue 21 IT Staff Ticket Queue API & Query System
 - **Feature Branch:** `feature/21-staff-queue-api`
-- **Pull Request:** [PR Placeholder](#)
+- **Pull Request:** [PR #56](https://github.com/titayaaa/toktickit/pull/56)
 - **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
 ### Scope Delivered:
