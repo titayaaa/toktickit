@@ -99,12 +99,30 @@
 - **Pull Request:** [PR #55](https://github.com/titayaaa/toktickit/pull/55)
 - **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
+### Peer Review Comments (@chanya06)
+> **Peer Review: Approved (PR #55)**
+> ตรวจทานโค้ดและทดสอบ UI ของ Issue 20 (Login & Mandatory Password Change UI) เรียบร้อยแล้ว
+> - จุดเด่น: สไตล์ Zen Green สอดคล้องตาม Tokens, Checklist ตรวจสอบความซับซ้อนของรหัสผ่านแบบเรียลไทม์ 4 ข้อ, Authentication Gate ดักจับหน้าจอ Login / Change Password / Main App ตาม Session ได้อย่างรัดกุม, มี Unit Test 7 เคสและไม่เกิด Regression ต่อ UI เดิมของ Lab 1 & 2
+> - บันทึกผลการตรวจทานเรียบร้อย โค้ดผ่านการตรวจโดยไม่มีข้อทักท้วงเพิ่มเติม
+
+### Final Approval
+- **Status:** ✅ Approved by @chanya06
+- **Approval Date:** 2026-09-17
+- **Merged by:** @chanya06
+
+---
+
+## 7. PR Review Record: Issue 21 IT Staff Ticket Queue API & Query System
+- **Feature Branch:** `feature/21-staff-queue-api`
+- **Pull Request:** [PR Placeholder](#)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
+
 ### Scope Delivered:
-- Client-side `AuthContext` with JWT token persistence (`toktickit_auth_token`), session inspection (`/api/auth/me`), login, logout, and password change methods.
-- Zen Green branded `Login` component (`#006B3C`, `#0B7A46`, `#EAF6EF`, `#F5F7F6`, `#1A2E23`) with error banner and password visibility toggle.
-- `ChangePassword` component with amber warning alert notice (`#FFF8E1`, `#FFA000`), real-time 4-point password complexity checklist, confirmation matching validation, and busy state.
-- Integration into `App.tsx` replacing Development Requester selector with authentication gate, rendering role badges (Requester, IT Staff, Administrator) on header.
-- 7 automated Vitest unit tests across `Login.test.tsx` and `ChangePassword.test.tsx`, plus zero regressions on Lab 1 & 2 UI suites (34 tests passing 100%).
+- Dedicated operational route `GET /api/staff/tickets` in `server/src/routes/staff.ts` guarded by `authenticate` and `requireRole(Role.IT_STAFF, Role.ADMINISTRATOR)`.
+- Full query filtering parameters: `search` (ticketNumber & summary case-insensitively), `category`, `status` (all enum statuses supported), `priority` (`requestedPriority`), `itPriority`, and `ownerId` (`unassigned` | `me` | numeric ID).
+- Dynamic sorting across `createdAt`, `updatedAt`, `ticketNumber`, `summary`, `status`, and priority weight ordering for `itPriority`/`requestedPriority`.
+- Structured pagination with metadata (`total`, `page`, `limit`, `totalPages`) and response data aliasing (`tickets`, `data`).
+- 9 automated integration tests in `server/tests/lab-03/staff-queue.api.test.ts` covering search, filtering, role restriction (403 for Requester), unauthenticated block (401), password rotation guard (403), administrator access (200), pagination, sorting, and input validation (400). All passing 100%.
 
 
 
