@@ -8,6 +8,7 @@ import MyTickets from './components/MyTickets';
 import TicketDetail from './components/TicketDetail';
 
 import StaffTicketQueue from './components/StaffTicketQueue';
+import AdminUserManagement from './components/AdminUserManagement';
 
 interface Category {
   id: number;
@@ -19,7 +20,7 @@ interface RelatedSystem {
   name: string;
 }
 
-type TabType = 'create' | 'my-tickets' | 'staff-queue';
+type TabType = 'create' | 'my-tickets' | 'staff-queue' | 'admin-users';
 
 const ROLE_CONFIG: Record<UserRole, { label: string; bg: string; color: string; border: string }> = {
   REQUESTER: {
@@ -44,9 +45,10 @@ const ROLE_CONFIG: Record<UserRole, { label: string; bg: string; color: string; 
 
 const MainApplication: React.FC = () => {
   const { user, logout, isLoading } = useAuth();
-  const isStaffOrAdmin = user?.role === 'IT_STAFF' || user?.role === 'ADMINISTRATOR';
+  const isAdmin = user?.role === 'ADMINISTRATOR';
+  const isStaffOrAdmin = user?.role === 'IT_STAFF' || isAdmin;
   const [activeTab, setActiveTab] = useState<TabType>(
-    isStaffOrAdmin ? 'staff-queue' : 'create'
+    isAdmin ? 'admin-users' : isStaffOrAdmin ? 'staff-queue' : 'create'
   );
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -140,6 +142,19 @@ const MainApplication: React.FC = () => {
 
       {/* Navigation Tabs */}
       <div className="d-flex gap-2 mb-4">
+        {isAdmin && (
+          <button
+            type="button"
+            className={`zen-nav-tab ${activeTab === 'admin-users' && !selectedTicketId ? 'active' : ''}`}
+            onClick={() => {
+              setSelectedTicketId(null);
+              setActiveTab('admin-users');
+            }}
+            aria-label="User Management tab"
+          >
+            User Management
+          </button>
+        )}
         {isStaffOrAdmin && (
           <button
             type="button"
@@ -190,6 +205,10 @@ const MainApplication: React.FC = () => {
             ticketId={selectedTicketId}
             onBack={() => setSelectedTicketId(null)}
           />
+        </div>
+      ) : activeTab === 'admin-users' && isAdmin ? (
+        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
+          <AdminUserManagement />
         </div>
       ) : activeTab === 'staff-queue' && isStaffOrAdmin ? (
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>

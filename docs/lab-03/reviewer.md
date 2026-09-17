@@ -228,3 +228,43 @@
 - **Approval Date:** 2026-09-18
 - **Merged by:** @chanya06
 
+---
+
+## 11. PR Review Record: Issue 25 Administrator User Management API & UI
+- **Feature Branch:** `feature/25-admin-user-management`
+- **Pull Request:** [PR #60](https://github.com/titayaaa/toktickit/pull/60)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
+
+### Scope Delivered:
+- Administrator User Management backend router (`server/src/routes/admin.ts`) mounted at `/api/admin`:
+  - Enforced `authenticate` and `requireRole(Role.ADMINISTRATOR)`.
+  - `GET /api/admin/users`: search filtering (name/email), role filtering, and active status filtering, omitting `passwordHash`.
+  - `POST /api/admin/users`: user creation with password complexity validation (min 8 chars, uppercase, lowercase, numeric digit), bcrypt hashing (10 rounds), mandatory `mustChangePassword = true`, and case-insensitive email collision prevention (BR-10, 409 Conflict).
+  - `PATCH /api/admin/users/:id`: update user details, role, and active status with safety guards:
+    - **BR-07**: Admin cannot deactivate self (400 Bad Request).
+    - **BR-08**: Admin cannot demote self away from Administrator (400 Bad Request).
+    - **BR-09**: Cannot deactivate or demote last active Administrator (400 Bad Request).
+    - **BR-10**: Email uniqueness check across other accounts (409 Conflict).
+  - `POST /api/admin/users/:id/reset-password`: temporary password complexity validation, bcrypt hashing, and mandatory `mustChangePassword = true`.
+- Frontend User Management Suite (`client/src/components/AdminUserManagement.tsx`):
+  - Zen Green roster table and mobile responsive card view (<768px).
+  - Search input with debounce, role filter dropdown, and active status filter dropdown.
+  - Create User modal with real-time password complexity checklist and form validation.
+  - Edit User modal with built-in safety disabled guards for current admin self-deactivation/demotion and last active admin demotion.
+  - Reset Password modal with real-time password complexity checklist.
+  - Navigation tab in `App.tsx` visible exclusively to Administrator role.
+- Comprehensive Automated Verification:
+  - 25 server tests in `server/tests/lab-03/admin.api.test.ts` (100% pass).
+  - 7 client tests in `client/src/test/lab-03/AdminUserManagement.test.tsx` (100% pass).
+  - All 83 server tests across 6 files pass 100%.
+  - All 56 client tests across 11 files pass 100%.
+  - Clean production build (`tsc && vite build`).
+
+### Peer Review Comments (@chanya06)
+> *[Pending review from @chanya06]*
+
+### Final Approval
+- **Status:** Pending Review
+- **Approval Date:** Pending
+- **Merged by:** Pending
+
