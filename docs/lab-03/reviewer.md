@@ -117,12 +117,36 @@
 - **Pull Request:** [PR #56](https://github.com/titayaaa/toktickit/pull/56)
 - **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
 
+### Peer Review Comments (@chanya06)
+> **Peer Review: Approved (PR #56)**
+> ตรวจทานโค้ดและชุดทดสอบของ Issue 21 (IT Staff Ticket Queue API & Query System) เรียบร้อยแล้ว
+> 1. **Query Capabilities:** รองรับการค้นหา (Search case-insensitive), กรองข้อมูลครอบคลุมทั้ง Category, Status (ทุก Enum), Priority, IT Priority, และ Owner Assignment (`unassigned`, `me`, numeric ID)
+> 2. **Weighted Priority Sorting:** ออกแบบการจัดเรียงตามระดับความสำคัญจริง (`URGENT > CRITICAL > HIGH > MEDIUM > LOW`) แทนการเรียงตามตัวอักษร
+> 3. **Backward Compatibility:** จัดการ Fallback ข้อมูล Requester ของตั๋วเดิมได้อย่างไร้รอยต่อ พร้อมแนบตัวนับ Comments, Notes, และ Attachments
+> 4. **Security & Validation:** มี Guard ตรวจสอบ Role และ Password Rotation อย่างรัดกุม พร้อมส่ง 400 Bad Request เมื่อ Query Parameters ไม่ถูกต้อง
+> 5. **Test Coverage:** ชุด Integration Tests 9 เคสใน `staff-queue.api.test.ts` ครอบคลุมทุก Scenario สำคัญ
+
+### Final Approval
+- **Status:** ✅ Approved by @chanya06
+- **Approval Date:** 2026-09-17
+- **Merged by:** @chanya06
+
+---
+
+## 8. PR Review Record: Issue 22 IT Staff Ticket Queue UI & Dashboard
+- **Feature Branch:** `feature/22-staff-queue-ui`
+- **Pull Request:** [PR Placeholder](#)
+- **Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
+
 ### Scope Delivered:
-- Dedicated operational route `GET /api/staff/tickets` in `server/src/routes/staff.ts` guarded by `authenticate` and `requireRole(Role.IT_STAFF, Role.ADMINISTRATOR)`.
-- Full query filtering parameters: `search` (ticketNumber & summary case-insensitively), `category`, `status` (all enum statuses supported), `priority` (`requestedPriority`), `itPriority`, and `ownerId` (`unassigned` | `me` | numeric ID).
-- Dynamic sorting across `createdAt`, `updatedAt`, `ticketNumber`, `summary`, `status`, and priority weight ordering for `itPriority`/`requestedPriority`.
-- Structured pagination with metadata (`total`, `page`, `limit`, `totalPages`) and response data aliasing (`tickets`, `data`).
-- 9 automated integration tests in `server/tests/lab-03/staff-queue.api.test.ts` covering search, filtering, role restriction (403 for Requester), unauthenticated block (401), password rotation guard (403), administrator access (200), pagination, sorting, and input validation (400). All passing 100%.
+- Responsive Zen Green `StaffTicketQueue.tsx` component supporting High-Density table view on desktop/tablet and touch-friendly card stack layout on mobile (`<768px`).
+- Live search bar for Ticket Number and Summary, and multi-field filter bar (Status, Category, IT Priority, and Assignment segmented toggle: All / Unassigned / Assigned to Me).
+- Active filter badge chips with one-click "Clear All Filters" and friendly empty state illustration with reset action.
+- Interactive column sorting (`ticketNumber`, `createdAt`, `itPriority`, `status`) with ascending/descending visual indicators.
+- Pagination footer with configurable page size (10, 25, 50), record range indicator ("Showing 1-10 of 45 tickets"), and page navigation buttons.
+- Role-aware navigation in `App.tsx` conditionally exposing the "Ticket Queue" tab only to IT Staff and Administrator roles.
+- 7 automated component unit tests in `StaffTicketQueue.test.tsx` verifying render, search, filters, sorting, empty states, pagination, and detail navigation. All 41 client unit tests passing 100%.
+
 
 
 

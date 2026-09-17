@@ -7,6 +7,8 @@ import CreateTicketForm from './components/CreateTicketForm';
 import MyTickets from './components/MyTickets';
 import TicketDetail from './components/TicketDetail';
 
+import StaffTicketQueue from './components/StaffTicketQueue';
+
 interface Category {
   id: number;
   name: string;
@@ -17,7 +19,7 @@ interface RelatedSystem {
   name: string;
 }
 
-type TabType = 'create' | 'my-tickets';
+type TabType = 'create' | 'my-tickets' | 'staff-queue';
 
 const ROLE_CONFIG: Record<UserRole, { label: string; bg: string; color: string; border: string }> = {
   REQUESTER: {
@@ -42,7 +44,10 @@ const ROLE_CONFIG: Record<UserRole, { label: string; bg: string; color: string; 
 
 const MainApplication: React.FC = () => {
   const { user, logout, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('create');
+  const isStaffOrAdmin = user?.role === 'IT_STAFF' || user?.role === 'ADMINISTRATOR';
+  const [activeTab, setActiveTab] = useState<TabType>(
+    isStaffOrAdmin ? 'staff-queue' : 'create'
+  );
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -135,6 +140,19 @@ const MainApplication: React.FC = () => {
 
       {/* Navigation Tabs */}
       <div className="d-flex gap-2 mb-4">
+        {isStaffOrAdmin && (
+          <button
+            type="button"
+            className={`zen-nav-tab ${activeTab === 'staff-queue' && !selectedTicketId ? 'active' : ''}`}
+            onClick={() => {
+              setSelectedTicketId(null);
+              setActiveTab('staff-queue');
+            }}
+            aria-label="Staff Queue tab"
+          >
+            Ticket Queue
+          </button>
+        )}
         <button
           type="button"
           className={`zen-nav-tab ${activeTab === 'create' && !selectedTicketId ? 'active' : ''}`}
@@ -148,7 +166,7 @@ const MainApplication: React.FC = () => {
         </button>
         <button
           type="button"
-          className={`zen-nav-tab ${activeTab === 'my-tickets' || selectedTicketId !== null ? 'active' : ''}`}
+          className={`zen-nav-tab ${activeTab === 'my-tickets' && !selectedTicketId ? 'active' : ''}`}
           onClick={() => {
             setSelectedTicketId(null);
             setActiveTab('my-tickets');
@@ -171,6 +189,15 @@ const MainApplication: React.FC = () => {
           <TicketDetail
             ticketId={selectedTicketId}
             onBack={() => setSelectedTicketId(null)}
+          />
+        </div>
+      ) : activeTab === 'staff-queue' && isStaffOrAdmin ? (
+        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
+          <StaffTicketQueue
+            categories={categories}
+            onSelectTicket={(ticketId: number) => {
+              setSelectedTicketId(ticketId);
+            }}
           />
         </div>
       ) : activeTab === 'create' ? (
