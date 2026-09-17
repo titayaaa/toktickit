@@ -82,12 +82,14 @@ router.get('/users', async (req: AuthRequest, res: Response): Promise<void> => {
 router.post('/users', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { fullName, name, email, role, initialPassword, isActive = true } = req.body;
-    const nameToUse = ((fullName || name) as string | undefined)?.trim();
+    const rawName = fullName !== undefined ? fullName : name;
 
-    if (!nameToUse || nameToUse.length < 2) {
+    if (typeof rawName !== 'string' || rawName.trim().length < 2) {
       res.status(400).json({ error: 'Full name must be at least 2 characters' });
       return;
     }
+
+    const nameToUse = rawName.trim();
 
     if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim().toLowerCase())) {
       res.status(400).json({ error: 'Valid email address is required' });
@@ -109,7 +111,7 @@ router.post('/users', async (req: AuthRequest, res: Response): Promise<void> => 
       return;
     }
 
-    // BR-10: Check globally unique email address
+    // BR-17: Check globally unique email address
     const existing = await prisma.user.findFirst({
       where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     });
@@ -154,7 +156,7 @@ router.post('/users', async (req: AuthRequest, res: Response): Promise<void> => 
 
 /**
  * PATCH /api/admin/users/:id
- * Updates user attributes and activation status while enforcing BR-07, BR-08, BR-09, BR-10.
+ * Updates user attributes and activation status while enforcing BR-16, BR-17, BR-18, BR-19.
  */
 router.patch('/users/:id', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -174,12 +176,49 @@ router.patch('/users/:id', async (req: AuthRequest, res: Response): Promise<void
     }
 
     const { fullName, name, email, role, isActive } = req.body;
-    const nameToUse = (fullName !== undefined ? fullName : name) as string | undefined;
+    const rawName = fullName !== undefined ? fullName : name;
 
-    // BR-09: Prevent deactivating or demoting the last active Administrator
+    if (rawName !== undefined && (typeof rawName !== 'string' || rawName.trim().length < 2)) {
+      res.status(400).json({ error: 'Full name must be at least 2 characters' });
+      return;
+    }
+
+    if (email !== undefined && (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim().toLowerCase()))) {
+      res.status(400).json({ error: 'Valid email address is required' });
+      return;
+    }
+
+    if (role !== undefined && (typeof role !== 'string' || !Object.values(Role).includes(role.trim().toUpperCase() as Role))) {
+      res.status(400).json({ error: 'Role must be one of: REQUESTER, IT_STAFF, ADMINISTRATOR' });
+      return;
+    }
+
+    if (isActive !== undefined && typeof isActive !== 'boolean') {
+      res.status(400).json({ error: 'isActive must be a boolean' });
+      return;
+    }
+
+    // BR-18: Administrator cannot deactivate their own account (Self-Deactivation Guard)
+    if (req.user!.id === targetId && isActive === false && targetUser.isActive === true) {
+      res.status(400).json({ error: 'Administrators cannot deactivate their own account' });
+      return;
+    }
+
+    // BR-18: Administrator cannot change their own role away from ADMINISTRATOR
+    if (
+      req.user!.id === targetId &&
+      role !== undefined &&
+      role.trim().toUpperCase() !== Role.ADMINISTRATOR &&
+      targetUser.role === Role.ADMINISTRATOR
+    ) {
+      res.status(400).json({ error: 'Administrators cannot change their own role away from ADMINISTRATOR' });
+      return;
+    }
+
+    // BR-19: Prevent deactivating or demoting the last active Administrator (Last Admin Protection)
     if (targetUser.role === Role.ADMINISTRATOR && targetUser.isActive === true) {
       const willBeInactive = isActive === false;
-      const willDemote = role !== undefined && role.toUpperCase() !== Role.ADMINISTRATOR;
+      const willDemote = role !== undefined && role.trim().toUpperCase() !== Role.ADMINISTRATOR;
 
       if (willBeInactive || willDemote) {
         const activeAdminCount = await prisma.user.count({
@@ -199,31 +238,10 @@ router.patch('/users/:id', async (req: AuthRequest, res: Response): Promise<void
       }
     }
 
-    // BR-07: Administrator cannot deactivate their own account
-    if (req.user!.id === targetId && isActive === false && targetUser.isActive === true) {
-      res.status(400).json({ error: 'Administrators cannot deactivate their own account' });
-      return;
-    }
-
-    // BR-08: Administrator cannot change their own role away from ADMINISTRATOR
-    if (
-      req.user!.id === targetId &&
-      role !== undefined &&
-      role.toUpperCase() !== Role.ADMINISTRATOR &&
-      targetUser.role === Role.ADMINISTRATOR
-    ) {
-      res.status(400).json({ error: 'Administrators cannot change their own role away from ADMINISTRATOR' });
-      return;
-    }
-
-    // BR-10: Check globally unique email if updating email
+    // BR-17: Check globally unique email if updating email
     let normalizedEmail: string | undefined = undefined;
     if (email !== undefined && typeof email === 'string') {
       normalizedEmail = email.trim().toLowerCase();
-      if (!EMAIL_REGEX.test(normalizedEmail)) {
-        res.status(400).json({ error: 'Valid email address is required' });
-        return;
-      }
 
       if (normalizedEmail !== targetUser.email.toLowerCase()) {
         const existingEmail = await prisma.user.findFirst({
@@ -242,18 +260,13 @@ router.patch('/users/:id', async (req: AuthRequest, res: Response): Promise<void
 
     let upperRole: Role | undefined = undefined;
     if (role !== undefined && typeof role === 'string') {
-      const parsed = role.trim().toUpperCase();
-      if (!Object.values(Role).includes(parsed as Role)) {
-        res.status(400).json({ error: 'Role must be one of: REQUESTER, IT_STAFF, ADMINISTRATOR' });
-        return;
-      }
-      upperRole = parsed as Role;
+      upperRole = role.trim().toUpperCase() as Role;
     }
 
     const updated = await prisma.user.update({
       where: { id: targetId },
       data: {
-        ...(nameToUse !== undefined ? { fullName: nameToUse.trim() } : {}),
+        ...(rawName !== undefined ? { fullName: rawName.trim() } : {}),
         ...(normalizedEmail ? { email: normalizedEmail } : {}),
         ...(upperRole ? { role: upperRole } : {}),
         ...(typeof isActive === 'boolean' ? { isActive } : {}),

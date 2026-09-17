@@ -106,7 +106,7 @@ export const AdminUserManagement: React.FC = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Count active administrators to enforce BR-09 client-side guard
+  // Count active administrators to enforce BR-19 client-side guard
   const activeAdminCount = useMemo(() => {
     return users.filter((u) => u.role === 'ADMINISTRATOR' && u.isActive).length;
   }, [users]);
@@ -776,7 +776,7 @@ export const AdminUserManagement: React.FC = () => {
                     />
                   </div>
 
-                  {/* Role Select with BR-08 & BR-09 safety guards */}
+                  {/* Role Select with BR-18 & BR-19 safety guards */}
                   {(() => {
                     const isSelf = currentUser?.id === editingUser.id;
                     const isLastActiveAdmin = editingUser.role === 'ADMINISTRATOR' && editingUser.isActive && activeAdminCount <= 1;
@@ -800,19 +800,19 @@ export const AdminUserManagement: React.FC = () => {
                         </select>
                         {isSelf && (
                           <div className="text-danger small mt-1" style={{ fontSize: '11px' }}>
-                            Role cannot be changed for your own account (BR-08)
+                            Role cannot be changed for your own account (BR-18)
                           </div>
                         )}
                         {!isSelf && isLastActiveAdmin && (
                           <div className="text-danger small mt-1" style={{ fontSize: '11px' }}>
-                            Cannot demote the last active Administrator (BR-09)
+                            Cannot demote the last active Administrator (BR-19)
                           </div>
                         )}
                       </div>
                     );
                   })()}
 
-                  {/* Active Checkbox with BR-07 & BR-09 safety guards */}
+                  {/* Active Checkbox with BR-18 & BR-19 safety guards */}
                   {(() => {
                     const isSelf = currentUser?.id === editingUser.id;
                     const isLastActiveAdmin = editingUser.role === 'ADMINISTRATOR' && editingUser.isActive && activeAdminCount <= 1;
@@ -835,12 +835,12 @@ export const AdminUserManagement: React.FC = () => {
                         </div>
                         {isSelf && (
                           <div className="text-danger small mt-1" style={{ fontSize: '11px' }}>
-                            You cannot deactivate your own account (BR-07)
+                            You cannot deactivate your own account (BR-18)
                           </div>
                         )}
                         {!isSelf && isLastActiveAdmin && (
                           <div className="text-danger small mt-1" style={{ fontSize: '11px' }}>
-                            Cannot deactivate the last active Administrator (BR-09)
+                            Cannot deactivate the last active Administrator (BR-19)
                           </div>
                         )}
                       </div>

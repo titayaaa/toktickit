@@ -221,7 +221,7 @@ describe('Issue 25: AdminUserManagement Component Unit Tests', () => {
     });
   });
 
-  it('ADM-UI-04: Edit Modal enforces BR-07 and BR-08 (disables role and active checkbox when editing self)', async () => {
+  it('ADM-UI-04: Edit Modal enforces BR-18 (disables role and active checkbox when editing self)', async () => {
     renderAdminView();
 
     await waitFor(() => {
@@ -236,14 +236,14 @@ describe('Issue 25: AdminUserManagement Component Unit Tests', () => {
     const roleSelect = screen.getByLabelText(/Role \*/i);
     const activeCheckbox = screen.getByLabelText(/Active Account/i);
 
-    // Disabled per BR-07 and BR-08
+    // Disabled per BR-18
     expect(roleSelect).toBeDisabled();
     expect(activeCheckbox).toBeDisabled();
-    expect(screen.getByText(/Role cannot be changed for your own account \(BR-08\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/You cannot deactivate your own account \(BR-07\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Role cannot be changed for your own account \(BR-18\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/You cannot deactivate your own account \(BR-18\)/i)).toBeInTheDocument();
   });
 
-  it('ADM-UI-05: Edit Modal enforces BR-09 (disables role and active checkbox when editing last active administrator)', async () => {
+  it('ADM-UI-05: Edit Modal enforces BR-19 (disables role and active checkbox when editing last active administrator)', async () => {
     // Only 1 active administrator in roster (Suda Administrator is the sole admin)
     const singleAdminRoster = [
       mockUserRoster[0], // Suda (Admin, Active)

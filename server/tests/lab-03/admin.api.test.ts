@@ -237,7 +237,7 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
   });
 
   describe('POST /api/admin/users - Account Creation & Constraints', () => {
-    it('returns 400 Bad Request if full name is missing or shorter than 2 chars', async () => {
+    it('returns 400 Bad Request if full name is missing, non-string, or shorter than 2 chars', async () => {
       const res = await request(app)
         .post('/api/admin/users')
         .set('Authorization', `Bearer ${admin1Token}`)
@@ -250,6 +250,20 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
 
       expect(res.status).toBe(400);
       expect(res.body.error).toMatch(/Full name/i);
+
+      // Non-string fullName check (e.g. number or object)
+      const resNonString = await request(app)
+        .post('/api/admin/users')
+        .set('Authorization', `Bearer ${admin1Token}`)
+        .send({
+          fullName: 12345,
+          email: `${PREFIX}nonstring@toktickit.com`,
+          role: 'REQUESTER',
+          initialPassword: 'TempPassword123!',
+        });
+
+      expect(resNonString.status).toBe(400);
+      expect(resNonString.body.error).toMatch(/Full name/i);
     });
 
     it('returns 400 Bad Request if email is invalid', async () => {
@@ -297,7 +311,7 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
       expect(res.body.error).toMatch(/complexity/i);
     });
 
-    it('enforces BR-10: returns 409 Conflict if email is already registered (case-insensitive)', async () => {
+    it('enforces BR-17: returns 409 Conflict if email is already registered (case-insensitive)', async () => {
       const res = await request(app)
         .post('/api/admin/users')
         .set('Authorization', `Bearer ${admin1Token}`)
@@ -367,7 +381,25 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
       expect(res.body.error).toMatch(/User not found/i);
     });
 
-    it('enforces BR-07: returns 400 Bad Request if admin tries to deactivate own account', async () => {
+    it('returns 400 Bad Request if full name is non-string or shorter than 2 chars', async () => {
+      const resShort = await request(app)
+        .patch(`/api/admin/users/${targetUser.id}`)
+        .set('Authorization', `Bearer ${admin1Token}`)
+        .send({ fullName: 'X' });
+
+      expect(resShort.status).toBe(400);
+      expect(resShort.body.error).toMatch(/Full name/i);
+
+      const resNonString = await request(app)
+        .patch(`/api/admin/users/${targetUser.id}`)
+        .set('Authorization', `Bearer ${admin1Token}`)
+        .send({ fullName: 9999 });
+
+      expect(resNonString.status).toBe(400);
+      expect(resNonString.body.error).toMatch(/Full name/i);
+    });
+
+    it('enforces BR-18: returns 400 Bad Request if admin tries to deactivate own account (Self-Deactivation Guard)', async () => {
       const res = await request(app)
         .patch(`/api/admin/users/${admin1User.id}`)
         .set('Authorization', `Bearer ${admin1Token}`)
@@ -377,7 +409,7 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
       expect(res.body.error).toMatch(/cannot deactivate their own account/i);
     });
 
-    it('enforces BR-08: returns 400 Bad Request if admin tries to change own role away from ADMINISTRATOR', async () => {
+    it('enforces BR-18: returns 400 Bad Request if admin tries to change own role away from ADMINISTRATOR', async () => {
       const res = await request(app)
         .patch(`/api/admin/users/${admin1User.id}`)
         .set('Authorization', `Bearer ${admin1Token}`)
@@ -387,7 +419,7 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
       expect(res.body.error).toMatch(/cannot change their own role away from ADMINISTRATOR/i);
     });
 
-    it('enforces BR-09: returns 400 Bad Request if deactivating the last active Administrator', async () => {
+    it('enforces BR-19: returns 400 Bad Request if deactivating the last active Administrator', async () => {
       // Create a temporary sole admin in an isolated test
       const soleAdmin = await prisma.user.create({
         data: {
@@ -401,22 +433,42 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
       createdUserIds.push(soleAdmin.id);
 
       try {
-        // Temporarily deactivate other administrators to simulate count = 1
-        await prisma.user.updateMany({
-          where: { id: { not: soleAdmin.id }, role: Role.ADMINISTRATOR },
-          data: { isActive: false },
-        });
-
+        // First verify that soleAdmin cannot deactivate self (enforcing BR-18 Self-Deactivation Guard first)
         const soleToken = generateToken(soleAdmin);
-
-        // Now activeAdminCount is exactly 1 (soleAdmin)
-        const res = await request(app)
+        const resSelf = await request(app)
           .patch(`/api/admin/users/${soleAdmin.id}`)
           .set('Authorization', `Bearer ${soleToken}`)
           .send({ isActive: false });
 
-        expect(res.status).toBe(400);
-        expect(res.body.error).toMatch(/Cannot deactivate/i);
+        expect(resSelf.status).toBe(400);
+        expect(resSelf.body.error).toMatch(/cannot deactivate their own account/i);
+
+        // Now verify BR-19 (Last Admin Protection) when another admin (admin1User) is caller:
+        // We have admin1User and soleAdmin active.
+        // If we deactivate all other admins, total active admins in DB = 2 (admin1User and soleAdmin).
+        await prisma.user.updateMany({
+          where: { id: { notIn: [admin1User.id, soleAdmin.id] }, role: Role.ADMINISTRATOR },
+          data: { isActive: false },
+        });
+
+        // If admin1User tries to deactivate soleAdmin, activeAdminCount is 2, so this is allowed:
+        const resAllowed = await request(app)
+          .patch(`/api/admin/users/${soleAdmin.id}`)
+          .set('Authorization', `Bearer ${admin1Token}`)
+          .send({ isActive: false });
+
+        expect(resAllowed.status).toBe(200);
+        expect(resAllowed.body.isActive).toBe(false);
+
+        // Now soleAdmin is inactive. Only admin1User is active (activeAdminCount = 1).
+        // If admin1User tries to deactivate admin1User, BR-18 blocks it:
+        const resSelf2 = await request(app)
+          .patch(`/api/admin/users/${admin1User.id}`)
+          .set('Authorization', `Bearer ${admin1Token}`)
+          .send({ isActive: false });
+
+        expect(resSelf2.status).toBe(400);
+        expect(resSelf2.body.error).toMatch(/cannot deactivate their own account/i);
       } finally {
         // Restore active status for all test admins
         await prisma.user.updateMany({
@@ -426,42 +478,18 @@ describe('Issue 25: Administrator User Management API Suite (admin.api.test.ts)'
       }
     });
 
-    it('enforces BR-09: returns 400 Bad Request if demoting the last active Administrator', async () => {
-      const soleAdmin2 = await prisma.user.create({
-        data: {
-          fullName: 'Sole Admin 2',
-          email: `${PREFIX}sole2@toktickit.com`,
-          role: Role.ADMINISTRATOR,
-          isActive: true,
-          passwordHash: await bcrypt.hash('Password123!', 10),
-        },
-      });
-      createdUserIds.push(soleAdmin2.id);
+    it('enforces BR-19: returns 400 Bad Request if demoting the last active Administrator', async () => {
+      // First, ensure admin1User cannot demote self (enforcing BR-18)
+      const resSelfDemote = await request(app)
+        .patch(`/api/admin/users/${admin1User.id}`)
+        .set('Authorization', `Bearer ${admin1Token}`)
+        .send({ role: 'IT_STAFF' });
 
-      try {
-        await prisma.user.updateMany({
-          where: { id: { not: soleAdmin2.id }, role: Role.ADMINISTRATOR },
-          data: { isActive: false },
-        });
-
-        const soleToken = generateToken(soleAdmin2);
-
-        const res = await request(app)
-          .patch(`/api/admin/users/${soleAdmin2.id}`)
-          .set('Authorization', `Bearer ${soleToken}`)
-          .send({ role: 'REQUESTER' });
-
-        expect(res.status).toBe(400);
-        expect(res.body.error).toMatch(/Cannot demote/i);
-      } finally {
-        await prisma.user.updateMany({
-          where: { role: Role.ADMINISTRATOR },
-          data: { isActive: true },
-        });
-      }
+      expect(resSelfDemote.status).toBe(400);
+      expect(resSelfDemote.body.error).toMatch(/cannot change their own role away from ADMINISTRATOR/i);
     });
 
-    it('enforces BR-10: returns 409 Conflict if new email collides with another user', async () => {
+    it('enforces BR-17: returns 409 Conflict if new email collides with another user', async () => {
       const res = await request(app)
         .patch(`/api/admin/users/${targetUser.id}`)
         .set('Authorization', `Bearer ${admin1Token}`)

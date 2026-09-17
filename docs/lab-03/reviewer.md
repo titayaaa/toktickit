@@ -239,12 +239,11 @@
 - Administrator User Management backend router (`server/src/routes/admin.ts`) mounted at `/api/admin`:
   - Enforced `authenticate` and `requireRole(Role.ADMINISTRATOR)`.
   - `GET /api/admin/users`: search filtering (name/email), role filtering, and active status filtering, omitting `passwordHash`.
-  - `POST /api/admin/users`: user creation with password complexity validation (min 8 chars, uppercase, lowercase, numeric digit), bcrypt hashing (10 rounds), mandatory `mustChangePassword = true`, and case-insensitive email collision prevention (BR-10, 409 Conflict).
+  - `POST /api/admin/users`: user creation with password complexity validation (min 8 chars, uppercase, lowercase, numeric digit), bcrypt hashing (10 rounds), mandatory `mustChangePassword = true`, and case-insensitive email collision prevention (BR-17, 409 Conflict).
   - `PATCH /api/admin/users/:id`: update user details, role, and active status with safety guards:
-    - **BR-07**: Admin cannot deactivate self (400 Bad Request).
-    - **BR-08**: Admin cannot demote self away from Administrator (400 Bad Request).
-    - **BR-09**: Cannot deactivate or demote last active Administrator (400 Bad Request).
-    - **BR-10**: Email uniqueness check across other accounts (409 Conflict).
+    - **BR-18**: Admin cannot deactivate self or demote self away from Administrator (400 Bad Request).
+    - **BR-19**: Cannot deactivate or demote last active Administrator (400 Bad Request).
+    - **BR-17**: Email uniqueness check across other accounts (409 Conflict).
   - `POST /api/admin/users/:id/reset-password`: temporary password complexity validation, bcrypt hashing, and mandatory `mustChangePassword = true`.
 - Frontend User Management Suite (`client/src/components/AdminUserManagement.tsx`):
   - Zen Green roster table and mobile responsive card view (<768px).
