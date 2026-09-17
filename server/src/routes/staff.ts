@@ -39,6 +39,32 @@ const PRIORITY_WEIGHTS: Record<TicketPriority, number> = {
 };
 
 /**
+ * GET /api/staff/users
+ * Returns active IT Staff and Administrator users for ticket assignment
+ */
+router.get('/users', async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const staffMembers = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        role: { in: [Role.IT_STAFF, Role.ADMINISTRATOR] },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        role: true,
+      },
+      orderBy: { fullName: 'asc' },
+    });
+    res.status(200).json(staffMembers);
+  } catch (error) {
+    console.error('Error fetching staff users:', error);
+    res.status(500).json({ error: 'Failed to fetch staff members' });
+  }
+});
+
+/**
  * GET /api/staff/tickets
  * Query Parameters:
  *  - search: string (matches ticketNumber or summary case-insensitively)
