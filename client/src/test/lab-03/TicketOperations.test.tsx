@@ -416,4 +416,63 @@ describe('Issue 24: IT Staff Ticket Operations & Confidential Notes UI', () => {
       expect(screen.getByText(/Firmware upgraded to v4.8/i)).toBeInTheDocument();
     });
   });
+
+  it('OP-08: Handles PENDING status, CRITICAL IT Priority option, and Title Case status labels', async () => {
+    // Return ticket in PENDING status
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (url: any) => {
+      const urlStr = url.toString();
+      if (urlStr.endsWith('/api/auth/me')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            user: { id: 2, email: 'staff.alice@toktickit.com', fullName: 'Alice IT Support', role: 'IT_STAFF', mustChangePassword: false },
+          }),
+        } as Response;
+      }
+      if (urlStr.endsWith('/api/tickets/101')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ...mockStaffTicket, currentStatus: 'PENDING', status: 'PENDING' }),
+        } as Response;
+      }
+      if (urlStr.endsWith('/api/tickets/101/notes')) return { ok: true, status: 200, json: async () => mockInternalNotes } as Response;
+      if (urlStr.endsWith('/api/tickets/101/comments')) return { ok: true, status: 200, json: async () => mockStaffTicket.publicComments } as Response;
+      if (urlStr.endsWith('/api/staff/users')) return { ok: true, status: 200, json: async () => mockStaffUsers } as Response;
+      return { ok: true, status: 200, json: async () => ({}) } as Response;
+    });
+
+    localStorage.setItem('toktickit_auth_token', 'mock-staff-jwt-token');
+    render(
+      <AuthProvider>
+        <RequesterProvider>
+          <TicketDetail ticketId={101} onBack={onBackMock} />
+        </RequesterProvider>
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('staff-operations-toolbar')).toBeInTheDocument();
+    });
+
+    // 1. Check CRITICAL priority is in the IT priority select
+    const prioritySelect = screen.getByLabelText(/IT Priority/i);
+    expect(prioritySelect).toBeInTheDocument();
+    const criticalOption = prioritySelect.querySelector('option[value="CRITICAL"]');
+    expect(criticalOption).toBeInTheDocument();
+    expect(criticalOption?.textContent).toBe('Critical');
+
+    // 2. Check PENDING status allows transitions (not terminal)
+    const statusSelect = screen.getByLabelText(/Change Status/i);
+    expect(statusSelect).not.toBeDisabled();
+
+    // 3. Check Title Case status labels
+    const options = Array.from(statusSelect.querySelectorAll('option')).map((o) => o.textContent);
+    expect(options).toContain('→ In Progress');
+    expect(options).toContain('→ Waiting for Requester');
+    expect(options).toContain('→ Resolved');
+    expect(options).toContain('→ Cancelled');
+  });
 });
+

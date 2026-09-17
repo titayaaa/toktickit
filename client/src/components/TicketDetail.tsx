@@ -69,16 +69,7 @@ interface TicketDetailProps {
 
 export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) => {
   const { selectedRequester } = useRequester();
-  let user: any = null;
-  let token: string | null = null;
-  try {
-    const auth = useAuth();
-    user = auth.user;
-    token = auth.token;
-  } catch {
-    user = null;
-    token = null;
-  }
+  const { user, token } = useAuth();
 
   const isStaffOrAdmin = user?.role === 'IT_STAFF' || user?.role === 'ADMINISTRATOR';
 
@@ -451,17 +442,44 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       case 'NEW':
         return ['OPEN', 'CANCELLED'];
       case 'OPEN':
-        return ['IN_PROGRESS', 'WAITING_FOR_REQUESTER', 'CANCELLED'];
+        return ['IN_PROGRESS', 'WAITING_FOR_REQUESTER', 'PENDING', 'CANCELLED'];
       case 'IN_PROGRESS':
-        return ['WAITING_FOR_REQUESTER', 'RESOLVED', 'CANCELLED'];
+        return ['WAITING_FOR_REQUESTER', 'PENDING', 'RESOLVED', 'CANCELLED'];
       case 'WAITING_FOR_REQUESTER':
-        return ['IN_PROGRESS', 'RESOLVED', 'CANCELLED'];
+        return ['IN_PROGRESS', 'PENDING', 'RESOLVED', 'CANCELLED'];
+      case 'PENDING':
+        return ['IN_PROGRESS', 'WAITING_FOR_REQUESTER', 'RESOLVED', 'CANCELLED'];
       case 'RESOLVED':
         return ['CLOSED', 'REOPENED'];
       case 'REOPENED':
         return ['IN_PROGRESS', 'RESOLVED', 'CANCELLED'];
       default:
         return [];
+    }
+  };
+
+  const formatStatusLabel = (status: string): string => {
+    switch (status?.toUpperCase()) {
+      case 'NEW':
+        return 'New';
+      case 'OPEN':
+        return 'Open';
+      case 'IN_PROGRESS':
+        return 'In Progress';
+      case 'WAITING_FOR_REQUESTER':
+        return 'Waiting for Requester';
+      case 'PENDING':
+        return 'Pending';
+      case 'RESOLVED':
+        return 'Resolved';
+      case 'CLOSED':
+        return 'Closed';
+      case 'REOPENED':
+        return 'Reopened';
+      case 'CANCELLED':
+        return 'Cancelled';
+      default:
+        return status;
     }
   };
 
@@ -488,6 +506,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       case 'OPEN':
       case 'IN_PROGRESS':
       case 'WAITING_FOR_REQUESTER':
+      case 'PENDING':
       case 'REOPENED':
         return 'badge-status-in-progress';
       case 'RESOLVED':
@@ -747,6 +766,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
                   <option value="HIGH">High</option>
+                  <option value="CRITICAL">Critical</option>
                   <option value="URGENT">Urgent</option>
                 </select>
               </div>
@@ -774,7 +794,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     </option>
                     {allowedNextStatuses.map((st) => (
                       <option key={st} value={st}>
-                        &rarr; {st}
+                        &rarr; {formatStatusLabel(st)}
                       </option>
                     ))}
                   </select>
