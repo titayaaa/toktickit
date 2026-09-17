@@ -1,17 +1,24 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
+import authRouter from './routes/auth';
 
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Lab 3 Authentication Routes
+app.use('/api/auth', authRouter);
+
 
 // Multer configuration for attachments
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
