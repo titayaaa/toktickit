@@ -94,8 +94,6 @@
 
 ขอบคุณสำหรับคำแนะนำน้า เราได้อัปเดตเพิ่ม Section 10 Assumptions and Decisions, ชี้แจงเรื่อง Reopen ticket และอัปเดต PR #52 ลงใน reviewer.md ให้เรียบร้อยแล้ว
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #52]*
 
 ---
 
@@ -149,8 +147,6 @@
 
 เราได้เพิ่ม Backfill userId & itPriority, เพิ่มข้อมูลตัวอย่าง Ticket/Public Comments/Internal Notes, และ commit ไฟล์ Prisma Migration ลง server/prisma/migrations/ ให้เรียบร้อยแล้ว รบกวนตรวจอีกครั้งให้หน่อยน้า
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #53]*
 
 ---
 
@@ -197,8 +193,6 @@
 
 ตรวจสอบข้อมูลใน reviewer.md เรียบร้อย ฉันลืมกด approve แต่ฉันกด Merge ให้แล้ว
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #54]*
 
 ---
 
@@ -218,8 +212,6 @@
 -จุดเด่น: สไตล์ Zen Green สอดคล้องตาม Tokens, Checklist ตรวจสอบความซับซ้อนของรหัสผ่านแบบเรียลไทม์ 4 ข้อ, Authentication Gate ดักจับหน้าจอ Login / Change Password / Main App ตาม Session ได้อย่างรัดกุม, มี Unit Test 7 เคสและไม่เกิด Regression ต่อ UI เดิมของ Lab 1 & 2
 - บันทึกผลการตรวจทานเรียบร้อย โค้ดผ่านการตรวจโดยไม่มีข้อทักท้วงเพิ่มเติม
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #55]*
 
 ---
 
@@ -244,8 +236,6 @@
 4. **Security & Validation**: มี Guard ตรวจสอบ Role และ Password Rotation อย่างรัดกุม พร้อมส่ง 400 Bad Request เมื่อ Query Parameters ไม่ถูกต้อง
 5. **Test Coverage**: ชุด Integration Tests 9 เคสใน `staff-queue.api.test.ts` ครอบคลุมทุก Scenario สำคัญ
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #56]*
 
 ---
 
@@ -280,8 +270,6 @@
    - รองรับมาตรฐาน WAI-ARIA (`aria-sort`, `role="search"`, `aria-label`)
    - Unit Tests 7 เคสใน `StaffTicketQueue.test.tsx` ผ่าน 100%
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #57]*
 
 ---
 
@@ -314,8 +302,6 @@
 5. **Comprehensive Test Suite**:
    - Integration Tests ครอบคลุม 29 เคสใน `ticket-operations.api.test.ts` ทดสอบทุก Scenario และ Constraint สำคัญ ผ่าน 100%
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #58]*
 
 ---
 
@@ -387,8 +373,6 @@
 
 เพิ่ม Unit Test `OP-08` ตรวจสอบครบทั้ง 4 ข้อ เทสต์ฝั่ง Client ผ่านหมด 49/49 เคส และบิลด์ผ่านฉลุยแล้วจ้า รบกวนดูอีกรอบให้หน่อยน้า ขอบคุณมากๆ เลยย
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #59]*
 
 ---
 
@@ -456,8 +440,6 @@ Test & Build Verification: Server Tests (84 เคส) และ Client Tests (5
 
 รบกวนช่วยตรวจทานอีกครั้งและ Merge ได้เลย ขอบคุณมากน้า
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #60]*
 
 ---
 
@@ -480,8 +462,6 @@ Backward Compatibility: ปรับ Scoped Middleware ใน tickets.ts ได�
 Evidence & Documentation: มี Screenshot ครบทั้ง 32 ภาพใน artifacts/lab-03/screenshots/, Traceability Matrix ใน tests.md อัปเดตครบ 35 รายการ และอัปเดตคู่มือใน README.md ชัดเจน
 (มีจุดเล็กๆ ไม่กระทบการทำงาน: แผนผัง Repository Structure ใน README.md ยังสามารถเพิ่มโฟลเดอร์ของ lab-03 เข้าไปเพิ่มเติมให้ครบถ้วนได้ครับ)
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #61]*
 
 ---
 
@@ -551,8 +531,6 @@ Evidence & Documentation: มี Screenshot ครบทั้ง 32 ภาพ�
 
 ดังนั้น หากเราปรับเปลี่ยนเป็น `TKT-YYYYMMDD-XXXX` จะส่งผลให้ชุด Regression Test เดิมของ Lab 2 พังทันทีครับ เราจึงจำเป็นต้องคงรูปแบบ **`TKT-YYYY-XXXXXX`** ตามโค้ดเดิมของ Repository เรา เพื่อรักษาความสมบูรณ์แบบ Backward Compatibility 100% ครับ (อัปเดตใน commit 488c0b3 เรียบร้อยแล้วครับ)
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #36]*
 
 ---
 
@@ -569,8 +547,6 @@ Evidence & Documentation: มี Screenshot ครบทั้ง 32 ภาพ�
 
 กิ่ง lab3-staging ได้ถูก Reset กลับไปก่อนการ Merge เรียบร้อยแล้ว เพื่อให้เพื่อน (@titayaaa) เข้ามาทำการ Review และ Merge ด้วยตนเองตามขั้นตอนที่ถูกต้อง กรุณาดำเนินการที่ **PR #47**: https://github.com/lmaybelgracel/TokTickit/pull/47
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #46]*
 
 ---
 
@@ -638,8 +614,6 @@ Evidence & Documentation: มี Screenshot ครบทั้ง 32 ภาพ�
 
 บันทึกสรุปการแก้ไขลงใน `docs/lab-03/reviewer.md` เรียบร้อยแล้ว รบกวน @titayaaa ตรวจสอบ commit `3a2e156` และกด Approve / Merge เข้า `lab3-staging` ได้เลย
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #47]*
 
 ---
 
@@ -703,8 +677,6 @@ good !!
 
 บันทึกสรุปการแก้ไขลงใน `docs/lab-03/reviewer.md` เรียบร้อยแล้ว รบกวน @titayaaa ตรวจสอบ commit `8a85931` และกด Approve / Merge เข้า `lab3-staging` ได้เลย
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #48]*
 
 ---
 
@@ -734,8 +706,6 @@ good !!
 
 โดยรวมคือโค้ดคุณภาพดีมาก สะอาด เป็นระเบียบ และครบตามโจทย์แล็บ 3 ทุกอย่างเลย **เรากด Approve ให้เรียบร้อยแล้วน้า เดี๋ยวเรากด Merge เข้า `lab3-staging` ให้เลย
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #49]*
 
 ---
 
@@ -786,8 +756,6 @@ good !!
 ### 🎯 สรุปผลการตรวจ (Verdict)
 โครงสร้างโค้ดสะอาด เป็นระเบียบ แยกสิทธิ์ถูกต้องตามเกณฑ์ และเทสผ่านครบถ้วนทั้งหมด ไม่มีจุดติดขัดเลย เรา **Approve** ให้เรียบร้อย
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #50]*
 
 ---
 
@@ -829,8 +797,6 @@ good !!
 
  ทุกอย่างเรียบร้อยและปลอดภัยดีมากก กด Approve ให้แล้วนะ
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #51]*
 
 ---
 
@@ -905,8 +871,6 @@ good !!
 - Client: 31/31 ผ่าน (5 ไฟล์)
 - E2E (Playwright): 3/3 ผ่าน
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #52]*
 
 ---
 
@@ -980,5 +944,3 @@ good !!
 
 ทำการ Push ขึ้นกิ่ง feature/24-ui-style-checking เรียบร้อย รบกวนตรวจทานรอบใหม่และอนุมัติ PR เพื่อดำเนินการ Merge เข้า lab3-staging ต่อไป
 
-### 📸 Visual Evidence Placeholder
-*[ใส่รูปภาพหลักฐานการ Review PR #53]*
