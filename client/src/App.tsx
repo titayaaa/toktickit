@@ -85,6 +85,17 @@ const MainApplication: React.FC = () => {
     }
   }, [user]);
 
+  // Set default active tab based on authenticated user role
+  useEffect(() => {
+    if (user?.role === 'ADMINISTRATOR') {
+      setActiveTab('admin-users');
+    } else if (user?.role === 'IT_STAFF') {
+      setActiveTab('staff-queue');
+    } else if (user?.role === 'REQUESTER') {
+      setActiveTab('create');
+    }
+  }, [user?.role]);
+
   // Loading indicator while initializing auth
   if (isLoading) {
     return (
@@ -141,7 +152,7 @@ const MainApplication: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="d-flex gap-2 mb-4">
+      <div className="d-flex flex-wrap gap-2 mb-4">
         {isAdmin && (
           <button
             type="button"

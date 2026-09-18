@@ -7,6 +7,11 @@
   --error-red: #A31220;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background-color: var(--page-background);
   color: var(--text-dark);
@@ -162,6 +167,8 @@ body {
   border-radius: 6px;
   padding: 0.625rem 0.875rem;
   color: var(--text-dark);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .zen-table tbody tr.clickable-row {
