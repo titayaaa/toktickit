@@ -1,12 +1,23 @@
 # Sprint 3 Peer Review Record: TokTickIT Users, Roles, IT Staff Ticketing, and Admin Screens
 
-## 1. Review Information
+## 1. Review Information & Master PR Table
 - **Repository:** `titayaaa/toktickit`
-- **Feature Branch:** `feature/17-spec-and-tests`
-- **Target Branch:** `lab3-staging`
 - **Author:** ฑิตญา ผ่องสกุล (GitHub: `@titayaaa` / Student ID: 67070505201)
 - **Peer Reviewer:** GitHub: `@chanya06` (https://github.com/chanya06)
-- **Pull Request:** [PR #52](https://github.com/titayaaa/toktickit/pull/52)
+- **Target Branch:** `lab3-staging` (and subsequently `main`)
+
+| PR # | Feature / Issue Title | GitHub Issue | Feature Branch | Target | Reviewer | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :---: |
+| **[PR #52](https://github.com/titayaaa/toktickit/pull/52)** | Issue 17: Sprint 3 Engineering Contract & Specification | Issue #42 | `feature/17-spec-and-tests` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #53](https://github.com/titayaaa/toktickit/pull/53)** | Issue 18: Database Migration, Schema Evolution & Seed Data | Issue #43 | `feature/18-db-and-seed` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #54](https://github.com/titayaaa/toktickit/pull/54)** | Issue 19: Authentication & Authorization Backend API | Issue #44 | `feature/19-auth-api` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #55](https://github.com/titayaaa/toktickit/pull/55)** | Issue 20: Login & Mandatory Password Change UI | Issue #45 | `feature/20-login-ui` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #56](https://github.com/titayaaa/toktickit/pull/56)** | Issue 21: IT Staff Ticket Queue API & Query System | Issue #46 | `feature/21-staff-queue-api` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #57](https://github.com/titayaaa/toktickit/pull/57)** | Issue 22: IT Staff Ticket Queue UI & Dashboard | Issue #47 | `feature/22-staff-queue-ui` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #58](https://github.com/titayaaa/toktickit/pull/58)** | Issue 23: Ticket Operations, Ownership & Notes API | Issue #48 | `feature/23-ticket-ops-api` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #59](https://github.com/titayaaa/toktickit/pull/59)** | Issue 24: IT Staff Ticket Operations & Confidential Notes UI | Issue #49 | `feature/24-ticket-ops-ui` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #60](https://github.com/titayaaa/toktickit/pull/60)** | Issue 25: Administrator User Management API & UI | Issue #50 | `feature/25-admin-user-management` | `lab3-staging` | `@chanya06` | ✅ Merged |
+| **[PR #61](https://github.com/titayaaa/toktickit/pull/61)** | Issue 26: E2E Testing, Visual Inspection & Final Release | Issue #51 | `feature/26-e2e-and-release` | `lab3-staging` | `@chanya06` | 🟡 In Review |
 
 ---
 
@@ -300,6 +311,102 @@
   - Client Vitest Suite: 11/11 test files passed, 56/56 tests passed (100%).
   - Production build passing cleanly: `npm run build --prefix client` and `npm run build --prefix server`.
   - Traceability matrix in `docs/lab-03/tests.md` updated with all 35 tests verified and passed.
+
+---
+
+# Part 2: Pull Requests I Reviewed for Partner (@lmaybelgracel)
+
+**Partner Repository:** `lmaybelgracel/TokTickit` (Author: Maybel Grace - GitHub: [@lmaybelgracel](https://github.com/lmaybelgracel))
+
+## 1. Master Partner Review Table
+
+| Partner PR # | Partner Issue / Feature | Branch | Review Verdict | Final Status |
+| :--- | :--- | :--- | :--- | :---: |
+| **[PR #36](https://github.com/lmaybelgracel/TokTickit/pull/36)** | Issue 17: Sprint 3 Engineering Contract & Specification | `feature/17-spec-and-tests` | Approved after Section 10 addition | ✅ Merged |
+| **[PR #46 / #47](https://github.com/lmaybelgracel/TokTickit/pull/47)** | Issue 18: Database Schema Evolution, User Migration & Seed | `feature/18-database-and-seed` | Approved after seed backfill & migration commit | ✅ Merged |
+| **[PR #48](https://github.com/lmaybelgracel/TokTickit/pull/48)** | Issue 19: Authentication, Session & Mandatory Password Change | `feature/19-auth-and-passwords` | Approved after generic 401 & checklist verification | ✅ Merged |
+| **[PR #49](https://github.com/lmaybelgracel/TokTickit/pull/49)** | Issue 20: IT Staff Ticket Queue | `feature/20-it-staff-ticket-queue` | Approved after priority weighted sorting check | ✅ Merged |
+| **[PR #50](https://github.com/lmaybelgracel/TokTickit/pull/50)** | Issue 21: IT Staff Ticket Operations & Detail | `feature/21-it-staff-operations` | Approved after PENDING transition & amber styling | ✅ Merged |
+| **[PR #51](https://github.com/lmaybelgracel/TokTickit/pull/51)** | Issue 22: Administrator User Management | `feature/22-admin-user-management` | Approved after BR-18 self-deactivation guard | ✅ Merged |
+| **[PR #52](https://github.com/lmaybelgracel/TokTickit/pull/52)** | Issue 23: Automated Testing Suite | `feature/23-automated-testing-suite` | Approved after test consolidation & sessionStorage sync | ✅ Merged |
+| **[PR #53](https://github.com/lmaybelgracel/TokTickit/pull/53)** | Issue 24: UI Style Checking & Responsive Visual Evidence | `feature/24-ui-style-checking` | Approved on commit `6768c06` after 4 requested changes | ✅ Merged |
+
+---
+
+## 2. Partner Review Discussion & Resolution Records
+
+### 1. PR #36: Issue 17 - Sprint 3 Engineering Contract & Specification
+- **PR Link:** [lmaybelgracel/TokTickit#36](https://github.com/lmaybelgracel/TokTickit/pull/36)
+- **Review Verdict:** Approved
+- **Review Summary:**
+  - ตรวจทานสเปกทั้ง 6 ฉบับ ครอบคลุม FR-01 ถึง FR-26 และ BR-01 ถึง BR-19
+  - แนะนำให้เพิ่ม Section 10 Assumptions and Decisions เกี่ยวกับการใช้ bcrypt (10 rounds) และ HTTP-only cookie
+  - Partner ดำเนินการแก้ไขเพิ่มเติมเรียบร้อย และทำการ Approve เข้า `lab3-staging`.
+
+### 2. PR #46 / PR #47: Issue 18 - Database Schema Evolution & User Migration
+- **PR Link:** [lmaybelgracel/TokTickit#47](https://github.com/lmaybelgracel/TokTickit/pull/47)
+- **Review Verdict:** Approved
+- **Review Summary:**
+  - ตรวจสอบ Prisma migration SQL และ Seed data สำหรับ 3 Roles (4+ Requesters, 3+ IT Staff, 1+ Admin)
+  - ให้ข้อเสนอแนะในการ backfill ข้อมูลตั๋วเดิมให้ผูกกับ User ID และกำหนด IT Priority เริ่มต้น
+  - Partner เพิ่ม migration file ลงใน Git และเพิ่ม verification tests ครบถ้วน.
+
+### 3. PR #48: Issue 19 - Authentication, Session & Mandatory Password Change
+- **PR Link:** [lmaybelgracel/TokTickit#48](https://github.com/lmaybelgracel/TokTickit/pull/48)
+- **Review Verdict:** Approved
+- **Review Summary:**
+  - ตรวจสอบความปลอดภัยในการตอบสนอง 401 สำหรับ Invalid credentials และ Inactive accounts เพื่อป้องกัน Account Enumeration
+  - ตรวจสอบ real-time password complexity checklist 4 ข้อ ในหน้าจอ Change Password
+  - อนุมัติ Merge เข้า `lab3-staging`.
+
+### 4. PR #49: Issue 20 - IT Staff Ticket Queue
+- **PR Link:** [lmaybelgracel/TokTickit#49](https://github.com/lmaybelgracel/TokTickit/pull/49)
+- **Review Verdict:** Approved
+- **Review Summary:**
+  - ตรวจสอบการค้นหาและฟิลเตอร์สถานะ/หมวดหมู่/ลำดับความสำคัญ
+  - ตรวจสอบ responsive layout ที่สลับระหว่างตารางแบบ High-density บน Desktop และ Card Stack บน Mobile (<768px)
+  - อนุมัติ Merge เข้า `lab3-staging`.
+
+### 5. PR #50: Issue 21 - IT Staff Ticket Operations & Detail
+- **PR Link:** [lmaybelgracel/TokTickit#50](https://github.com/lmaybelgracel/TokTickit/pull/50)
+- **Review Verdict:** Approved
+- **Review Summary:**
+  - ตรวจสอบ State Transition Matrix ป้องกันการติด Deadlock ในสถานะ `PENDING`
+  - ตรวจสอบการแยก Public Comments (สีเขียว) และ Internal Notes (สีเหลืองอำพัน `#FFF8E1` พร้อมไอคอน 🔒)
+  - ตรวจสอบ Resolution Summary (3-500 chars) เมื่อเปลี่ยนสถานะเป็น RESOLVED
+  - อนุมัติ Merge เข้า `lab3-staging`.
+
+### 6. PR #51: Issue 22 - Administrator User Management
+- **PR Link:** [lmaybelgracel/TokTickit#51](https://github.com/lmaybelgracel/TokTickit/pull/51)
+- **Review Verdict:** Approved
+- **Review Summary:**
+  - ตรวจสอบความปลอดภัยตาม BR-18: Admin ห้ามปิดใช้งานหรือลดสิทธิ์ตนเอง
+  - ตรวจสอบ BR-19: ห้ามปิดใช้งานหรือลดสิทธิ์ Administrator คนสุดท้ายในระบบ
+  - ตรวจสอบ Reset Password modal ที่ส่งผลให้ `mustChangePassword = true`
+  - อนุมัติ Merge เข้า `lab3-staging`.
+
+### 7. PR #52: Issue 23 - Automated Testing Suite
+- **PR Link:** [lmaybelgracel/TokTickit#52](https://github.com/lmaybelgracel/TokTickit/pull/52)
+- **Review Verdict (Changes Requested -> Approved):**
+  - ข้อเสนอแนะรอบแรก: พบ Endpoint ใน `authorization.api.test.ts` เรียกผิด path (`/api/staff/queue` แทนที่จะเป็น `/api/staff/tickets`), พบไฟล์เทสต์ซ้ำซ้อน 2 คู่, และ View state ใน `App.tsx` หลุดเมื่อกด Refresh
+  - การแก้ไขของ Partner (Commit `7347855`): แก้ไข endpoint ถูกต้อง, ยุบรวมไฟล์เทสต์ที่ซ้ำซ้อน, และเพิ่ม `sessionStorage` จัดการ active view state อย่างราบรื่น
+  - ตรวจสอบรอบสอง: ผ่านครบ 153/153 tests (100%), อนุมัติ Merge เข้า `lab3-staging`.
+
+### 8. PR #53: Issue 24 - UI Style Checking & Responsive Visual Evidence
+- **PR Link:** [lmaybelgracel/TokTickit#53](https://github.com/lmaybelgracel/TokTickit/pull/53)
+- **Review Verdict (Changes Requested -> Approved):**
+  - **ข้อเสนอแนะรอบแรก (4 จุด):**
+    1. Mock Route Handler ใน `visual-evidence.spec.ts` ไม่ได้ดัก query parameter `search`
+    2. ยอดภาพถ่ายใน PR description (24 รูป) ไม่ตรงกับโค้ดจริง (28 รูป)
+    3. ขาดการบันทึกประวัติ Issue 24 ลงใน `docs/lab-03/reviewer.md`
+    4. มีการใช้ `page.waitForTimeout(400)` เสี่ยงต่อการเกิด Flaky test
+  - **การแก้ไขของ Partner (Commit `6768c06`):**
+    1. ปรับ Route handler ตรวจสอบ `url.searchParams.get("search") === "NonExistentQueryXYZ"` ส่งคืนตั๋วว่าง `{ tickets: [], pagination: { total: 0 } }`
+    2. แก้ไขตัวเลขสรุปใน PR description และเอกสารเป็น 28 รูปภาพตรงตามความเป็นจริง
+    3. บันทึกรายละเอียด Issue 24 ลงใน `reviewer.md` ครบถ้วน
+    4. เปลี่ยนมาใช้ Web-first auto-retrying Playwright assertion `await expect(page.getByText(/No tickets found/i)).toBeVisible();`
+  - **การอนุมัติรอบสอง:** ตรวจสอบโค้ด Diff ทุกบรรทัด แก้ไขได้สมบูรณ์แบบ 100% จึงให้การอนุมัติ (Approved) และดำเนินการ Merge เข้าสู่ `lab3-staging`.
+
 
 
 
