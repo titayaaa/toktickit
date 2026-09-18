@@ -24,11 +24,9 @@ describe('Issue 23: Ticket Operations, Ownership & Notes API', () => {
   let testTicket: any;
 
   beforeAll(async () => {
-    // 1. Create or retrieve test category
-    category = await prisma.category.upsert({
-      where: { name: 'Operations Test Category' },
-      update: {},
-      create: { name: 'Operations Test Category', isActive: true },
+    // 1. Retrieve test category
+    category = await prisma.category.findFirst({
+      where: { isActive: true },
     });
 
     // 2. Setup users from seed for all 3 roles

@@ -5,9 +5,7 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 const router = Router();
 const prisma = new PrismaClient();
 
-// Enforce authentication across all comment and note endpoints
-router.use(authenticate);
-
+// Apply authenticate middleware to comment, note, and resolution endpoints
 /**
  * POST /api/tickets/:id/comments
  * Access: Ticket Requester (must own ticket), IT_STAFF, ADMINISTRATOR
@@ -15,7 +13,7 @@ router.use(authenticate);
  * BR-14: Append-only communication.
  * BR-15: Content must be non-empty string between 1 and 2,000 characters.
  */
-router.post('/:id/comments', async (req: AuthRequest, res: Response): Promise<void> => {
+router.post('/:id/comments', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const ticketId = parseInt(req.params.id as string, 10);
     if (isNaN(ticketId) || ticketId <= 0) {
@@ -99,7 +97,7 @@ router.post('/:id/comments', async (req: AuthRequest, res: Response): Promise<vo
  * GET /api/tickets/:id/comments
  * Access: Ticket Requester (must own ticket), IT_STAFF, ADMINISTRATOR
  */
-router.get('/:id/comments', async (req: AuthRequest, res: Response): Promise<void> => {
+router.get('/:id/comments', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const ticketId = parseInt(req.params.id as string, 10);
     if (isNaN(ticketId) || ticketId <= 0) {
@@ -166,7 +164,7 @@ router.get('/:id/comments', async (req: AuthRequest, res: Response): Promise<voi
  * BR-13 & AC-05: Strictly confidential. Requesters receive 403 Forbidden without disclosing note contents.
  * BR-15: Content must be non-empty string between 1 and 2,000 characters.
  */
-router.post('/:id/notes', async (req: AuthRequest, res: Response): Promise<void> => {
+router.post('/:id/notes', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const currentUser = req.user!;
 
@@ -237,7 +235,7 @@ router.post('/:id/notes', async (req: AuthRequest, res: Response): Promise<void>
  * Access: IT_STAFF, ADMINISTRATOR ONLY
  * BR-13 & AC-05: Strictly confidential. Requesters receive 403 Forbidden without disclosing note contents.
  */
-router.get('/:id/notes', async (req: AuthRequest, res: Response): Promise<void> => {
+router.get('/:id/notes', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const currentUser = req.user!;
 
@@ -294,7 +292,7 @@ router.get('/:id/notes', async (req: AuthRequest, res: Response): Promise<void> 
  * Access: Authenticated Requester who owns the ticket
  * BR-10 & AC-12: Requester indicates "Problem Appears Resolved" without directly closing ticket.
  */
-router.post('/:id/resolve-indication', async (req: AuthRequest, res: Response): Promise<void> => {
+router.post('/:id/resolve-indication', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const ticketId = parseInt(req.params.id as string, 10);
     if (isNaN(ticketId) || ticketId <= 0) {

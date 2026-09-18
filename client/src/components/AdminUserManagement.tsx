@@ -350,8 +350,8 @@ export const AdminUserManagement: React.FC = () => {
       )}
 
       {/* Filter & Search Bar */}
-      <div className="p-3 mb-4 bg-white rounded shadow-sm border">
-        <div className="row g-3 align-items-center">
+      <div className="p-3 mb-4 bg-white rounded shadow-sm border overflow-hidden">
+        <div className="row g-3 align-items-center mx-0">
           {/* Search Input */}
           <div className="col-12 col-md-6 col-lg-5">
             <label htmlFor="user-search-input" className="form-label small text-muted mb-1">

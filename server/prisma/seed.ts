@@ -82,6 +82,34 @@ async function main() {
       mustChangePassword: false,
     },
     {
+      email: 'rotation.required@example.com',
+      fullName: 'Rotation Required User',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: true,
+    },
+    {
+      email: 'rotation.required.desktop@example.com',
+      fullName: 'Rotation Required User Desktop',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: true,
+    },
+    {
+      email: 'rotation.required.tablet@example.com',
+      fullName: 'Rotation Required User Tablet',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: true,
+    },
+    {
+      email: 'rotation.required.mobile@example.com',
+      fullName: 'Rotation Required User Mobile',
+      role: Role.REQUESTER,
+      isActive: true,
+      mustChangePassword: true,
+    },
+    {
       email: 'inactive.user@example.com',
       fullName: 'Inactive Requester',
       role: Role.REQUESTER,
@@ -144,6 +172,7 @@ async function main() {
         role: u.role,
         isActive: u.isActive,
         mustChangePassword: u.mustChangePassword,
+        passwordHash: defaultPasswordHash,
       },
       create: {
         ...u,

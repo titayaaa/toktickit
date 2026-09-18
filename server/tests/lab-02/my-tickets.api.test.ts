@@ -92,7 +92,7 @@ describe('GET /api/tickets (Issue 12 - My Tickets API)', () => {
 
   it('API-06: Ownership Filtering - Only returns tickets belonging to authenticated requester', async () => {
     const res = await request(app)
-      .get('/api/tickets?limit=50')
+      .get('/api/tickets?limit=100')
       .set('Authorization', `Bearer dev_requester_${ownerId}`);
 
     expect(res.status).toBe(200);
