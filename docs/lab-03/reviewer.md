@@ -260,10 +260,17 @@
   - Clean production build (`tsc && vite build`).
 
 ### Peer Review Comments (@chanya06)
-> *[Pending review from @chanya06]*
+> **Peer Review: Approved (PR #60)**
+> ตรวจทานโค้ดที่แก้ไขเพิ่มเติมใน Commit `bbf1124` ของ Issue 25 (Administrator User Management API & UI) เรียบร้อยแล้ว
+> 1. **Business Rule Reference:** อัปเดตการอ้างอิงเป็น BR-17, BR-18, BR-19 (Administrator Governance Rules) ตาม Spec Section 5.4 ครบถ้วนทั้ง backend comments, UI labels และชุดเทสต์
+> 2. **Guard Logic Order:** ปรับลำดับการตรวจสอบใน `PATCH /api/admin/users/:id` โดยให้ Self-Deactivation Guard (BR-18) มาก่อน Last Admin Protection (BR-19) อย่างถูกต้อง Error message สอดคล้องกับสถานการณ์จริง
+> 3. **Input Validation:** เพิ่ม Type Guard ป้องกันกรณีส่ง fullName ไม่ใช่ string ไม่เกิด uncaught TypeError อีกต่อไป
+> 4. **Test Verification:** ผลการทดสอบ Server ผ่าน 84/84 เคส และ Client ผ่าน 56/56 เคส ครบ 100%
+> โค้ดมีคุณภาพสูงและสมบูรณ์แบบมากครับ
 
 ### Final Approval
-- **Status:** Pending Review
-- **Approval Date:** Pending
-- **Merged by:** Pending
+- **Status:** ✅ Approved by @chanya06
+- **Approval Date:** 2026-09-18
+- **Merged by:** @chanya06
+
 
