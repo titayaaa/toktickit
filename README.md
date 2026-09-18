@@ -42,25 +42,29 @@ TokTickIT is a full-stack IT service desk web application built with **React (Ty
 ```text
 toktickit/
 ├── artifacts/
-│   └── lab-02/screenshots/     # Playwright responsive visual screenshots
+│   ├── lab-02/screenshots/     # Lab 2 visual regression screenshots
+│   └── lab-03/screenshots/     # Lab 3 responsive visual inspection evidence
 ├── client/                     # React + Vite + Bootstrap frontend
 │   ├── src/
-│   │   ├── components/         # UI Components (CreateTicket, MyTickets, TicketDetail, etc.)
-│   │   ├── contexts/           # RequesterContext
-│   │   └── test/               # Vitest UI unit/integration tests
+│   │   ├── components/         # UI Components (Login, Queue, Operations, Admin, etc.)
+│   │   ├── contexts/           # AuthContext & RequesterContext
+│   │   └── test/               # Vitest UI unit/integration tests (lab-02 & lab-03)
 │   └── vite.config.ts
 ├── server/                     # Express + Prisma backend
-│   ├── prisma/                 # Schema and idempotent seed script
-│   ├── src/                    # API endpoints and logic
-│   └── tests/                  # Supertest API tests (lab-01 & lab-02)
-├── e2e/                        # Playwright E2E test suite & visual snapshots
-│   └── lab-02/                 # Full requester ticket journey & visual regression
+│   ├── prisma/                 # Schema, migrations, and idempotent seed script
+│   ├── src/                    # API endpoints and logic (auth, staff, tickets, admin)
+│   └── tests/                  # Supertest API tests (lab-01, lab-02 & lab-03)
+├── e2e/                        # Playwright E2E test suites & visual snapshots
+│   ├── lab-02/                 # Full requester ticket journey & visual regression
+│   └── lab-03/                 # Auth, Staff Queue, User Admin & Visual audit specs
 ├── docs/                       # Specifications, test plans, AI reflection, and peer reviews
 │   ├── lab-01/
-│   └── lab-02/
+│   ├── lab-02/
+│   └── lab-03/
 ├── docker-compose.yml          # PostgreSQL container definition
 └── playwright.config.ts        # Playwright multi-viewport configuration
 ```
+
 
 ---
 

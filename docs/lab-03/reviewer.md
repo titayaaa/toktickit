@@ -17,7 +17,7 @@
 | **[PR #58](https://github.com/titayaaa/toktickit/pull/58)** | Issue 23: Ticket Operations, Ownership & Notes API | Issue #48 | `feature/23-ticket-ops-api` | `lab3-staging` | `@chanya06` | ✅ Merged |
 | **[PR #59](https://github.com/titayaaa/toktickit/pull/59)** | Issue 24: IT Staff Ticket Operations & Confidential Notes UI | Issue #49 | `feature/24-ticket-ops-ui` | `lab3-staging` | `@chanya06` | ✅ Merged |
 | **[PR #60](https://github.com/titayaaa/toktickit/pull/60)** | Issue 25: Administrator User Management API & UI | Issue #50 | `feature/25-admin-user-management` | `lab3-staging` | `@chanya06` | ✅ Merged |
-| **[PR #61](https://github.com/titayaaa/toktickit/pull/61)** | Issue 26: E2E Testing, Visual Inspection & Final Release | Issue #51 | `feature/26-e2e-and-release` | `lab3-staging` | `@chanya06` | 🟡 In Review |
+| **[PR #61](https://github.com/titayaaa/toktickit/pull/61)** | Issue 26: E2E Testing, Visual Inspection & Final Release | Issue #51 | `feature/26-e2e-and-release` | `lab3-staging` | `@chanya06` | ✅ Merged |
 
 ---
 
@@ -311,6 +311,23 @@
   - Client Vitest Suite: 11/11 test files passed, 56/56 tests passed (100%).
   - Production build passing cleanly: `npm run build --prefix client` and `npm run build --prefix server`.
   - Traceability matrix in `docs/lab-03/tests.md` updated with all 35 tests verified and passed.
+
+### Peer Review Comments (@chanya06):
+> **Peer Review: Approved (PR #61)**
+> ตรวจทานโค้ด ชุดทดสอบ และเอกสารใน PR #61 ครบถ้วนเรียบร้อยแล้วครับ ถือเป็นการปิด Sprint 3 ได้อย่างยอดเยี่ยมและสมบูรณ์แบบมาก:
+> - **E2E Testing Suite (Playwright):** ครอบคลุม User Journeys สำคัญครบทุก Role (authentication, staff-ticket-flow, user-administration, visual-evidence) รันผ่านครบ 18/18 test configurations (100% pass) ทั้ง Desktop, Tablet และ Mobile
+> - **Responsive Visual Quality:** ตรวจสอบผ่านเกณฑ์ expectNoHorizontalOverflow ไร้ปัญหาหน้าจอล้นในทุก Viewport มีการแก้ปัญหา Bootstrap Row Margin ด้วย mx-0 และ overflow-hidden ได้อย่างตรงจุด
+> - **Role-Based Navigation:** จัดการ Redirect แท็บเริ่มต้นหลังล็อกอินได้เหมาะสม (Admin -> User Management, IT Staff -> Queue, Requester -> Create Ticket) ช่วยเพิ่ม UX ให้ผู้ใช้งานอย่างมาก
+> - **Backward Compatibility:** ปรับ Scoped Middleware ใน tickets.ts ได้อย่างรัดกุม ทำให้ API และ Test Suites ย้อนหลังของ Lab 2 ทำงานร่วมกันได้อย่างราบรื่น
+> - **Evidence & Documentation:** มี Screenshot ครบทั้ง 32 ภาพใน artifacts/lab-03/screenshots/, Traceability Matrix ใน tests.md อัปเดตครบ 35 รายการ และอัปเดตคู่มือใน README.md ชัดเจน
+
+### Final Approval & Merge:
+- **Status:** ✅ Approved by `@chanya06`
+- **Merge Commit:** `8a5bd28`
+- **Merged by:** `@chanya06`
+
+> *[ใส่รูปภาพหลักฐานการ Review PR #61]*
+
 
 ---
 
