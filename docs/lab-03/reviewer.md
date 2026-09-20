@@ -488,6 +488,8 @@ Evidence & Documentation: มี Screenshot ครบทั้ง 32 ภาพ�
 | **[PR #51](https://github.com/lmaybelgracel/TokTickit/pull/51)** | Issue 22: Administrator User Management | `feature/22-admin-user-management` | `lab3-staging` | `@titayaaa` | Approved | ✅ Merged (`a3c72a4`) |
 | **[PR #52](https://github.com/lmaybelgracel/TokTickit/pull/52)** | Issue 23: Automated Testing Suite | `feature/23-automated-testing-suite` | `lab3-staging` | `@titayaaa` | Changes Requested -> Approved | ✅ Merged (`15194b5`) |
 | **[PR #53](https://github.com/lmaybelgracel/TokTickit/pull/53)** | feat(lab-03): UI style checking & visual evidence | `feature/24-ui-style-checking` | `lab3-staging` | `@titayaaa` | Changes Requested -> Approved | ✅ Merged (`041bd12`) |
+| **[PR #54](https://github.com/lmaybelgracel/TokTickit/pull/54)** | Issue 25: Required Repository Documentation & Course Delivery Evidence | `feature/25-repository-documentation` | `lab3-staging` | `@titayaaa` | Changes Requested -> Approved | ✅ Merged (`b59653e`) |
+| **[PR #55](https://github.com/lmaybelgracel/TokTickit/pull/55)** | Issue 26: Release Integration | `lab3-staging` | `main` | `@titayaaa` | Changes Requested | ⏳ In Review |
 
 ---
 
@@ -943,4 +945,112 @@ good !!
    - ปรับแก้ใน visual-evidence.spec.ts โดยยกเลิกการใช้ page.waitForTimeout(400) และเปลี่ยนมาใช้ Web-first auto-retrying assertion await expect(page.getByText(/No tickets found/i)).toBeVisible() แทน เพื่อป้องกัน Flaky test
 
 ทำการ Push ขึ้นกิ่ง feature/24-ui-style-checking เรียบร้อย รบกวนตรวจทานรอบใหม่และอนุมัติ PR เพื่อดำเนินการ Merge เข้า lab3-staging ต่อไป
+
+---
+
+## 5.10 PR #54: Issue 25: Required Repository Documentation & Course Delivery Evidence
+- **Pull Request Link:** [lmaybelgracel/TokTickit#54](https://github.com/lmaybelgracel/TokTickit/pull/54)
+- **Author:** Maybel Grace (`@lmaybelgracel`)
+- **Reviewer:** ฑิตญา ผ่องสกุล (`@titayaaa`)
+- **Status:** ✅ Merged into `lab3-staging` (Commit `b59653e`)
+- **Approval Date:** 2026-09-20
+
+### 💬 Peer Review & Author Response History (Verbatim)
+
+#### ⚠️ Changes Requested by @titayaaa (2026-09-19)
+
+เราไล่ดู PR #54 ให้แล้วนะ โดยรวมดีมากเลย ทั้งตัวโครงสร้างรายงาน 9 พาร์ท, ผลเทสต์ใน `tests.md` ครบ 100%, แล้วก็รูปแคปหน้าจอ Responsive ก็ชัดเจนดีมาก
+
+แต่มี 2 จุดที่อยากให้ช่วยแก้ก่อน Merge น้า:
+
+### 1. เรื่องภาษาไทยใน `docs/lab-03/reviewer.md` สระ/วรรณยุกต์แหว่งกลายเป็น 
+- พอเปิดดูในไฟล์ `docs/lab-03/reviewer.md` สระกับวรรณยุกต์ภาษาไทยมันแหว่งกลายเป็นเครื่องหมาย  แทบทุกบรรทัดเลย เช่น
+  - `หากจะเปลียน` (เปลี่ยน)
+  - `ข้อเนอแนะ` (ข้อเสนอแนะ)
+  - `Commit ไฟ์ Migration` (ไฟล์)
+  - `Database แะ Seed` (และ)
+  - `สิทธ์ตามบทบาท` (สิทธิ์)
+- น่าจะเกิดจากตอนเซฟไฟล์แล้ว Encoding มันเพี้ยนกลายเป็น  
+- **วิธีแก้:** ฝากก๊อปข้อความรีวิวภาษาไทยเดิมที่ถูกต้องมาแปะทับใหม่ แล้วตอนกด Save ใน VS Code เช็กมุมขวาล่างให้ชัวร์ว่าเป็น **`UTF-8`** น้า ไม่งั้นเดี๋ยวอาจารย์ตรวจแล้วจะอ่านยากจ้า
+
+### 2. ตาราง Section 2 แถว Issue 27 ยังขึ้นเป็น Pending
+- ในตารางสรุป Section 2 แถว Issue 27 ยังเขียนว่า `Pending` อยู่เลย
+- ฝั่ง chanya06 เขาเปิด **[PR #66](https://github.com/chanya06/toktickit/pull/66)** เข้ามาแล้ว แล้วเธอเองก็เข้าไปรีวิวรอบสองจน Approved และ Merge เข้า `lab3-staging` ไปแล้ว
+- ฝากแก้ลิงก์ในตารางเป็น `[#66]` สถานะ `Approved and Merged into lab3-staging` แล้วก็แปะประวัติการรีวิวของ PR #66 ด้านล่างตารางให้ครบเหมือน PR อื่นๆ ด้วยน้า
+
+ฝากดู 2 จุดนี้หน่อยน้า แก้เสร็จแล้วทักมาได้เลย เดี๋ยวเรามารีบกด Approve ให้ทันทีเลยจ้า!
+
+#### 💬 Comment / Response by @lmaybelgracel (2026-09-20)
+
+### สรุปการปรับปรุงแก้ไขตามผลการรีวิว (PR #54)
+
+ขอบคุณสำหรับข้อเสนอแนะและการตรวจทานอย่างละเอียด ได้ดำเนินการปรับปรุงแก้ไขครบถ้วนทั้ง 2 ประเด็นใน commit `4803390` เรียบร้อยแล้ว:
+
+1. **แก้ไขปัญหาการเข้ารหัสภาษาไทย (UTF-8 Encoding) ใน `docs/lab-03/reviewer.md` และ `docs/lab-03/report.html`:**
+   - นำข้อความรีวิวและข้อความตอบกลับภาษาไทยฉบับแท้จริงจาก GitHub มาวางแทนที่จุดที่สระ วรรณยุกต์ และตัวอักษรเสียหายทั้งหมด 28 จุด (เช่น หากจะเปลี่ยน, ข้อเสนอแนะ, ไฟล์, และ, สิทธิ์, ระบุ, ตั๋ว, แอดมิน)
+   - ตรวจสอบการเข้ารหัสไฟล์เป็น UTF-8 (Without BOM) โดยไม่มีอักขระเสียหลงเหลืออยู่ในไฟล์ทั้งสอง (0 characters) ทำให้ตัวอักษรภาษาไทยแสดงผลถูกต้องสมบูรณ์ 100%
+
+2. **อัปเดตข้อมูลการรีวิว Issue 27 (PR #66) ใน Section 2:**
+   - ปรับสถานะแถว Issue 27 ในตารางสรุป Section 2 จาก `Pending` เป็นลิงก์ `[#66](https://github.com/chanya06/toktickit/pull/66)` และสถานะ `Merged into lab3-staging`
+   - เพิ่มบันทึกประวัติการตรวจทาน PR #66 ด้านล่างตารางอย่างละเอียด ครอบคลุมข้อเสนอแนะ 6 ข้อในรอบแรก (Password Regex Mismatch, Self-Demotion Prevention, Revert File `ticketNumber.ts`, `data-testid` formatting, Header Sync, Toast Fallback), การแก้ไขใน commit `138ecdb`, และผลการ Approve ในรอบสอง
+   - แนบหลักฐานภาพถ่ายหน้าจอ GitHub PR #66 แบบเต็มหน้า (`chanya_pr66_full.png`) ฝังลงในเอกสารรายงาน
+
+3. **คอมไพล์และอัปเดตไฟล์รายงานส่งมอบ:**
+   - อัปเดต `docs/lab-03/report.html` ให้สอดคล้องกันครบถ้วนทั้ง 9 พาร์ท
+   - เรนเดอร์ไฟล์ `Report_lab3_67070505220.pdf` ใหม่สมบูรณ์ที่ความยาว 168 หน้า ขนาด 11.63 MB ภาพโมดอลคมชัดและตารางแอดมินแสดงข้อมูลครบถ้วน
+
+รบกวนช่วยตรวจทานอีกครั้ง
+
+#### ✅ Approved by @titayaaa (2026-09-20)
+
+ตรวจเช็ก commit `4803390` ละเอียดครบทุกจุดแล้วน้า แก้ไขได้สมบูรณ์แบบ 100% เลย:
+
+1. **ภาษาไทยใน `reviewer.md`**: ตรวจสอบแล้ว สระและวรรณยุกต์กลับมาครบถ้วน ไม่มีตัวอักษรเสียหรือสระแหว่งเหลืออยู่เลย อ่านง่าย สวยงามมาก
+2. **ตารางและบันทึกการรีวิว PR #66**: อัปเดตตาราง Section 2 และบันทึกประวัติการรีวิวของ PR #66 ทั้ง 2 รอบครบถ้วน พร้อมแนบรูปหลักฐานเรียบร้อย
+3. **เล่มรายงานส่งมอบ**: ตัวไฟล์ `report.html` และ `Report_lab3_67070505220.pdf` จัดหน้าและข้อมูลครบถ้วนดีมาก
+
+ทุกอย่างครบตามเกณฑ์ของ Lab 3 แล้ว ขอ Approve ให้เลยจ้า! 🎉
+
+---
+
+## 5.11 PR #55: Issue 26: Release Integration
+- **Pull Request Link:** [lmaybelgracel/TokTickit#55](https://github.com/lmaybelgracel/TokTickit/pull/55)
+- **Author:** Maybel Grace (`@lmaybelgracel`)
+- **Reviewer:** ฑิตญา ผ่องสกุล (`@titayaaa`)
+- **Target Branch:** `main`
+- **Status:** ⏳ Changes Requested
+- **Review Date:** 2026-09-21
+
+### 💬 Peer Review & Author Response History (Verbatim)
+
+#### ⚠️ Changes Requested by @titayaaa (2026-09-21)
+
+เราไล่ตรวจ PR #55 ที่เป็นตัว Release ให้แบบละเอียดเจาะลึกทุกจุดแล้วน้า! ภาพรวมการรวมโค้ดขึ้น `main` ทำออกมาได้ยอดเยี่ยมมาก ผลเทสต์ครบ 208 เคส (100%), บิวด์ผ่านสะอาด, โค้ดไม่มี Conflict พร้อม Merge มากๆ
+
+แต่เราจับผิดเจอจุดตกหล่นเรื่องเอกสาร `reviewer.md` นิดนึง อยากให้ช่วยเติมให้เป๊ะก่อนกด Release ขึ้น main น้า:
+
+---
+
+### 1. [จุดสำคัญ] ใน `docs/lab-03/reviewer.md` ลืมใส่ PR #54 กับ PR #55 ใน Section 1
+- พอเปิดดูตารางสรุป Section 1 (PRs ที่เรารีวิวให้เธอ) มันมีแค่ **PR #36 ถึง PR #53 (Issue 17–24)** เอง ตกหล่นไป 2 PR ล่าสุด:
+  - **PR #54 (Issue 25)**: ตัวเอกสารรายงานและหลักฐาน ที่เพิ่งแก้เรื่อง Encoding แล้วเรา Approve / Merge เข้า staging ไป
+  - **PR #55 (Issue 26)**: ตัว Release PR ใบนี้
+- แล้วก็ตรงเนื้อหาบันทึกคำรีวิวด้านล่างตาราง ก็ยังไม่มีบล็อกของ **`### Issue 25 (PR #54)`** ที่เรารีวิวขอให้แก้เรื่อง Encoding กับตาราง PR #66 และรอบสองที่เรามากด Approve ให้เลย
+- **วิธีแก้:** ฝากเติมแถว PR #54 (สถานะ `Approved and Merged into lab3-staging`) กับแถว PR #55 (สถานะ `Approved and Merged into main` หรือ `Under Release Review`) ลงในตาราง Section 1 และเพิ่มบล็อกข้อความรีวิวของ PR #54 ด้านล่างให้ครบถ้วนเหมือน PR ก่อนๆ น้า ไม่งั้นในรายงานเดี่ยว Part 1 ตารางมันจะขาดไป 2 Issues จ้า
+
+---
+
+### 2. ตาราง Section 2 แถว Issue 28 อัปเดต PR #67 ได้แล้ว
+- ในตาราง Section 2 แถวสุดท้ายของ Issue 28 ตอนนี้ยังเขียนว่า `Awaiting Author PR Submission`
+- จริงๆ ฝั่ง chanya06 เขาเปิด **[PR #67](https://github.com/chanya06/toktickit/pull/67)** เข้ามาแล้ว สามารถแก้ลิงก์เป็น `[#67]` ในตารางได้เลยจ้า
+
+---
+
+### 3. อย่าลืมเรนเดอร์อัปเดตเล่มรายงาน
+- พอแก้ `reviewer.md` ครบแล้ว ฝากคอมไพล์/เรนเดอร์ไฟล์ `docs/lab-03/report.html` และเล่ม `Report_lab3_67070505220.pdf` ใหม่ทับอีกทีด้วยน้า เนื้อหาในเล่มจะได้มีตารางและประวัติรีวิวครบ 10 PRs ครบถ้วน 100% เลย
+
+---
+
+ฝากเติมตรง `reviewer.md` กับเรนเดอร์รายงานใหม่แป๊บเดียวน้า เดี๋ยวพอ Push ขึ้นมาแล้วทักมาเลย เราจะมารีบกด Approve แล้วกดปุ่ม Merge ปิดจ็อบ Release เข้า `main` ให้ทันทีเลยจ้า! 🚀
+
 
