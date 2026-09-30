@@ -42,25 +42,29 @@ TokTickIT is a full-stack IT service desk web application built with **React (Ty
 ```text
 toktickit/
 ├── artifacts/
-│   └── lab-02/screenshots/     # Playwright responsive visual screenshots
+│   ├── lab-02/screenshots/     # Lab 2 visual regression screenshots
+│   └── lab-03/screenshots/     # Lab 3 responsive visual inspection evidence
 ├── client/                     # React + Vite + Bootstrap frontend
 │   ├── src/
-│   │   ├── components/         # UI Components (CreateTicket, MyTickets, TicketDetail, etc.)
-│   │   ├── contexts/           # RequesterContext
-│   │   └── test/               # Vitest UI unit/integration tests
+│   │   ├── components/         # UI Components (Login, Queue, Operations, Admin, etc.)
+│   │   ├── contexts/           # AuthContext & RequesterContext
+│   │   └── test/               # Vitest UI unit/integration tests (lab-02 & lab-03)
 │   └── vite.config.ts
 ├── server/                     # Express + Prisma backend
-│   ├── prisma/                 # Schema and idempotent seed script
-│   ├── src/                    # API endpoints and logic
-│   └── tests/                  # Supertest API tests (lab-01 & lab-02)
-├── e2e/                        # Playwright E2E test suite & visual snapshots
-│   └── lab-02/                 # Full requester ticket journey & visual regression
+│   ├── prisma/                 # Schema, migrations, and idempotent seed script
+│   ├── src/                    # API endpoints and logic (auth, staff, tickets, admin)
+│   └── tests/                  # Supertest API tests (lab-01, lab-02 & lab-03)
+├── e2e/                        # Playwright E2E test suites & visual snapshots
+│   ├── lab-02/                 # Full requester ticket journey & visual regression
+│   └── lab-03/                 # Auth, Staff Queue, User Admin & Visual audit specs
 ├── docs/                       # Specifications, test plans, AI reflection, and peer reviews
 │   ├── lab-01/
-│   └── lab-02/
+│   ├── lab-02/
+│   └── lab-03/
 ├── docker-compose.yml          # PostgreSQL container definition
 └── playwright.config.ts        # Playwright multi-viewport configuration
 ```
+
 
 ---
 
@@ -108,6 +112,31 @@ npm run dev
 
 ---
 
+## 🚀 Lab 3 Features Overview
+
+- **Authentication & RBAC**:
+  - Secure bcrypt-hashed password credentials.
+  - Three distinct roles: `REQUESTER`, `IT_STAFF`, and `ADMINISTRATOR`.
+  - Mandatory first-login password rotation with real-time complexity validation (8+ chars, upper, lower, digit).
+  - Account enumeration protection with generic 401 Unauthorized responses.
+- **IT Staff Ticket Operations & Queue Dashboard**:
+  - High-density Zen Green table view on desktop/tablet and touch-friendly card stack on mobile.
+  - Multi-field filters (Status, Category, IT Priority, Assignment segmented toggle: All / Unassigned / Assigned to Me).
+  - Unassigned ticket claiming (`NEW` -> `OPEN`), assignment transfer, and IT priority adjustment.
+  - Dual-stream communication: Public Comments thread (light green) vs Confidential Internal Notes (amber `#FFF8E1` with lock icon banner, strictly isolated from Requesters).
+  - Ticket resolution requiring a mandatory 3-500 character Resolution Summary.
+- **Administrator User Management**:
+  - User roster management with search and role/status filtering.
+  - User creation modal with temporary password complexity checklist.
+  - Password reset modal with mandatory rotation enforcement.
+  - Critical safety governance guards: Self-deactivation/demotion prevention (BR-18) and Last Active Administrator protection (BR-19).
+- **Responsive Visual Quality & E2E Testing**:
+  - Full Playwright E2E suites covering authentication, staff ticket lifecycle, and user administration.
+  - Zero horizontal overflow across Desktop (1280px), Tablet (768px), and Mobile (375px) viewports.
+  - Over 30 responsive visual screenshot artifacts captured in `artifacts/lab-03/screenshots/`.
+
+---
+
 ## 🧪 Running Tests
 
 ### Client UI Tests (Vitest)
@@ -115,15 +144,21 @@ npm run dev
 cd client
 npm test
 ```
+*Runs all 56 client unit and component tests (100% pass rate).*
 
-### Server API Tests (Supertest)
+### Server API Tests (Supertest / Vitest)
 ```bash
 cd server
 npm test
 ```
+*Runs all 124 server API and integration tests (100% pass rate).*
 
-### End-to-End Tests & Visual Regression (Playwright)
+### End-to-End Tests & Visual Inspection (Playwright)
 ```bash
-npm run test:e2e
+# Run all Lab 3 End-to-End test suites
+npx playwright test e2e/lab-03
+
+# Run standalone visual evidence and style audit
+npx playwright test e2e/lab-03/visual-evidence.spec.ts
 ```
-*Headless multi-device run on Desktop, Tablet, and Mobile viewports.*
+*Executes tests across Desktop, Tablet, and Mobile viewports and saves visual evidence screenshots to `artifacts/lab-03/screenshots/`.*

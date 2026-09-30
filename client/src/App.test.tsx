@@ -8,33 +8,43 @@ describe('TokTickIT UI Tests (Lab 1 & 2)', () => {
     vi.restoreAllMocks();
     
     // Mock the localStorage or context so we bypass the login screen
+    localStorage.setItem('toktickit_auth_token', 'mock-token');
     localStorage.setItem('toktickit_dev_requester', JSON.stringify({
       id: 1, name: 'Test User', email: 'test@example.com'
     }));
   });
 
   afterEach(() => {
+    localStorage.removeItem('toktickit_auth_token');
     localStorage.removeItem('toktickit_dev_requester');
   });
 
   it('UI-01: TokTickIT heading renders and fetches reference data on mount', async () => {
     const mockCategories = [{ id: 1, name: 'Account and Access' }];
     const mockSystems = [{ id: 1, name: 'Campus Wi-Fi' }];
+    const mockUser = { id: 1, name: 'Test User', fullName: 'Test User', email: 'test@example.com', role: 'REQUESTER', mustChangePassword: false };
 
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
-      if (url === '/api/categories') {
+      const urlStr = url.toString();
+      if (urlStr.includes('/api/auth/me')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ user: mockUser }),
+        } as Response);
+      }
+      if (urlStr.includes('/api/categories')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockCategories),
         } as Response);
       }
-      if (url === '/api/related-systems') {
+      if (urlStr.includes('/api/related-systems')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockSystems),
         } as Response);
       }
-      return Promise.reject(new Error('Unknown URL'));
+      return Promise.reject(new Error('Unknown URL: ' + urlStr));
     });
 
     render(
@@ -43,18 +53,25 @@ describe('TokTickIT UI Tests (Lab 1 & 2)', () => {
       </RequesterProvider>
     );
     
-    expect(screen.getByRole('heading', { name: /TokTickIT IT Service Desk/i })).toBeInTheDocument();
-    
-    // Wait for the loading to finish and form to appear
+    // Wait for auth check and reference data loading to finish
     await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /TokTickIT IT Service Desk/i })).toBeInTheDocument();
       expect(screen.getByText(/Create New Ticket/i)).toBeInTheDocument();
     });
   });
 
   it('UI-03: API failure displays a useful error message when fetching reference data', async () => {
-    vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
-      Promise.reject(new Error('Network error'))
-    );
+    const mockUser = { id: 1, name: 'Test User', fullName: 'Test User', email: 'test@example.com', role: 'REQUESTER', mustChangePassword: false };
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const urlStr = url.toString();
+      if (urlStr.includes('/api/auth/me')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ user: mockUser }),
+        } as Response);
+      }
+      return Promise.reject(new Error('Network error'));
+    });
 
     render(
       <RequesterProvider>
@@ -67,23 +84,9 @@ describe('TokTickIT UI Tests (Lab 1 & 2)', () => {
     });
   });
 
-  it('UI-04: Renders Requester Selection when no requester is selected', async () => {
-    // Clear the localStorage for this specific test
-    localStorage.removeItem('toktickit_dev_requester');
-    
-    // Mock fetch for the requesters API
-    const mockRequesters = [
-      { id: 1, name: 'John Doe', email: 'john@example.com', isActive: true },
-    ];
-    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
-      if (url === '/api/requesters') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockRequesters),
-        } as Response);
-      }
-      return Promise.reject(new Error('Unknown URL'));
-    });
+  it('UI-04: Renders Login screen when unauthenticated (replaces dev requester selection)', async () => {
+    // Clear auth token for this test
+    localStorage.removeItem('toktickit_auth_token');
 
     render(
       <RequesterProvider>
@@ -91,9 +94,10 @@ describe('TokTickIT UI Tests (Lab 1 & 2)', () => {
       </RequesterProvider>
     );
 
-    // Should see the selection screen
+    // Should see the Login screen
     await waitFor(() => {
-      expect(screen.getByText(/Select Development Requester/i)).toBeInTheDocument();
+      expect(screen.getByText(/Sign in to your account/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^Sign In$/i })).toBeInTheDocument();
     });
     
     // Should NOT see the main app UI
@@ -103,9 +107,16 @@ describe('TokTickIT UI Tests (Lab 1 & 2)', () => {
   it('UI-05: Switches between Create Ticket and My Tickets navigation tabs', async () => {
     const mockCategories = [{ id: 1, name: 'Account and Access' }];
     const mockSystems = [{ id: 1, name: 'Campus Wi-Fi' }];
+    const mockUser = { id: 1, name: 'Test User', fullName: 'Test User', email: 'test@example.com', role: 'REQUESTER', mustChangePassword: false };
 
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const urlStr = url.toString();
+      if (urlStr.includes('/api/auth/me')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ user: mockUser }),
+        } as Response);
+      }
       if (urlStr.includes('/api/categories')) {
         return Promise.resolve({ ok: true, json: () => Promise.resolve(mockCategories) } as Response);
       }

@@ -7,6 +7,11 @@
   --error-red: #A31220;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background-color: var(--page-background);
   color: var(--text-dark);
@@ -162,6 +167,8 @@ body {
   border-radius: 6px;
   padding: 0.625rem 0.875rem;
   color: var(--text-dark);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .zen-table tbody tr.clickable-row {
@@ -179,5 +186,37 @@ body {
 
 .ticket-mobile-card.clickable-card:hover {
   border-color: var(--secondary-green);
+}
+
+/* Dual-stream Communication Styles (Public Comments vs Internal Notes) */
+.comment-bubble-green {
+  background-color: #EAF6EF;
+  border: 1px solid rgba(0, 107, 60, 0.2);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+}
+
+.note-bubble-amber {
+  background-color: #FFF8E1;
+  border: 1px solid #FFA000;
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+}
+
+.confidential-banner {
+  background-color: #FFF3CD;
+  border: 1px solid #FFEEBA;
+  color: #856404;
+  border-radius: 6px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.resolution-summary-card {
+  background-color: #EAF6EF;
+  border: 1.5px solid #006B3C;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
 }
 
