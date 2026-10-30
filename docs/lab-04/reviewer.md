@@ -16,8 +16,8 @@
 
 | PR # | Feature / Issue Title | GitHub Issue | Feature Branch | Target | Reviewer | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
-| **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-02** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **PR-02** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-03** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-04** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -374,8 +374,40 @@
 > 
 > รบกวนตรวจทานรอบสุดท้ายนะคะ ขอบคุณมากค่ะ!
 
-#### ⏳ Round 4 Re-review by @jejaebubu
-- **Status:** รอผลการตรวจรอบสุดท้ายและการ Approve + Merge จาก `@jejaebubu`
+#### 💬 Round 4 Final Review & Approval by @jejaebubu
+**Review Date:** 2026-11-01  
+**Verdict:** ✅ Approved (Ready to Merge)  
+**Review Comments (Verbatim):**
+
+> ตรวจ commit `f144a1a` แล้วนะคะ ทั้ง 4 จุดที่ขอแก้ผ่านครบแล้ว ได้แก่ WCAG AA, default เป็น `PENDING`, composite index และการแยก 403/404 ตามประเภทของ endpoint นอกจากนี้ `reviewer.md`, `tests.md` และ ownership formula ก็ตรงกับโค้ดจริงแล้วค่ะ
+> 
+> **มี Minor follow-ups อีกเล็กน้อย แต่ไม่บล็อกการ merge ค่ะ**
+> 
+> - `reviewer.md`: PR #105 ควรอัปเดตสถานะเป็น **Approved & Merged**
+> - Issue 29: ควรระบุ `Idempotency-Key` ใน `api-spec` และเพิ่ม test เพื่อทดสอบการทำงานจริง
+> - API-12: ควรเพิ่ม test กรณี ownership fallback ให้ครอบคลุมทั้ง legacy ticket และ ticket ใหม่
+> - BR-13: แนะนำให้เปลี่ยนคำว่า `verified email` เป็น `email match` เพื่อให้ตรงกับการทำงานจริงของโค้ด
+> 
+> โดยรวมเอกสารพร้อม merge เข้า `lab4-staging` ได้แล้วค่ะ ส่วน Minor follow-ups สามารถเก็บไปปรับเพิ่มเติมได้โดยไม่ต้องบล็อกการ merge ค่ะ
+
+#### 🔀 Merge Record
+- **Merged By:** `@jejaebubu`
+- **Merge Date:** 2026-11-01
+- **Merge Commit:** `4a55567`
+- **Target Branch:** `lab4-staging`
+- **Final Status:** ✅ Approved & Merged
+
+---
+
+### PR-02: Issue 28: Database Migration, Schema Evolution & Seed Data for Actions Taken
+- **Feature Branch:** `feature/28-db-and-seed`
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Peer Review
+
+#### 💬 Round 1 Peer Review by @jejaebubu
+- **Status:** ⏳ Awaiting Review from `@jejaebubu`
 
 ---
 
@@ -454,7 +486,7 @@
 - **Author:** `@jejaebubu`
 - **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ✅ Approved (Ready to Merge)
+- **Current Status:** ✅ Approved & Merged
 
 #### 💬 Round 1 Review by @titayaaa (Changes Requested)
 **Review Date:** 2026-11-01  
@@ -574,7 +606,7 @@
 - **Author:** `@jejaebubu`
 - **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ✅ Approved
+- **Current Status:** ✅ Approved & Merged
 
 #### 💬 Round 1 Review by @titayaaa (Approved)
 **Review Date:** 2026-11-01  
@@ -633,3 +665,8 @@
 > 
 > ### 🏁 สรุปผลการประเมิน (Conclusion)
 > โค้ด REST API และชุดทดสอบมีความสมบูรณ์ รัดกุม และมีคุณภาพระดับ Enterprise พร้อมสำหรับการนำไปเชื่อมต่อกับฝั่ง UI ใน Issue #4 ได้ทันทีค่ะ **กด Approve ให้เรียบร้อย สามารถ Merge PR #106 เข้าสู่ `lab4-staging` ได้เลยค่ะ!** 🚀
+
+#### 💬 Author Response & Merge by @jejaebubu
+- **Response URL:** [PR #106](https://github.com/jejaebubu/toktickit/pull/106)
+- **Status:** `@jejaebubu` ดำเนินการกด Merge PR #106 เข้าสู่สาขา `lab4-staging` เรียบร้อยแล้ว (Merge commit `782d54e` / `db7e326`)
+
