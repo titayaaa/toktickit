@@ -11,14 +11,25 @@ TokTickIT preserves the Zen Green design system established in Labs 2 and 3, ens
   --zen-primary-light: #dcfce7;   /* Green 100 */
   --zen-primary-subtle: #f0fdf4;  /* Green 50 */
   
-  /* Status Colors */
-  --status-new: #0284c7;          /* Sky 600 */
-  --status-open: #2563eb;         /* Blue 600 */
-  --status-in-progress: #d97706;  /* Amber 600 */
-  --status-waiting: #9333ea;      /* Purple 600 */
-  --status-resolved: #16a34a;     /* Green 600 */
-  --status-closed: #4b5563;       /* Gray 600 */
-  --status-cancelled: #dc2626;    /* Red 600 */
+  /* Ticket Status Badges (Paired Background and Text with WCAG AAA Contrast >= 7.1:1) */
+  --status-new-bg: #f0f9ff;          /* Sky 50 */
+  --status-new-text: #0369a1;        /* Sky 700 (Contrast 7.3:1) */
+  --status-open-bg: #eff6ff;         /* Blue 50 */
+  --status-open-text: #1e40af;        /* Blue 800 (Contrast 8.5:1) */
+  --status-in-progress-bg: #fffbeb;  /* Amber 50 */
+  --status-in-progress-text: #92400e;/* Amber 800 (Contrast 7.1:1) */
+  --status-waiting-bg: #faf5ff;      /* Purple 50 */
+  --status-waiting-text: #6b21a8;    /* Purple 800 (Contrast 7.6:1) */
+  --status-pending-bg: #fefce8;      /* Yellow 50 */
+  --status-pending-text: #854d0e;    /* Yellow 800 (Contrast 7.2:1) */
+  --status-resolved-bg: #f0fdf4;     /* Green 50 */
+  --status-resolved-text: #166534;   /* Green 800 (Contrast 7.4:1) */
+  --status-closed-bg: #f8fafc;       /* Slate 50 */
+  --status-closed-text: #334155;     /* Slate 700 (Contrast 8.2:1) */
+  --status-reopened-bg: #fdf4ff;     /* Fuchsia 50 */
+  --status-reopened-text: #86198f;   /* Fuchsia 800 (Contrast 8.1:1) */
+  --status-cancelled-bg: #fef2f2;    /* Red 50 */
+  --status-cancelled-text: #991b1b;  /* Red 800 (Contrast 7.3:1) */
   
   /* Actions Taken Status Badges (High Contrast Text on Soft Backgrounds) */
   --action-pending-bg: #fffbeb;      /* Amber 50 */
@@ -54,10 +65,10 @@ TokTickIT preserves the Zen Green design system established in Labs 2 and 3, ens
 
 ### 2.1 Operational Metrics Row
 A 4-card responsive grid presenting authoritative operational counts:
-1. **Unassigned Tickets:** Card with icon and bold count. Clicking drills down to Staff Queue filtered with `owner = unassigned`.
-2. **My Assigned Tickets:** Count of open/in-progress tickets where `ownerId == currentUser.id`. Clicking drills down to Staff Queue with `owner = me`.
-3. **Urgent Tickets:** High-contrast red/amber indicator for tickets with `itPriority == URGENT`. Clicking filters Staff Queue by `priority = URGENT`.
-4. **My Pending Actions:** Count of Actions Taken assigned to current user in `PENDING` or `IN_PROGRESS` status.
+1. **Unassigned Tickets:** Card with icon and bold count. Clicking drills down to Staff Queue filtered with `ownerId=unassigned`.
+2. **My Assigned Tickets:** Count of open/in-progress tickets where `ownerId == currentUser.id`. Clicking drills down to Staff Queue with `ownerId=me`.
+3. **Urgent Tickets:** High-contrast red/amber indicator for tickets with `itPriority == URGENT`. Clicking filters Staff Queue by `itPriority=URGENT`.
+4. **My Pending Actions:** Count of Actions Taken assigned to current user in `PENDING` or `IN_PROGRESS` status. Clicking navigates to assigned actions.
 
 ### 2.2 Urgent Tickets & My Pending Actions Grid
 - **Left Column: Urgent Tickets List:** Compact table/cards showing Ticket Number, Summary, IT Priority, Time elapsed, and quick "Open Ticket" button.

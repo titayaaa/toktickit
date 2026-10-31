@@ -160,8 +160,131 @@
 > 
 > รบกวนช่วยตรวจดูอีกรอบนะคะ ขอบคุณมาก ๆ เลยค่ะ!
 
-#### ⏳ Round 2 Re-review by @jejaebubu
-- **Status:** รอผลการ Re-review รอบสองและการ Approve + Merge จาก `@jejaebubu` (จะบันทึกข้อความ Verbatim ครบถ้วนทันทีที่ได้รับการตอบรับและอนุมัติ)
+#### 💬 Round 2 Review by @jejaebubu (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ขอบคุณที่แก้ให้นะคะ รอบนี้ดีขึ้นเยอะเลยค่ะ หลายจุดที่คุยกันรอบก่อนแก้เรียบร้อยแล้ว ทั้ง FK ที่เปลี่ยนเป็น Int, field ของ Dashboard, result ที่เป็น optional, tests ที่เปลี่ยนเป็น Planned, ai-use.md และ badge ของ Actions Taken ตรงตามที่ขอแล้วค่ะ
+> 
+> เหลืออีกนิดหน่อยที่อยากให้แก้ก่อน merge นะคะ เพราะตอนนี้ยังมีบางจุดที่เอกสารกับโค้ดจริงไม่ตรงกัน ถ้า implement ตามเอกสารเลยอาจทำให้ behavior หรือ test ไม่ตรงกับระบบจริงค่ะ
+> 
+> 1. Transition matrix ยังไม่ตรงกับโค้ดจริง
+> ในโค้ดจริง server/src/routes/staff.ts มีสถานะ PENDING และ transition บางตัวต่างจากใน specification.md เช่น
+> 
+> OPEN ยังไป RESOLVED ตรง ๆ ไม่ได้
+> IN_PROGRESS / WAITING_FOR_REQUESTER กลับไป PENDING ได้
+> REOPENED ไป PENDING ได้ แต่ไป WAITING_FOR_REQUESTER ไม่ได้
+> แต่ matrix ในเอกสารตอนนี้ยังไม่มี PENDING และบาง transition ไม่ตรงกับโค้ดค่ะ
+> 
+> แนะนำให้เอา matrix จาก VALID_TRANSITIONS ในโค้ดมาใช้ให้ตรงกันเลยค่ะ หรือถ้าจะยึด 8 statuses ตาม handout ก็ควรระบุให้ชัดว่า PENDING เป็นของเดิม (legacy) / ไม่อยู่ใน scope ของ Lab นี้ และต้องวางแผนให้โค้ดกับเอกสารตรงกันด้วยค่ะ
+> 
+> 2. Route และ status code ยังไม่ตรงกัน
+> Route ที่โค้ดใช้จริงตอนนี้คือ
+> 
+> PATCH /api/staff/tickets/:id/status
+> PATCH /api/staff/tickets/:id/resolve
+> แต่ใน api-spec.md ยังมี route แบบ /api/tickets/:id/status หรือ PUT /api/staff/tickets/:id/status ซึ่งไม่มีในโค้ดจริงค่ะ
+> 
+> อีกจุดคือ /status ไม่ได้ใช้สำหรับ Resolve โดยตรง ถ้าส่ง RESOLVED จะได้ 422 และต้องไปใช้ /resolve แทน
+> 
+> รวมถึงกรณี transition ไม่ถูกต้องหรือไม่มี resolutionSummary โค้ดจริงก็คืน 422 แต่ในเอกสารบางจุดยังเขียนเป็น 400 อยู่ค่ะ
+> 
+> ตรงนี้แนะนำให้ปรับ route และ status code ในเอกสารให้ตรงกับ behavior จริงทั้งหมดค่ะ
+> 
+> แล้วขอแก้ข้อมูลจากรีวิวรอบก่อนนิดนึงนะคะ — resolutionSummary มีอยู่ใน schema.prisma แล้วค่ะ ไม่ต้องเพิ่ม field หรือ migration ใหม่สำหรับตัวนี้
+> 
+> 3. Requester Dashboard ต้องเช็กเรื่อง ownership เพิ่มอีกนิด
+> ตอนนี้ระบบมีทั้ง requesterId และ userId และ flow สร้าง ticket เดิมยังมีการใช้ requesterId อยู่ค่ะ
+> 
+> แต่ใน spec ตอนนี้กำหนดให้ Dashboard ดูแค่
+> 
+> userId == currentUser.id
+> 
+> อย่างเดียว ซึ่งอาจทำให้ ticket เก่าที่ผูกกับ requesterId ไม่ถูกนับใน Dashboard
+> 
+> ตรงนี้อยากให้ระบุให้ชัดว่าจะเช็กจาก userId, requesterId หรือใช้ทั้งสองแบบ รวมถึงจะใช้ email fallback เหมือน logic เดิมใน app.ts หรือไม่ค่ะ จะได้ไม่ทำให้ ticket เก่าหายจาก Dashboard
+> 
+> 4. Migration ที่เขียนไว้ในเอกสารยังใช้จริงไม่ได้
+> ใน specification.md ตอนนี้เขียนเหมือน migration ถูก execute แล้ว แต่ใน repo ยังไม่มี migration file นี้ค่ะ
+> 
+> อีกอย่างคือ CREATE TYPE IF NOT EXISTS ใช้กับ PostgreSQL แบบนี้ไม่ได้ ถ้าต้องการให้รันซ้ำได้อย่างปลอดภัย ต้องใช้วิธีอื่น เช่น DO $$ ... เพื่อ handle กรณี type มีอยู่แล้ว
+> 
+> ถ้ายังไม่ได้ทำ migrationจริง แนะนำให้เปลี่ยนข้อความเป็นแผนที่จะทำใน Issue 28 ก่อน จะตรงกับสถานะปัจจุบันมากกว่าค่ะ
+> 
+> 5. Accessibility ของ status badge ยังต้องปรับอีกนิด
+> Action badge ที่แก้มาใหม่ผ่านแล้วค่ะ แต่ status badge บางสียังมี contrast ไม่ถึง AA ถ้าเอาสีนั้นไปเป็นตัวหนังสือบนพื้นขาว เช่น #0284c7, #d97706 และ #16a34a
+> 
+> แนะนำให้ทำเป็นคู่ background/text เหมือน Action badge หรือเปลี่ยนสีตัวหนังสือให้เข้มขึ้น แล้วค่อยติ๊ก accessibility checklist ว่าผ่านค่ะ
+> 
+> จุดเล็ก ๆ ที่ควรปรับเพิ่ม
+> api-spec.md เขียนว่า Bearer only แต่ server จริงรองรับทั้ง cookie และ Bearer ถ้าหมายถึงเฉพาะฝั่ง Client ให้เขียนกำกับไว้ให้ชัดค่ะ
+> เอกสารบอกว่า Requester เปิด ticket ของคนอื่นจะได้ 404 แต่โค้ดปัจจุบันใน ticket detail/comments ยังคืน 403 ถ้าจะเปลี่ยนเป็น 404 ควรระบุว่าเป็นงานที่ต้องแก้โค้ดเพิ่มค่ะ
+> GET actions มี orderBy แล้ว แต่ยังไม่มี pagination
+> ใน ui-spec.md ใช้ owner / priority แต่ query จริงใช้ ownerId / itPriority
+> DoD ยังไม่ควรติ๊ก [x] ว่า merged เพราะ PR ตอนนี้ยังอยู่ระหว่าง review ค่ะ
+> tests.md ของ WORKFLOW-01 ยังเขียนว่าคาดหวัง 400 แต่โค้ดจริงคืน 422
+> แล้วขอแก้ข้อมูลจากรีวิวรอบก่อนของเราเอง 4 จุดนะคะ
+> 
+> resolutionSummary มีอยู่แล้ว ไม่ต้องเพิ่ม migration
+> path client/src/test/lab-04/ ถูกแล้ว ไม่ต้องเปลี่ยน
+> Server รองรับทั้ง cookie และ Bearer ไม่ใช่ Bearer อย่างเดียว
+> Requester เปิด ticket/detail/comments ที่ไม่ใช่ของตัวเอง ตอนนี้โค้ดจริงคืน 403 ไม่ใช่ 404 ค่ะ
+> โดยรวมรอบนี้เหลือไม่เยอะแล้วค่ะ หลัก ๆ ฝากแก้ 5 ข้อด้านบนให้เอกสารตรงกับโค้ดจริงมากขึ้น แล้ว ping มาได้เลยนะคะ เดี๋ยวช่วยตรวจรอบสุดท้ายให้อีกทีค่ะ
+> 
+> ขอบคุณมาก ๆ ค่ะ
+
+#### 💬 Round 2 Author Response & Code Fixes by @titayaaa
+**Response Date:** 2026-11-01  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวรอบสองที่ช่วยตรวจสอบเทียบกับโค้ดจริงและ backend endpoints ได้อย่างละเอียดและแม่นยำมาก ๆ เลยนะคะ ตรวจสอบและดำเนินการแก้ไขปรับปรุงเอกสารทั้ง 5 ข้อหลักและจุดเล็ก ๆ ครบถ้วนทั้งหมดเรียบร้อยแล้วค่ะ:
+> 
+> ### 1. Transition Matrix สอดคล้องกับ `server/src/routes/staff.ts`
+> - นำโครงสร้าง `VALID_TRANSITIONS` จากโค้ดจริงมาใส่ใน `specification.md` ครบถ้วนทุกเส้นทาง:
+>   - `OPEN` ไม่สามารถข้ามไป `RESOLVED` ตรง ๆ ได้ (ต้องเข้าสู่ `IN_PROGRESS`, `WAITING_FOR_REQUESTER`, หรือ `PENDING` ก่อน)
+>   - บันทึกสถานะ `PENDING` (Legacy/Vendor hold จาก Lab 3) ร่วมกับ 8 สถานะหลักจาก Handout ไว้อย่างชัดเจน
+>   - ระบุชัดเจนว่าการ Resolve ตั๋วต้องกระทำผ่าน `PATCH /api/staff/tickets/:id/resolve` เท่านั้น
+> 
+> ### 2. Route และ Status Code ตรงกับโค้ดจริง
+> - แก้ไข Route ใน `api-spec.md` ให้แยกเป็น 2 Endpoints ตามโค้ดจริง:
+>   - `PATCH /api/staff/tickets/:id/status` สำหรับการเปลี่ยนสถานะทั่วไป (หากส่งสถานะ `RESOLVED` มาที่นี่ หรือส่ง transition ที่ไม่อนุญาต จะตอบกลับด้วย `422 Unprocessable Entity`)
+>   - `PATCH /api/staff/tickets/:id/resolve` สำหรับการ Resolve ตั๋วโดยเฉพาะ (บังคับ `resolutionSummary` 3-500 chars และตรวจสอบ Resolution Gate หากมี actions ค้างจะตอบกลับ `409 Conflict`)
+> - ปรับ Status code ในกรณี transition ผิดพลาดหรือ summary ไม่ถูกต้องเป็น `422 Unprocessable Entity` ให้ตรงกับพฤติกรรมจริงของ Express Controller ค่ะ
+> - ตัดแผนการสร้าง field `resolutionSummary` ออกจาก Migration section เนื่องจากมีอยู่ในโมเดลเดิมแล้วค่ะ
+> 
+> ### 3. Requester Dashboard Dual-Ownership & Legacy Fallback
+> - ปรับปรุงสูตรคำนวณใน BR-13 (`specification.md`) และ `api-spec.md` ให้รองรับเงื่อนไขความเป็นเจ้าของตั๋วแบบครบถ้วน:
+>   `ticket.userId === currentUser.id || ticket.requesterId === currentUser.id || ticket.requesterUser.email === currentUser.email`
+>   ทำให้ตั๋วทั้งจาก Lab 1, 2 (ที่ผูกกับ `requesterId` / email) และตั๋วใหม่ (ที่ผูกกับ `userId`) ปรากฏบน Dashboard ได้ครบถ้วน ไม่ตกหล่นแน่นอนค่ะ
+> 
+> ### 4. ปรับแผน Migration เป็น Planned (Issue 28) พร้อม PL/pgSQL Idempotency
+> - ปรับข้อความใน Section 7.5 ให้ระบุชัดเจนว่าเป็น **แผนการทำ Migration สำหรับ Issue 28**
+> - เปลี่ยนคำสั่งสร้าง Enum เป็นรูปแบบ PL/pgSQL:
+>   `DO $$ BEGIN CREATE TYPE "ActionTakenStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;`
+>   เพื่อรองรับการรันซ้ำบน PostgreSQL ได้อย่างปลอดภัย ถูกต้องตาม syntax จริงค่ะ
+> 
+> ### 5. Accessibility Badge & Design Tokens
+> - ปรับ Status Badge ใน `ui-spec.md` เป็นคู่สี Background/Text ที่มี Contrast Ratio สูงเกินเกณฑ์ WCAG AAA ($\ge 7.1:1$) ทุกสถานะ เช่น:
+>   - `NEW`: `#0369a1` บน `#f0f9ff` (7.3:1)
+>   - `OPEN`: `#1e40af` บน `#eff6ff` (8.5:1)
+>   - `IN_PROGRESS`: `#92400e` บน `#fffbeb` (7.1:1)
+>   - `RESOLVED`: `#166534` บน `#f0fdf4` (7.4:1)
+>   - `CLOSED`: `#334155` บน `#f8fafc` (8.2:1)
+> - คงสถานะ Checklist ใน `ui-spec.md` เป็น `[ ]` รอการตรวจสอบจริงในขั้นตอน UI Implementation ค่ะ
+> 
+> ### 6. จุดเล็ก ๆ ที่เก็บตกครบถ้วน
+> - **Authentication Policy:** ระบุใน `api-spec.md` ว่าเซิร์ฟเวอร์รองรับทั้ง Cookie และ Bearer Token ส่วน SPA Client จะใช้ Bearer Token เป็นค่าเริ่มต้น
+> - **Data Isolation:** บันทึกชัดเจนว่า Endpoint เดิมของ Ticket Detail / Comments ตอบกลับ `403 Forbidden` ส่วน Actions Taken ตอบกลับ `404 Not Found` (โดยการ unify โค้ดเดิมให้เป็น 404 อยู่ในแผน Hardening Issue 34)
+> - **Pagination:** เพิ่ม query parameters `page` (default 1) และ `limit` (default 10) ใน `GET /api/tickets/:id/actions-taken`
+> - **Query Parameters ใน UI Spec:** ปรับใน `ui-spec.md` เป็น `ownerId=unassigned`, `ownerId=me` และ `itPriority=URGENT` ตรงกับ Query จริง
+> - **DoD Checklist:** ปรับข้อ 1 ใน Definition of Done เป็น `[ ]` ไม่ติ๊กผ่านล่วงหน้า
+> - **WORKFLOW-01:** ปรับ Expected Result ใน `tests.md` เป็น `422 Unprocessable Entity` ให้ตรงกับโค้ดจริงค่ะ
+> 
+> รบกวนช่วยตรวจดูอีกรอบนะคะ ขอบคุณมาก ๆ เลยค่ะ!
+
+#### ⏳ Round 3 Re-review by @jejaebubu
+- **Status:** รอผลการตรวจรอบสุดท้ายและการ Approve + Merge จาก `@jejaebubu`
 
 ---
 
@@ -232,3 +355,76 @@
 #### 💬 Author Response by @jejaebubu
 - **Response URL:** [PR #104 Review Comment](https://github.com/jejaebubu/toktickit/pull/104#pullrequestreview-5718505642)
 - **Status:** `@jejaebubu` รับทราบข้อคิดเห็นและคำแนะนำทั้งหมด ดำเนินการกด Merge PR #104 เข้าสู่สาขา `lab4-staging` เรียบร้อยแล้ว
+
+---
+
+### PR #105: feat(db): ActionTaken model, migration, and idempotent seed (Issue #2)
+- **PR URL:** [jejaebubu/toktickit#105](https://github.com/jejaebubu/toktickit/pull/105)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Changes Requested (Under Review)
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ## 🔍 Peer Review: feat(db): ActionTaken model, migration, and idempotent seed (PR #105)
+> 
+> **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)  
+> **Target Branch:** `lab4-staging`  
+> 
+> ---
+> 
+> ### 🌟 ภาพรวมการประเมิน (Executive Summary)
+> PR #105 ทำการขยายฐานข้อมูลของ Lab 4 (Actions Taken Model, Migration และ Idempotent Seed) ได้อย่างเป็นระเบียบและตรงตามข้อกำหนดของแลปมากค่ะ ชื่นชมที่มีการเขียน Integration Tests ครอบคลุมถึง 9 ข้อเพื่อตรวจ Data Invariants ทั้งเรื่อง Role ของ Assignee/Performer, เคส Performer $\neq$ Assignee, การกระจายตัว 0/1/หลาย Actions ตลอดจนการดักไม่ให้มี Resolved ticket ค้าง open actions ไว้อย่างรัดกุม รันเทสต์ผ่าน 92/92 เทสต์สมบูรณ์ค่ะ 👍
+> 
+> มีข้อสังเกตและข้อเสนอแนะสำคัญ 1 จุดเกี่ยวกับฟิลด์ `result` และจุดเก็บตกเอกสารเล็กน้อย ดังนี้ค่ะ:
+> 
+> ---
+> 
+> ### 💡 จุดที่แนะนำให้ปรับปรุง (Key Recommendations)
+> 
+> #### 1. ฟิลด์ `result` ใน `ActionTaken` ควรเป็น Nullable (`String?`) ในระดับ Database
+> * **สิ่งที่พบในโค้ด:**
+>   - ใน `schema.prisma`:
+>     ```prisma
+>     result String @db.Text
+>     ```
+>   - ใน `migration.sql`:
+>     ```sql
+>     "result" TEXT NOT NULL,
+>     ```
+> * **ผลกระทบ:**  
+>   เนื่องจากฟิลด์ `result` ถูกกำหนดเป็น `NOT NULL` ในฐานข้อมูล แต่ค่าเริ่มต้นของ `status` เป็น `PENDING` ซึ่งตามธรรมชาติของการทำงาน (และตามที่เราคุยกันใน PR-01) ในจังหวะที่เจ้าหน้าที่ไอทีเพิ่งสร้าง Action หรือกำลังทำอยู่ (`PENDING` / `IN_PROGRESS`) งานยังไม่เสร็จจึงจะยังไม่มีผลลัพธ์ (Result)  
+>   หาก DB บังคับ `NOT NULL` ตอนทำ PR-03 (API) และ PR-04 (UI) จะทำให้ `POST /api/tickets/:id/actions-taken` ล้มเหลวทันทีที่ไม่ได้ส่ง result มา (หรือต้องคอยส่งค่าว่าง/ข้อความหลอกมาแทน เหมือนที่ต้องใส่ใน seed ตอนนี้)
+> * **ข้อเสนอแนะ:**  
+>   แนะนำปรับใน `schema.prisma` ให้เป็น:
+>   ```prisma
+>   result String? @db.Text
+>   ```
+>   และใน `migration.sql` เอา `NOT NULL` ออกจากคอลัมน์ `"result"` ค่ะ แล้วค่อยไปบังคับ `required` ในระดับ Backend API Validation เฉพาะเมื่อ `status === 'COMPLETED'` เท่านั้น จะยืดหยุ่นและตรงตามสเปกที่สุดค่ะ
+> 
+> ---
+> 
+> #### 2. อัปเดตสถานะ PR-01 ใน `docs/lab-04/tests.md`
+> * ในตารางสรุปผลการทดสอบ (Section 3) แถวของ `PR-01` ยังระบุสถานะเป็น `Review in progress`
+> * เนื่องจาก PR #104 (Issue #1) ได้รับการอนุมัติและ Merge เข้าสู่ `lab4-staging` เรียบร้อยแล้ว แนะนำปรับสถานะเป็น `Pass` หรือ `Merged` เพื่อให้เอกสารสะท้อนสถานะจริงที่เป็นปัจจุบันค่ะ
+> 
+> ---
+> 
+> #### 3. อัปเดตบันทึกใน `docs/lab-04/reviewer.md`
+> * อย่าลืมเพิ่มแถวของ **PR #105** ลงในตาราง Master Table และเพิ่มหัวข้อบันทึกประวัติการตรวจทานของ PR-02 (Issue #2) ใน Section 1 เพื่อให้เอกสารบันทึกการรีวิวเป็นไปตามลำดับจริงทีละ PR ค่ะ
+> 
+> ---
+> 
+> ### 👏 จุดเด่นที่ทำได้ดีมาก (Praise & Highlights)
+> 1. **Composite Index `@@index([ticketId, status])`:** มีการสร้าง Composite Index ดักไว้ตรงจุดมาก ช่วยให้ Query ตรวจสอบ Resolution Gate ใน PR ถัดไป (`COUNT(*) WHERE ticketId = ? AND status IN ('PENDING', 'IN_PROGRESS')`) ทำงานได้รวดเร็วแบบ Index Scan โดยตรง
+> 2. **Regression Fix ใน `categories.test.ts`:** มีการดัก Snapshot และ Restore ข้อมูล `actionsTaken` ในบล็อก `finally` ช่วยป้องกันปัญหา Foreign Key ขัดข้องในชุดทดสอบเดิมของ Lab 1 ได้อย่างรอบคอบมาก
+> 3. **Data Invariants Test ครบถ้วน:** ชุดทดสอบ 9 ข้อใน `actions-taken-migration.test.ts` เขียนครอบคลุม Business Rules ของแลป 4 ได้ชัดเจนและตรงประเด็นมากค่ะ
+> 
+> ---
+> 
+> ### 🏁 สรุปผล
+> หากปรับแก้ข้อ 1 เรื่อง `result String?` เรียบร้อยแล้ว สามารถ Push อัปเดตขึ้นมาได้เลยนะคะ เดี๋ยวจะรีบเข้ามาตรวจรอบสุดท้ายแล้วกด Approve ให้ทันทีเลยค่ะ! 🚀

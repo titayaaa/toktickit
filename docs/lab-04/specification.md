@@ -84,9 +84,9 @@ The stakeholder requirements for Sprint 4 are:
 | **BR-08** | **Action Result Rule:** The `result` field is optional when status is `PENDING` or `IN_PROGRESS`, but mandatory (non-empty string, min 2 chars) when status is transitioned to `COMPLETED`. | API Validation |
 | **BR-09** | **Resolution Gate:** A Ticket cannot be updated to `RESOLVED` status if any of its Actions Taken are in `PENDING` or `IN_PROGRESS` status. Attempting to resolve returns HTTP 409 Conflict. | API Controller |
 | **BR-10** | A Requester's "Problem Appears Resolved" indication is purely advisory and does not alter Ticket status. | API Controller |
-| **BR-11** | **Complete Status Transition Matrix:** Adheres strictly to permitted role-based transitions across all 8 statuses (detailed in Section 5.1). | API Controller |
+| **BR-11** | **Complete Status Transition Matrix:** Adheres strictly to permitted role-based transitions defined in `server/src/routes/staff.ts` (detailed in Section 5.1). Invalid status transitions return HTTP 422 Unprocessable Entity. Transition to `RESOLVED` requires using the dedicated `/resolve` route. | API Controller |
 | **BR-12** | IT Staff Dashboard metrics calculations: <br>- `unassignedTickets`: Tickets where `ownerId IS NULL` and `currentStatus` not in (`RESOLVED`, `CLOSED`, `CANCELLED`).<br>- `myAssignedTickets`: Tickets where `ownerId == currentUser.id` and `currentStatus` not in (`RESOLVED`, `CLOSED`, `CANCELLED`).<br>- `urgentTickets`: Tickets where `itPriority == 'URGENT'` and `currentStatus` not in (`RESOLVED`, `CLOSED`, `CANCELLED`).<br>- `myPendingActions`: Actions Taken where `assigneeId == currentUser.id` and `status` in (`PENDING`, `IN_PROGRESS`). | API Controller |
-| **BR-13** | Requester Dashboard metrics calculations: <br>- `totalOpen`: Requester's tickets where `userId == currentUser.id` and `currentStatus` not in (`RESOLVED`, `CLOSED`, `CANCELLED`).<br>- `waitingForRequester`: Requester's tickets with `currentStatus == 'WAITING_FOR_REQUESTER'`.<br>- `recentlyUpdated`: Requester's tickets updated within the last 7 days.<br>- `recentlyResolved`: Requester's tickets with `currentStatus` in (`RESOLVED`, `CLOSED`). | API Controller |
+| **BR-13** | **Requester Dashboard Dual-Ownership & Fallback Calculation:** To ensure 100% backward compatibility with legacy tickets (Lab 1 & 2), a ticket is counted for the authenticated requester if: <br>`ticket.userId === currentUser.id OR ticket.requesterId === currentUser.id OR ticket.requesterUser.email === currentUser.email`<br>- `totalOpen`: Owned tickets with `currentStatus NOT IN ('RESOLVED', 'CLOSED', 'CANCELLED')`<br>- `waitingForRequester`: Owned tickets with `currentStatus == 'WAITING_FOR_REQUESTER'`<br>- `recentlyUpdated`: Owned tickets updated within the last 7 days (`updatedAt >= NOW() - 7 days`)<br>- `recentlyResolved`: Owned tickets with `currentStatus IN ('RESOLVED', 'CLOSED')`. | API Controller |
 | **BR-14** | **Concurrency & Stale Update Protection:** When updating a Ticket, Client must provide `expectedUpdatedAt`. If it does not match the server's `ticket.updatedAt`, the API returns HTTP 409 Conflict to prevent accidental overwrites. | API Controller |
 | **BR-15** | **Legacy Data Preservation:** Legacy tickets created prior to Lab 4 without Actions Taken remain valid and can have Actions Taken added or resolved normally. | Database & API |
 | **BR-16** | **Idempotency & Double-Submit Protection:** Form submissions for Actions Taken disable submit buttons during in-flight requests and support client-side deduplication. | Frontend UI |
@@ -95,17 +95,21 @@ The stakeholder requirements for Sprint 4 are:
 
 ### 5.1 Ticket Status Transition Matrix
 
+The table below reflects the exact `VALID_TRANSITIONS` implemented in `server/src/routes/staff.ts`. Moving directly from `OPEN` to `RESOLVED` is blocked; work must first move to an active working state (`IN_PROGRESS` or `WAITING_FOR_REQUESTER` or `PENDING`). Furthermore, transitions to `RESOLVED` require calling `PATCH /api/staff/tickets/:id/resolve` with a valid `resolutionSummary`. Calling `PATCH /api/staff/tickets/:id/status` with `RESOLVED` is rejected with HTTP 422.
+
 | Current Status | Permitted Next Status | Authorized Roles | Notes |
 | :--- | :--- | :--- | :--- |
 | **NEW** | `OPEN`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Initial triage; owner can be claimed/assigned |
-| **OPEN** | `IN_PROGRESS`, `WAITING_FOR_REQUESTER`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Work starts; resolution gate applies if moving to `RESOLVED` |
-| **IN_PROGRESS** | `WAITING_FOR_REQUESTER`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Active technical work; resolution gate applies |
-| **WAITING_FOR_REQUESTER** | `IN_PROGRESS`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Awaiting user clarification; resolution gate applies |
+| **OPEN** | `IN_PROGRESS`, `WAITING_FOR_REQUESTER`, `PENDING`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Work triage; must enter active work before resolution |
+| **IN_PROGRESS** | `WAITING_FOR_REQUESTER`, `PENDING`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Active technical work; resolution gate applies if moving to `RESOLVED` |
+| **WAITING_FOR_REQUESTER** | `IN_PROGRESS`, `PENDING`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Awaiting user clarification; resolution gate applies if moving to `RESOLVED` |
+| **PENDING** | `IN_PROGRESS`, `WAITING_FOR_REQUESTER`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | External/vendor hold (established in Lab 3); resolution gate applies |
 | **RESOLVED** | `CLOSED`, `REOPENED` | `IT_STAFF`, `ADMINISTRATOR` | Reopen if problem recurs; close after verification |
-| **REOPENED** | `IN_PROGRESS`, `WAITING_FOR_REQUESTER`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Re-evaluated; resolution gate applies |
-| **CLOSED** | None (Final) | - | Terminal state |
-| **CANCELLED** | None (Final) | - | Terminal state |
+| **REOPENED** | `IN_PROGRESS`, `PENDING`, `RESOLVED`, `CANCELLED` | `IT_STAFF`, `ADMINISTRATOR` | Re-evaluated; must enter work state before re-resolving |
+| **CLOSED** | None (Final) | - | Terminal state (cannot be altered; returns 422) |
+| **CANCELLED** | None (Final) | - | Terminal state (cannot be altered; returns 422) |
 
+*Note on Status Scope:* The database enum `TicketStatus` includes `PENDING` (established in Lab 3 for third-party/vendor waiting). The 8 core lifecycle statuses from the Handout (`NEW`, `OPEN`, `IN_PROGRESS`, `WAITING_FOR_REQUESTER`, `RESOLVED`, `CLOSED`, `REOPENED`, `CANCELLED`) operate smoothly alongside `PENDING`.  
 *Note on Requester Role:* Requesters cannot directly transition ticket statuses; they can only send an advisory "Problem Appears Resolved" indication.
 
 ---
@@ -169,8 +173,16 @@ model ActionTaken {
 2. **Nullable `result` with Status-Driven Validation:** The `result` column is defined as `String?` at the database level so that actions created in `PENDING` or `IN_PROGRESS` status do not require premature outcome data, while the application layer enforces mandatory `result` prior to marking status as `COMPLETED`.
 3. **Compound Foreign Key and Status Indexing:** Dedicated indexes on `ticketId`, `assigneeId`, and `status` optimize dashboard metric aggregations (`WHERE assigneeId = X AND status = 'PENDING'`) and ticket detail lookups without table scans.
 
-### 7.5 Migration, Backfill & Rollback Strategy
-- **Migration:** Executed via idempotent SQL migration `20261030000000_lab4_actions_taken/migration.sql` with `CREATE TYPE IF NOT EXISTS`, `CREATE TABLE IF NOT EXISTS`, and exception-handled foreign key constraints.
+### 7.5 Planned Migration, Backfill & Rollback Strategy (Issue 28)
+- **Planned Migration:** In Issue 28, migration `server/prisma/migrations/20261030000000_lab4_actions_taken/migration.sql` will be introduced. In PostgreSQL, enum creation does not support `CREATE TYPE IF NOT EXISTS`; therefore, idempotent enum setup will be handled safely via PL/pgSQL:
+  ```sql
+  DO $$ BEGIN
+    CREATE TYPE "ActionTakenStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
+  EXCEPTION
+    WHEN duplicate_object THEN NULL;
+  END $$;
+  ```
+  followed by `CREATE TABLE IF NOT EXISTS "actions_taken"`, composite indexes on `("ticketId", "status")`, and standard foreign key relations.
 - **Backfill:** Existing tickets from Labs 1–3 require no data alteration. Legacy tickets without Actions Taken operate normally (`actionsTaken: []`).
 - **Rollback:** In the event of rollback, dropping the `actions_taken` table and `ActionTakenStatus` enum leaves all `Ticket`, `User`, `Attachment`, `PublicComment`, and `InternalNote` records 100% intact.
 
@@ -184,27 +196,31 @@ model ActionTaken {
 ## 8. API Contract & Authorization Matrix
 
 Detailed request/response schemas, status codes, and error bodies are documented in [api-spec.md](api-spec.md):
-- `GET /api/tickets/:id/actions-taken`: List all actions for ticket (with `assignee` and `performedBy`).
-- `POST /api/tickets/:id/actions-taken`: Create action taken (requires active `assigneeId: Int`; rejects inactive users with HTTP 422).
+- **Authentication:** Server middleware supports both Session Cookie (`connect.sid` / `jwt`) and `Authorization: Bearer <token>` headers; the React SPA client standardizes on Bearer tokens.
+- `GET /api/tickets/:id/actions-taken`: List all actions for ticket with pagination (`page`, `limit`) and sorting (`orderBy: asc|desc`).
+- `POST /api/tickets/:id/actions-taken`: Create action taken (requires active `assigneeId: Int`; rejects inactive users or requesters with HTTP 422).
 - `PATCH /api/tickets/:id/actions-taken/:actionId`: Update action taken status, result, follow-up.
 - `GET /api/tickets/:id/actions-taken/:actionId`: Retrieve single action taken.
-- `PATCH /api/tickets/:id/status` (or `PUT /api/staff/tickets/:id/status`): Update status with Resolution Gate check (returns HTTP 409 Conflict if pending actions exist).
+- `PATCH /api/staff/tickets/:id/status`: Update ticket status per transition matrix (returns HTTP 422 for invalid transitions; directly requesting `RESOLVED` here is rejected with HTTP 422, directing caller to `/resolve`).
+- `PATCH /api/staff/tickets/:id/resolve`: Resolve ticket with mandatory `resolutionSummary` (3–500 chars). Enforces Resolution Gate (returns HTTP 409 Conflict if pending/in-progress actions exist, or HTTP 422 if summary is missing/invalid).
 - `GET /api/staff/dashboard`: Operational metrics and recent lists for IT Staff.
-- `GET /api/requester/dashboard`: Personal metrics and attention list for authenticated Requester.
+- `GET /api/requester/dashboard`: Personal metrics and attention list for authenticated Requester (supports dual-ownership check: `userId` or `requesterId` or `requesterUser.email`).
 
 ### 8.1 Authorization Matrix
 
 | Action / Endpoint | REQUESTER | IT_STAFF | ADMINISTRATOR | Unauthenticated |
 | :--- | :---: | :---: | :---: | :---: |
 | View Actions Taken (Owned Ticket) | ✅ Allowed | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| View Actions Taken (Other's Ticket)| ❌ 404 (Isolated) | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| View Actions Taken (Other's Ticket)| ❌ 404 (Data Isolation)* | ✅ Allowed | ✅ Allowed | ❌ 401 |
 | Create Action Taken | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
 | Update Action Taken | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
 | Delete Action Taken | ❌ 403 | ❌ 403 (Append-only) | ❌ 403 (Append-only) | ❌ 401 |
-| Resolve Ticket (No Pending Actions) | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| Resolve Ticket (Pending Actions Exist) | ❌ 403 | ❌ 409 Conflict | ❌ 409 Conflict | ❌ 401 |
+| Resolve Ticket via `/resolve` (No Pending Actions) | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| Resolve Ticket via `/resolve` (Pending Actions Exist)| ❌ 403 | ❌ 409 Conflict | ❌ 409 Conflict | ❌ 401 |
 | Access IT Staff Dashboard | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
 | Access Requester Dashboard | ✅ Allowed (Own) | ✅ Allowed | ✅ Allowed | ❌ 401 |
+
+*\*Note on Data Isolation:* Legacy ticket detail endpoints return 403 if accessed by unowned requesters; the Actions Taken endpoints return 404 to avoid revealing ticket existence. Aligning legacy endpoints is part of regression hardening in Issue 34.
 
 ---
 
@@ -229,7 +245,7 @@ Detailed request/response schemas, status codes, and error bodies are documented
 
 ## 10. Product Definition of Done (DoD)
 
-1. [x] Complete specifications (`specification.md`, `tests.md`, `ui-spec.md`, `api-spec.md`, `reviewer.md`, `ai-use.md`) reviewed and merged into `lab4-staging`.
+1. [ ] Complete specifications (`specification.md`, `tests.md`, `ui-spec.md`, `api-spec.md`, `reviewer.md`, `ai-use.md`) reviewed and merged into `lab4-staging`.
 2. [ ] Prisma schema migrated with `ActionTaken` model, indexes, integer foreign keys, and relations.
 3. [ ] Seed script executes idempotently, populating realistic tickets with zero, one, and multiple actions taken.
 4. [ ] Backend REST APIs for Actions Taken and Dashboards implemented and secured by RBAC middleware.

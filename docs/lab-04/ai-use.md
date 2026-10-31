@@ -28,6 +28,9 @@
 ### Prompt 6: Zen Green UI Design Tokens & Responsive Adaptation
 > "Develop the Zen Green UI specification for the Actions Taken card/table on Ticket Detail and the 4-card metric dashboard grids. Ensure responsive breakpoints at 1024px, 768px, and 375px with touch-friendly controls and zero horizontal overflow."
 
+### Prompt 7: Specification Reconciliation with Active Codebase & Review Feedback
+> "Audit docs/lab-04/ against active route implementations in server/src/routes/staff.ts and tickets.ts. Reconcile the ticket status transition matrix to match exact VALID_TRANSITIONS, align status update endpoints to PATCH /api/staff/tickets/:id/status and PATCH /api/staff/tickets/:id/resolve with HTTP 422 for disallowed transitions, update requester dashboard ownership logic to include legacy requesterId and requesterUser.email fallbacks, design paired WCAG AAA status badge tokens, and specify PostgreSQL PL/pgSQL idempotent enum creation."
+
 ---
 
 ## 3. Reflection on AI Agent Pairing (Specification Phase)
