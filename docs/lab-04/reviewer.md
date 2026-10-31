@@ -363,7 +363,7 @@
 - **Author:** `@jejaebubu`
 - **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ⏳ Changes Requested (Under Review)
+- **Current Status:** ✅ Approved (Ready to Merge)
 
 #### 💬 Round 1 Review by @titayaaa (Changes Requested)
 **Review Date:** 2026-11-01  
@@ -428,3 +428,50 @@
 > 
 > ### 🏁 สรุปผล
 > หากปรับแก้ข้อ 1 เรื่อง `result String?` เรียบร้อยแล้ว สามารถ Push อัปเดตขึ้นมาได้เลยนะคะ เดี๋ยวจะรีบเข้ามาตรวจรอบสุดท้ายแล้วกด Approve ให้ทันทีเลยค่ะ! 🚀
+
+#### 💬 Round 1 Author Response by @jejaebubu
+**Response Date:** 2026-11-01  
+**Commit:** `8750764` (Fix), `7d9f326` (Review trail)  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวค่ะ แก้ไขครบทั้ง 3 จุดแล้วใน commit 8750764 (และบันทึก review trail ใน 7d9f326)
+> result Nullable — เปลี่ยนเป็น result String? @db.Text และสร้าง migration ใหม่ 20261031172848_lab04_actions_taken ที่มี "result" TEXT (ไม่มี NOT NULL) แทนไฟล์เดิม เพื่อไม่ให้ checksum ค้างจาก migration ที่ apply ไปแล้วSeed: Action ที่ PENDING/IN_PROGRESS มี result = null จริง, งานที่ COMPLETED/CANCELLED มี result ครบ
+> เพิ่มเทสต์ตัวที่ 10 ตรวจ is_nullable = YES, open work มี result = null, finished work ต้องมี result
+> เพิ่ม BR-16 / AC-15 ใน specification.md, อัปเดต validation ใน api-spec.md (บังคับเฉพาะ COMPLETED) และ ui-spec.md (ดอกจันเฉพาะ COMPLETED), เพิ่ม API-15 เป็น Planned สำหรับ Issue #3
+> tests.md — PR-01 → Merged (PR #104); PR-02 → 10 new + 83 existing = 93 พร้อมอ้างอิง PR #105
+> reviewer.md — เพิ่มแถว PR #105 ใน Master Table และหัวข้อ 3.2 พร้อม Review #1 / Author Response #1
+> ตรวจซ้ำ: npm run build ผ่าน, npm test ผ่าน 17 ไฟล์ / 93 เทสต์, seed รันซ้ำได้ค่าเดิม รบกวนช่วยตรวจอีกรอบนะคะ ขอบคุณค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+**Review Date:** 2026-11-01  
+**Verdict:** 🟢 Approved  
+**Review Comments (Verbatim):**
+
+> ## 🟢 Peer Review: Approved (PR #105 - ActionTaken Model, Migration & Idempotent Seed)
+> 
+> **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)  
+> **Target Branch:** `lab4-staging`  
+> **Status:** ✅ **Approved (พร้อมให้ Merge เข้าสู่ `lab4-staging` ได้เลยค่ะ)**
+> 
+> ---
+> 
+> ### 🌟 ผลการตรวจทานรอบที่ 2 (Final Verification)
+> ตรวจสอบการแก้ไขตาม commit `8750764` และเอกสารใน `7d9f326` ครบถ้วนสมบูรณ์ 100% ทุกประเด็นแล้วค่ะ:
+> 
+> 1. **`ActionTaken.result` เป็น Nullable (`String?`):**
+>    - ใน `server/prisma/schema.prisma` ปรับเป็น `result String? @db.Text` ถูกต้อง
+>    - ใน migration ไฟล์ใหม่ `20261031172848_lab04_actions_taken/migration.sql` คอลัมน์ `"result" TEXT` ไม่มี `NOT NULL` ช่วยป้องกันปัญหา Checksum migration ได้อย่างสะอาดเรียบร้อย
+> 2. **Seed Data สอดคล้องกับสถานะจริง:**
+>    - การกระทำที่เป็น `PENDING` และ `IN_PROGRESS` บันทึกค่า `result: null` จริง
+>    - การกระทำที่เป็น `COMPLETED` และ `CANCELLED` บันทึกผลลัพธ์ครบถ้วน
+> 3. **ชุดทดสอบ Integration Test ครอบคลุม 10 ข้อ:**
+>    - เพิ่ม Test Case ที่ 10 ตรวจสอบ `information_schema.columns` ว่า `is_nullable = 'YES'`
+>    - ดักตรวจ Invariant ว่า open work ต้องไม่มี result และ finished work ต้องมี result เสมอ
+>    - ชุดทดสอบทั้งหมด 17 ไฟล์ / 93 เทสต์ รันผ่านสีเขียว 100% (`npm test`)
+> 4. **เอกสาร Spec & Traceability Matrix อัปเดตครบถ้วน:**
+>    - มีการเพิ่ม BR-16 / AC-15 ใน `specification.md`
+>    - อัปเดตเงื่อนไข Validation และสัญลักษณ์ดอกจันใน `api-spec.md` และ `ui-spec.md`
+>    - ปรับสถานะ PR-01 เป็น Merged และยอดรวม 93 เทสต์ใน `tests.md`
+>    - บันทึก Master Table และประวัติการรีวิวรอบที่ 1 ใน `reviewer.md` ครบถ้วน
+> 
+> ยอดเยี่ยมและรัดกุมมากค่ะ กด Approve ให้เรียบร้อย สามารถ Merge PR #105 เข้า `lab4-staging` แล้วเริ่ม Issue 3 ต่อได้เลยค่ะ! 🎉
