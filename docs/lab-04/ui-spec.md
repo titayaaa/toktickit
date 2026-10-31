@@ -11,35 +11,35 @@ TokTickIT preserves the Zen Green design system established in Labs 2 and 3, ens
   --zen-primary-light: #dcfce7;   /* Green 100 */
   --zen-primary-subtle: #f0fdf4;  /* Green 50 */
   
-  /* Ticket Status Badges (Paired Background and Text with WCAG 2.1 AA Contrast >= 4.5:1) */
+  /* Ticket Status Badges (Paired Background and Text - WCAG 2.1 AA Compliant >= 4.5:1) */
   --status-new-bg: #f0f9ff;          /* Sky 50 */
-  --status-new-text: #0369a1;        /* Sky 700 (Contrast 7.3:1) */
+  --status-new-text: #0369a1;        /* Sky 700 */
   --status-open-bg: #eff6ff;         /* Blue 50 */
-  --status-open-text: #1e40af;        /* Blue 800 (Contrast 8.5:1) */
+  --status-open-text: #1e40af;        /* Blue 800 */
   --status-in-progress-bg: #fffbeb;  /* Amber 50 */
-  --status-in-progress-text: #92400e;/* Amber 800 (Contrast 7.1:1) */
+  --status-in-progress-text: #92400e;/* Amber 800 */
   --status-waiting-bg: #faf5ff;      /* Purple 50 */
-  --status-waiting-text: #6b21a8;    /* Purple 800 (Contrast 7.6:1) */
+  --status-waiting-text: #6b21a8;    /* Purple 800 */
   --status-pending-bg: #fefce8;      /* Yellow 50 */
-  --status-pending-text: #854d0e;    /* Yellow 800 (Contrast 7.2:1) */
+  --status-pending-text: #854d0e;    /* Yellow 800 */
   --status-resolved-bg: #f0fdf4;     /* Green 50 */
-  --status-resolved-text: #166534;   /* Green 800 (Contrast 7.4:1) */
+  --status-resolved-text: #166534;   /* Green 800 */
   --status-closed-bg: #f8fafc;       /* Slate 50 */
-  --status-closed-text: #334155;     /* Slate 700 (Contrast 8.2:1) */
+  --status-closed-text: #334155;     /* Slate 700 */
   --status-reopened-bg: #fdf4ff;     /* Fuchsia 50 */
-  --status-reopened-text: #86198f;   /* Fuchsia 800 (Contrast 8.1:1) */
+  --status-reopened-text: #86198f;   /* Fuchsia 800 */
   --status-cancelled-bg: #fef2f2;    /* Red 50 */
-  --status-cancelled-text: #991b1b;  /* Red 800 (Contrast 7.3:1) */
+  --status-cancelled-text: #991b1b;  /* Red 800 */
   
-  /* Actions Taken Status Badges (High Contrast Text on Soft Backgrounds) */
+  /* Actions Taken Status Badges (Paired Background and Text - WCAG 2.1 AA Compliant >= 4.5:1) */
   --action-pending-bg: #fffbeb;      /* Amber 50 */
-  --action-pending-text: #92400e;    /* Amber 800 (Contrast 7.1:1) */
+  --action-pending-text: #92400e;    /* Amber 800 */
   --action-in-progress-bg: #eff6ff;  /* Blue 50 */
-  --action-in-progress-text: #1e40af;/* Blue 800 (Contrast 8.5:1) */
+  --action-in-progress-text: #1e40af;/* Blue 800 */
   --action-completed-bg: #f0fdf4;    /* Green 50 */
-  --action-completed-text: #166534;  /* Green 800 (Contrast 7.4:1) */
+  --action-completed-text: #166534;  /* Green 800 */
   --action-cancelled-bg: #fef2f2;    /* Red 50 */
-  --action-cancelled-text: #991b1b;  /* Red 800 (Contrast 7.3:1) */
+  --action-cancelled-text: #991b1b;  /* Red 800 */
   
   /* Follow-Up Warning */
   --followup-bg: #fffbeb;         /* Amber 50 */
