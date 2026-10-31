@@ -110,19 +110,14 @@ The stakeholder requirements for Sprint 4 are:
 
 ---
 
-## 6. Authorization Matrix
-
-| Action / Endpoint | REQUESTER | IT_STAFF | ADMINISTRATOR | Unauthenticated |
-| :--- | :---: | :---: | :---: | :---: |
-| View Actions Taken (Owned Ticket) | ✅ Allowed | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| View Actions Taken (Other's Ticket)| ❌ 404 (Isolated) | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| Create Action Taken | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| Update Action Taken | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| Delete Action Taken | ❌ 403 | ❌ 403 (Append-only) | ❌ 403 (Append-only) | ❌ 401 |
-| Resolve Ticket (No Pending Actions) | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| Resolve Ticket (Pending Actions Exist) | ❌ 403 | ❌ 409 Conflict | ❌ 409 Conflict | ❌ 401 |
-| Access IT Staff Dashboard | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
-| Access Requester Dashboard | ✅ Allowed (Own) | ✅ Allowed | ✅ Allowed | ❌ 401 |
+## 6. UI Specification Summary
+- **Design System:** Strictly utilizes the Zen Green design tokens (`--zen-primary`, `--zen-bg`, font Inter, status badges). See detailed documentation in [ui-spec.md](ui-spec.md).
+- **IT Staff Dashboard:** 4-card operational metric row (`Unassigned`, `My Assigned`, `Urgent`, `My Pending Actions`), urgent tickets table, assigned actions list, and click-to-filter drill-down navigation.
+- **Requester Dashboard:** 4-card personal metric row (`Total Open`, `Waiting for Input`, `Recently Updated`, `Resolved`), attention-required banner, and quick detail navigation.
+- **Actions Taken on Ticket Detail:**
+  - Card/timeline view displaying date, staff actor, assignee, description, result, follow-up amber banner, and attachment note.
+  - "+ Add Action Taken" button (IT Staff/Admin only) opening modal dialog with assignee picker (active staff only), dynamic follow-up note field, and status selector.
+  - Read-only mode for authenticated Requesters viewing their own tickets.
 
 ---
 
@@ -186,18 +181,8 @@ model ActionTaken {
 
 ---
 
-## 8. UI Specification Summary
-- **Design System:** Strictly utilizes the Zen Green design tokens (`--zen-primary`, `--zen-bg`, font Inter, status badges). See detailed documentation in [ui-spec.md](ui-spec.md).
-- **IT Staff Dashboard:** 4-card metric row (`Unassigned`, `My Assigned`, `Urgent`, `My Pending Actions`), urgent tickets table, assigned actions list, and click-to-filter drill-down navigation.
-- **Requester Dashboard:** 4-card metric row (`Total Open`, `Waiting for Input`, `Recently Updated`, `Resolved`), attention-required banner, and quick detail navigation.
-- **Actions Taken on Ticket Detail:**
-  - Card/timeline view displaying date, staff actor, assignee, description, result, follow-up amber banner, and attachment note.
-  - "+ Add Action Taken" button (IT Staff/Admin only) opening modal dialog with assignee picker (active staff only), dynamic follow-up note field, and status selector.
-  - Read-only mode for authenticated Requesters viewing their own tickets.
+## 8. API Contract & Authorization Matrix
 
----
-
-## 9. API Contract Summary
 Detailed request/response schemas, status codes, and error bodies are documented in [api-spec.md](api-spec.md):
 - `GET /api/tickets/:id/actions-taken`: List all actions for ticket (with `assignee` and `performedBy`).
 - `POST /api/tickets/:id/actions-taken`: Create action taken (requires active `assigneeId: Int`; rejects inactive users with HTTP 422).
@@ -207,9 +192,23 @@ Detailed request/response schemas, status codes, and error bodies are documented
 - `GET /api/staff/dashboard`: Operational metrics and recent lists for IT Staff.
 - `GET /api/requester/dashboard`: Personal metrics and attention list for authenticated Requester.
 
+### 8.1 Authorization Matrix
+
+| Action / Endpoint | REQUESTER | IT_STAFF | ADMINISTRATOR | Unauthenticated |
+| :--- | :---: | :---: | :---: | :---: |
+| View Actions Taken (Owned Ticket) | ✅ Allowed | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| View Actions Taken (Other's Ticket)| ❌ 404 (Isolated) | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| Create Action Taken | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| Update Action Taken | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| Delete Action Taken | ❌ 403 | ❌ 403 (Append-only) | ❌ 403 (Append-only) | ❌ 401 |
+| Resolve Ticket (No Pending Actions) | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| Resolve Ticket (Pending Actions Exist) | ❌ 403 | ❌ 409 Conflict | ❌ 409 Conflict | ❌ 401 |
+| Access IT Staff Dashboard | ❌ 403 | ✅ Allowed | ✅ Allowed | ❌ 401 |
+| Access Requester Dashboard | ✅ Allowed (Own) | ✅ Allowed | ✅ Allowed | ❌ 401 |
+
 ---
 
-## 10. Acceptance Criteria (AC)
+## 9. Acceptance Criteria (AC)
 
 - **AC-01:** Given a permitted IT Staff or Administrator user and valid payload, when creating an Action Taken under a Ticket, then it is saved with the authenticated creator (`performedById: Int`), designated active assignee (`assigneeId: Int`), and initial status.
 - **AC-02:** Given an inactive staff user or Requester ID as `assigneeId`, when creating or updating an Action Taken, then the API returns `422 Unprocessable Entity`.
@@ -228,7 +227,7 @@ Detailed request/response schemas, status codes, and error bodies are documented
 
 ---
 
-## 11. Product Definition of Done (DoD)
+## 10. Product Definition of Done (DoD)
 
 1. [x] Complete specifications (`specification.md`, `tests.md`, `ui-spec.md`, `api-spec.md`, `reviewer.md`, `ai-use.md`) reviewed and merged into `lab4-staging`.
 2. [ ] Prisma schema migrated with `ActionTaken` model, indexes, integer foreign keys, and relations.
@@ -240,3 +239,14 @@ Detailed request/response schemas, status codes, and error bodies are documented
 8. [ ] Responsive visual audits captured for mobile, tablet, and desktop viewports.
 9. [ ] Release PR merged from `lab4-staging` into `main` with peer review sign-offs.
 10. [ ] Final 9-Part PDF Report compiled and verified against grading rubrics.
+
+---
+
+## 11. Assumptions and Decisions
+
+In accordance with Lab 4 Handout Section 9, the following meaningful technical choices and assumptions were resolved for Sprint 4:
+1. **ActionTaken Primary Key (`id: Int`):** We chose autoincrementing integers (`Int`) for `ActionTaken.id` to maintain full structural uniformity with existing `Ticket.id: Int` and `User.id: Int` in PostgreSQL.
+2. **Assignee Eligibility Validation:** While any IT Staff member can perform an action, the designated `assigneeId` must strictly be an active user (`isActive = true`) holding either `IT_STAFF` or `ADMINISTRATOR` role. Requesters and deactivated accounts are rejected with HTTP 422.
+3. **Requester Data Isolation (`404 Not Found`):** To prevent malicious resource enumeration, Requesters attempting to view Actions Taken or details of another user's ticket receive `404 Not Found` rather than `403 Forbidden`.
+4. **Append-Only Audit Trail (No Hard Delete):** Technical actions taken on service desk tickets constitute formal audit history. Hard deletion (`DELETE`) is disallowed; abandoned or erroneous tasks must be marked as `CANCELLED`.
+5. **Optimistic Concurrency Detection:** When modifying ticket status, clients send `expectedUpdatedAt`. If this timestamp diverges from `ticket.updatedAt`, the server returns `409 Conflict`, prompting the client to refresh and inspect concurrent changes.
