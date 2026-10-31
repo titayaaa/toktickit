@@ -11,7 +11,7 @@ TokTickIT preserves the Zen Green design system established in Labs 2 and 3, ens
   --zen-primary-light: #dcfce7;   /* Green 100 */
   --zen-primary-subtle: #f0fdf4;  /* Green 50 */
   
-  /* Ticket Status Badges (Paired Background and Text with WCAG AAA Contrast >= 7.1:1) */
+  /* Ticket Status Badges (Paired Background and Text with WCAG 2.1 AA Contrast >= 4.5:1) */
   --status-new-bg: #f0f9ff;          /* Sky 50 */
   --status-new-text: #0369a1;        /* Sky 700 (Contrast 7.3:1) */
   --status-open-bg: #eff6ff;         /* Blue 50 */

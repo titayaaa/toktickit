@@ -33,7 +33,7 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **API-12** | API | FR-13, BR-13 | Requester Dashboard metrics retrieval | 200 OK with authenticated user's ticket counts | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
 | **API-13** | API | FR-12, AC-09 | Requester attempts to access IT Staff Dashboard endpoint | 403 Forbidden | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 | **API-14** | API | BR-14, AC-12 | Concurrency check: Stale update rejected on ticket status update | 409 Conflict when expectedUpdatedAt does not match | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| **WORKFLOW-01** | API | BR-11 | Validate 8-state Ticket Transition Matrix across roles | Rejects disallowed transitions with 422 Unprocessable Entity | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
+| **WORKFLOW-01** | API | BR-11 | Validate 9-state Ticket Transition Matrix (including PENDING) across roles | Rejects disallowed transitions with 422 Unprocessable Entity | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | **SAFE-01** | API | - | Safe error responses (never leak stack trace in 500) | JSON response `{ error: string }` | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | **PERF-01** | Smoke | - | Dashboard API response time under load smoke test | Returns within 200ms for 50 concurrent requests | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 | **UI-01** | Component | FR-01, FR-06 | Actions Taken list renders on Ticket Detail in Zen Green style | Displays list of actions or empty state | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |

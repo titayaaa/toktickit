@@ -1,10 +1,10 @@
 # Sprint 4 Peer Review Record: TokTickIT Actions Taken, Dashboards, and Final Regression
 
-เอกสารฉบับนี้จัดทำขึ้นเพื่อบันทึกประวัติการ Peer Review แบบละเอียดครบถ้วนทุกตัวอักษร (Verbatim Records) ตามข้อกำหนดวิชา CS251 Lab 4 ทั้ง 2 ทิศทาง:
+เอกสารฉบับนี้จัดทำขึ้นเพื่อบันทึกประวัติการ Peer Review แบบละเอียดตามรอบการตรวจทานจริง (Verbatim Dialogue across Review Rounds) ตามข้อกำหนดวิชา CS251 Lab 4 ทั้ง 2 ทิศทาง:
 - **Part 1:** บันทึกการ Review ของ Partner (@jejaebubu) ตรวจสอบและอนุมัติ PR บน Repository ของนักศึกษา (`titayaaa/toktickit`)
 - **Part 2:** บันทึกการ Review ของนักศึกษา (@titayaaa) ตรวจสอบและอนุมัติ PR บน Repository ของ Partner (`jejaebubu/toktickit`)
 
-> **หมายเหตุ:** บันทึกการตรวจทานจะได้รับการอัปเดตตามลำดับการพัฒนาจริงทีละ Pull Request (1 PR : 1 Issue) เพื่อป้องกันข้อมูลล่วงหน้า (No Premature Data)
+> **หมายเหตุ:** บันทึกการตรวจทานจะได้รับการอัปเดตตามลำดับการพัฒนาและรอบการรีวิวจริงทีละ Pull Request (1 PR : 1 Issue) เพื่อป้องกันข้อมูลล่วงหน้า (No Premature Data)
 
 ---
 
@@ -50,7 +50,7 @@
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ⏳ Pending Re-review (Round 1 Changes Addressed)
+- **Current Status:** ⏳ Pending Re-review (Round 3 Changes Addressed)
 
 #### 💬 Round 1 Review by @jejaebubu (Changes Requested)
 **Review Date:** 2026-10-31  
@@ -283,7 +283,98 @@
 > 
 > รบกวนช่วยตรวจดูอีกรอบนะคะ ขอบคุณมาก ๆ เลยค่ะ!
 
-#### ⏳ Round 3 Re-review by @jejaebubu
+#### 💬 Round 3 Review by @jejaebubu (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ขอบคุณที่แก้รอบนี้นะคะ เช็กที่ commit 5b20200 แล้ว รอบนี้ 4 จุดหลักที่คุยกันก่อนหน้าผ่านแล้วค่ะ ทั้ง transition matrix, route/status code, migration plan, ownership formula แล้วก็ status badge ตอนนี้ผ่าน AA แล้ว
+> 
+> เหลืออีก 4 จุดที่อยากให้แก้ก่อน merge นะคะ
+> 
+> 1. Accessibility ตอนนี้ผ่าน AA แต่ยังไม่ถึง AAA
+> ใน ui-spec.md กับ ai-use.md ตอนนี้เขียนว่าเป็น WCAG AAA (>= 7:1) แต่สีบางตัวยังได้ประมาณ 5–6 กว่า ๆ ค่ะ
+> 
+> จริง ๆ สีที่ใช้อยู่ ผ่าน AA แล้ว แค่ยังไม่ถึง AAA
+> 
+> ถ้าเราตั้งใจใช้เกณฑ์ AA แนะนำให้แก้ข้อความเป็น WCAG AA >= 4.5:1 จะตรงกับค่าจริงที่สุดค่ะ
+> 
+> แต่ถ้าต้องการ AAA จริง ๆ ค่อยเปลี่ยนเป็นสีที่เข้มขึ้น เช่น
+> 
+> NEW → #0c4a6e
+> IN_PROGRESS → #78350f
+> PENDING → #713f12
+> RESOLVED → #14532d
+> ส่วนตัวคิดว่าใช้ AA ก็พอค่ะ แค่แก้ข้อความไม่ให้ claim เกินค่าจริง
+> 
+> 2. Default status ของ Action ยังเขียนไม่ตรงกัน
+> ใน specification.md ตอนนี้เป็น
+> 
+> @default(COMPLETED)
+> 
+> แต่ใน api-spec.md เป็น
+> 
+> default PENDING
+> 
+> แนะนำให้ใช้ PENDING เหมือนกันทั้งสองที่ค่ะ เพราะตอนสร้าง Action ใหม่ควรเริ่มจาก PENDING ก่อน และ result ตอนนี้ก็เป็น optional อยู่แล้ว
+> 
+> 3. Index ใน model กับคำอธิบายยังไม่ตรงกัน
+> ใน model ตอนนี้มี index แยกของ ticketId, assigneeId และ status
+> 
+> แต่ในคำอธิบายด้านล่างเขียนว่ามี composite index ของ ticketId + status ค่ะ
+> 
+> ตรงนี้เลือกได้ว่าจะ
+> 
+> เพิ่ม @@index([ticketId, status]) ให้ตรงกับคำอธิบาย
+> หรือแก้คำอธิบายไม่ให้บอกว่าเป็น composite index
+> เอาแบบไหนก็ได้ค่ะ ขอแค่ model กับเอกสารตรงกัน
+> 
+> 4. เรื่อง 403 / 404 ยังมีบางส่วนเขียนไม่ตรงกัน
+> ใน Assumption 3 ตอนนี้เขียนว่า Requester เปิด ticket ของคนอื่นจะได้ 404
+> 
+> แต่ใน Section 8 กับ api-spec.md ระบุว่า ticket detail เดิมของระบบยังคืน 403 อยู่ค่ะ
+> 
+> แนะนำให้เขียนแยกให้ชัดว่า
+> 
+> Actions Taken endpoints → ใช้ 404
+> Legacy ticket detail/comments → ตอนนี้ยังใช้ 403
+> ถ้าจะเปลี่ยนของเดิมเป็น 404 ค่อยทำใน Issue 34 ค่ะ
+> แบบนี้จะตรงกับ behavior ปัจจุบันและไม่ทำให้คน implement สับสนค่ะ
+> 
+> จุดเล็ก ๆ ที่ฝากแก้เพิ่ม
+> reviewer.md ยังเขียนว่า Round 1 อยู่ ควรเปลี่ยนเป็น Round 2 ค่ะ
+> ด้านบนของ reviewer.md ยังมีคำว่า "Verbatim Records ครบถ้วน" อยู่ ทั้งที่ยังอยู่ระหว่าง review แนะนำให้ปรับข้อความให้ตรงกับสถานะจริง
+> tests.md ยังเขียนว่า 8-state แต่ตอนนี้ matrix มี PENDING รวมเป็น 9 statuses แล้ว
+> ใน specification.md บางจุดก็ยังเขียน "all 8 statuses" อยู่ ควรแก้ให้ตรงกับ matrix ใหม่ค่ะ
+> requesterId === currentUser.id อาจเทียบ ID คนละ model กัน (RequesterUser.id กับ User.id) แนะนำให้ใช้ relation/email ในการหา ownership จะปลอดภัยกว่าค่ะ
+> Idempotency ตอนนี้ยังป้องกันแค่ฝั่ง frontend ถ้าต้องการให้ retry แล้วไม่สร้างข้อมูลซ้ำจริง ๆ ควรมี idempotency key ฝั่ง server ด้วย
+> 409 จาก expectedUpdatedAt และ Resolution Gate ตอนนี้ยังไม่มีใน staff.ts ถ้ายังไม่ได้ implement แนะนำให้เขียนกำกับว่า Planned for Issue 31 ไว้ก่อนค่ะ
+> โดยรวมรอบนี้ใกล้แล้วค่ะ หลัก ๆ ฝากแก้ 4 ข้อด้านบน แล้วก็อัปเดตสถานะใน reviewer.md ให้ตรงกับรอบปัจจุบันอีกนิด น่าจะพร้อม approve ในรอบหน้าแล้วค่ะ
+> 
+> ขอบคุณมาก ๆ ค่ะ
+
+#### 💬 Round 3 Author Response & Code Fixes by @titayaaa
+**Response Date:** 2026-11-01  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับคำแนะนำรอบที่ 3 มาก ๆ ค่ะ ตรวจสอบและแก้ไขครบถ้วนทั้ง 4 ประเด็นหลักและจุดเล็ก ๆ ทั้งหมดแล้วค่ะ:
+> 
+> 1. **Accessibility Standards (WCAG 2.1 AA):** ปรับใน `ui-spec.md` และ `ai-use.md` ให้ระบุเกณฑ์มาตรฐานชัดเจนเป็น **WCAG 2.1 AA ($\ge 4.5:1$)** เพื่อให้ตรงกับค่า Contrast จริงของคู่สี Background/Text โดยไม่กล่าวอ้างเกินจริงค่ะ
+> 2. **Default Status ของ Action:** ใน `specification.md` ปรับโมเดล `ActionTaken.status` เป็น `@default(PENDING)` สอดคล้องกับ `api-spec.md` และธรรมชาติของงานที่เพิ่งสร้างซึ่งยังไม่มีผลลัพธ์ค่ะ
+> 3. **Composite Index ตรงกันทั้งโมเดลและคำอธิบาย:** เพิ่ม `@@index([ticketId, status])` ในโมเดล `ActionTaken` (`specification.md`) เพื่อให้ตรงกับคำอธิบาย และช่วยเพิ่มประสิทธิภาพ Query ตรวจสอบ Resolution Gate (`COUNT(*) WHERE ticketId = ? AND status IN ('PENDING', 'IN_PROGRESS')`) ได้อย่างรวดเร็วค่ะ
+> 4. **แยกความแตกต่าง 403 vs 404 ชัดเจน:** ใน Assumption 3, Section 8 และ `api-spec.md` ระบุแยกชัดเจนว่า:
+>    - Actions Taken Endpoints (`/api/tickets/:id/actions-taken`) ตอบกลับด้วย `404 Not Found` สำหรับ Requester ที่ไม่ได้เป็นเจ้าของตั๋ว เพื่อป้องกันการเดาข้อมูล (Data Isolation)
+>    - Legacy Ticket Detail / Comments ในโค้ดปัจจุบันยังคงตอบกลับ `403 Forbidden` (โดยมีแผน Re-factor ให้เป็น 404 พร้อมกันใน Issue 34 Hardening)
+> 5. **จุดเล็ก ๆ ที่ปรับปรุงเพิ่มเติม:**
+>    - ปรับสถานะใน `reviewer.md` จาก Round 1 เป็น Round 2 และ Round 3 เรียบร้อยแล้ว พร้อมปรับข้อความส่วนหัวให้สะท้อนการบันทึกตามรอบจริง
+>    - อัปเดตใน `tests.md` (WORKFLOW-01) และ `specification.md` เป็น **9-state Ticket Transition Matrix** (รวม legacy `PENDING`)
+>    - ปรับเงื่อนไข Requester Ownership ให้เช็กผ่าน relation และ verified email: `ticket.userId === currentUser.id || ticket.requesterUser?.email === currentUser.email || ticket.requester?.email === currentUser.email` เพื่อป้องกันปัญหา ID ชนกันข้ามโมเดล (`RequesterUser.id` vs `User.id`)
+>    - ระบุแผนรองรับ Idempotency Key ฝั่งเซิร์ฟเวอร์ใน BR-16 (Planned for Issue 29)
+>    - ระบุว่า Concurrency Check (`expectedUpdatedAt`) และ Resolution Gate (409 Conflict) เป็นฟังก์ชันที่ **Planned for Issue 31 (PR-05)** เนื่องจากยังไม่มีใน baseline `staff.ts`
+> 
+> รบกวนตรวจทานรอบสุดท้ายนะคะ ขอบคุณมากค่ะ!
+
+#### ⏳ Round 4 Re-review by @jejaebubu
 - **Status:** รอผลการตรวจรอบสุดท้ายและการ Approve + Merge จาก `@jejaebubu`
 
 ---

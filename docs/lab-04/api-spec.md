@@ -170,7 +170,7 @@ Transition ticket status across non-terminal states per the `VALID_TRANSITIONS` 
      }
      ```
   3. **Terminal State Immutability:** If ticket is already `CLOSED` or `CANCELLED`, returns `422 Unprocessable Entity`.
-  4. **Concurrency Check (Stale Update):** If `expectedUpdatedAt` does not match server `ticket.updatedAt`, returns `409 Conflict`:
+  4. **Concurrency Check (Stale Update - Planned for Issue 31):** If `expectedUpdatedAt` does not match server `ticket.updatedAt`, returns `409 Conflict`:
      ```json
      {
        "error": "ConflictError",
@@ -184,7 +184,7 @@ Transition ticket status across non-terminal states per the `VALID_TRANSITIONS` 
   - `401 Unauthorized`: Missing or invalid token.
   - `403 Forbidden`: Requester role.
   - `404 Not Found`: Ticket not found.
-  - `409 Conflict`: Stale update detected via `expectedUpdatedAt`.
+  - `409 Conflict`: Stale update detected via `expectedUpdatedAt` *(Planned for Issue 31)*.
   - `422 Unprocessable Entity`: Target status is `RESOLVED` or invalid transition.
 
 ---
@@ -208,7 +208,7 @@ Formal ticket resolution requiring a resolution summary and enforcing that all A
        "error": "Resolution summary must be a non-empty string between 3 and 500 characters"
      }
      ```
-  2. **Resolution Gate Check (BR-09):** The backend inspects all Actions Taken associated with the ticket. If any action has status `PENDING` or `IN_PROGRESS`, the request is rejected with `409 Conflict`:
+  2. **Resolution Gate Check (BR-09 - Planned for Issue 31):** The backend inspects all Actions Taken associated with the ticket. If any action has status `PENDING` or `IN_PROGRESS`, the request is rejected with `409 Conflict`:
      ```json
      {
        "error": "ResolutionGateBlocked",
@@ -222,14 +222,14 @@ Formal ticket resolution requiring a resolution summary and enforcing that all A
        "error": "Cannot transition from OPEN to RESOLVED"
      }
      ```
-  4. **Concurrency Check:** If `expectedUpdatedAt` mismatch, returns `409 Conflict`.
+  4. **Concurrency Check (Planned for Issue 31):** If `expectedUpdatedAt` mismatch, returns `409 Conflict`.
 - **Responses:**
   - `200 OK`: Ticket resolved successfully, status updated to `RESOLVED`, `resolutionSummary` recorded.
   - `400 Bad Request`: Invalid ticket ID.
   - `401 Unauthorized`: Token missing or invalid.
   - `403 Forbidden`: Requester role forbidden.
   - `404 Not Found`: Ticket not found.
-  - `409 Conflict`: Active Actions Taken exist (Resolution Gate) or stale update.
+  - `409 Conflict`: Active Actions Taken exist (Resolution Gate) or stale update *(Planned for Issue 31)*.
   - `422 Unprocessable Entity`: Invalid transition or missing/invalid `resolutionSummary`.
 
 ---
@@ -296,13 +296,13 @@ Aggregates operational workload and urgent items for IT Staff. All timestamps ar
 ---
 
 ### 4.2 Requester Dashboard
-Summarizes tickets owned by the authenticated requester with dual-ownership fallback (supporting both `userId`, legacy `requesterId`, and `requesterUser.email`).
+Summarizes tickets owned by the authenticated requester with safe ownership fallback across schema versions (matching `userId`, `requesterUser.email`, or `requester.email` to avoid cross-table ID collisions).
 
 - **Method / Path:** `GET /api/requester/dashboard`
 - **Authorized Roles:** `REQUESTER`, `IT_STAFF`, `ADMINISTRATOR`
 - **Ownership Predicate:**
   A ticket belongs to the authenticated user if:
-  `ticket.userId === currentUser.id OR ticket.requesterId === currentUser.id OR ticket.requesterUser.email === currentUser.email`
+  `ticket.userId === currentUser.id OR ticket.requesterUser?.email === currentUser.email OR ticket.requester?.email === currentUser.email`
 - **Calculations:**
   - `totalOpenCount`: Owned tickets where `currentStatus NOT IN ('RESOLVED', 'CLOSED', 'CANCELLED')`
   - `waitingForRequesterCount`: Owned tickets where `currentStatus == 'WAITING_FOR_REQUESTER'`
