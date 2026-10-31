@@ -566,3 +566,70 @@
 >    - บันทึก Master Table และประวัติการรีวิวรอบที่ 1 ใน `reviewer.md` ครบถ้วน
 > 
 > ยอดเยี่ยมและรัดกุมมากค่ะ กด Approve ให้เรียบร้อย สามารถ Merge PR #105 เข้า `lab4-staging` แล้วเริ่ม Issue 3 ต่อได้เลยค่ะ! 🎉
+
+---
+
+### PR #106: feat(api): Actions Taken REST API, RBAC, and status validation (Issue #3)
+- **PR URL:** [jejaebubu/toktickit#106](https://github.com/jejaebubu/toktickit/pull/106)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved
+
+#### 💬 Round 1 Review by @titayaaa (Approved)
+**Review Date:** 2026-11-01  
+**Verdict:** 🟢 Approved  
+**Review Comments (Verbatim):**
+
+> ## 🟢 Peer Review: Approved (PR #106 - Actions Taken REST API, RBAC & Status Validation)
+> 
+> **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)  
+> **Target Branch:** `lab4-staging`  
+> **Status:** ✅ **Approved (พร้อมให้ Merge เข้าสู่ `lab4-staging` ได้เลยค่ะ)**
+> 
+> ---
+> 
+> ### 🌟 ภาพรวมการประเมิน (Executive Summary)
+> PR #106 ดำเนินการพัฒนา REST API สำหรับโมดูล Actions Taken (Issue #3) ได้อย่างสมบูรณ์แบบ ตรงตามข้อกำหนดของ Lab 4 ทั้งในแง่ Functional Requirements, Security & RBAC, Data Isolation และ State Machine ค่ะ ชุดทดสอบใหม่ทั้ง 8 ข้อใน `server/tests/lab-04/actions-taken.api.test.ts` เขียนได้อย่างรัดกุม ครอบคลุมทั้ง Positive Flow, Validation Error (400), Role Restriction (403), Data Isolation (404), และ Assignee Guard (422) โดยรันผ่านครบ 18 test files / 101 tests ทั้งหมด 100% ค่ะ 👍
+> 
+> ---
+> 
+> ### 👏 จุดเด่นที่ทำได้ยอดเยี่ยมมาก (Key Strengths & Architectural Highlights)
+> 
+> 1. **Identity Enforcement & Anti-Spoofing (ความปลอดภัยสูง):**
+>    - ใน `POST /api/tickets/:id/actions-taken` โค้ดมีการบังคับใช้ `performedById: req.user!.id` จาก JWT Identity เสมอ และเพิกเฉยต่อค่าที่ส่งมาใน Body ช่วยป้องกันการปลอมแปลงผู้บันทึกงานได้อย่างแน่นหนา
+>    - ใน `PATCH` มีการล็อกไม่ให้แก้ไข `performedById` เพื่อรักษา Audit Trail ให้เป็นความจริงเสมอ
+> 
+> 2. **Data Isolation ป้องกัน Resource Enumeration:**
+>    - ใน `GET /api/tickets/:id/actions-taken` มีการตรวจสอบสิทธิ์ว่าหากเป็น `REQUESTER` และตั๋วนั้นไม่ใช่ของตนเอง (`ticket.requesterId !== req.user.id`) ระบบจะตอบกลับด้วย **`404 Not Found`** (ไม่ใช่ 403) ซึ่งสอดคล้องกับ Security Best Practice ในการป้องกันไม่ให้ผู้ใช้เดาหรือสแกนหา Ticket ID ของคนอื่นได้
+> 
+> 3. **Strict Assignee Validation (BR-05 / AC-02):**
+>    - ฟังก์ชัน `resolveActionAssignee` มีการดักจับเงื่อนไขชัดเจนว่า User ปลายทางต้อง `isActive === true` และมีบทบาทเป็น `IT_STAFF` หรือ `ADMINISTRATOR` เท่านั้น หากเป็น Requester หรือ Inactive User จะตอบกลับด้วย **`422 Unprocessable Entity`** พร้อมยกเลิกการเขียนข้อมูลลง DB
+> 
+> 4. **Finite State Machine ของ Action Status (BR-14):**
+>    - มีการกำหนด `ACTION_STATUS_TRANSITIONS` อย่างเข้มงวด:
+>      - `PENDING` $\rightarrow$ `IN_PROGRESS`, `COMPLETED`, `CANCELLED`
+>      - `IN_PROGRESS` $\rightarrow$ `COMPLETED`, `CANCELLED`
+>      - `COMPLETED` / `CANCELLED` $\rightarrow$ เป็น Terminal State ห้ามเปลี่ยนสถานะต่อ (ตอบกลับ `400 Bad Request`)
+> 
+> 5. **Conditional Result Rule (BR-16):**
+>    - อนุญาตให้ `result` เป็น `null` ได้เมื่อสถานะเป็น `PENDING` หรือ `IN_PROGRESS`
+>    - บังคับว่าต้องมี `result` (ข้อความห้ามว่าง) เมื่อปรับสถานะเป็น `COMPLETED`
+> 
+> 6. **Follow-Up Note Validation (BR-07):**
+>    - มีการตรวจเช็กว่าเมื่อ `followUpRequired === true` ต้องระบุ `followUpNote` เสมอ หากว่างจะถูกปฏิเสธด้วย `400 Bad Request`
+> 
+> 7. **Append-Only Principle:**
+>    - ไม่มี Route สำหรับ `DELETE` ช่วยคงประวัติการปฏิบัติงานของเจ้าหน้าที่ไว้ตรวจสอบย้อนหลังได้ตลอดเวลา
+> 
+> ---
+> 
+> ### 💡 ข้อสังเกตและข้อเสนอแนะเพิ่มเติมสำหรับเอกสาร (Minor Doc Suggestions)
+> จุดเหล่านี้ไม่ได้กระทบกับโค้ด แต่ฝากอัปเดตเพื่อความสมบูรณ์ของเอกสารบันทึกการรีวิวค่ะ:
+> 1. **อัปเดต Master Table ใน `reviewer.md`:** แถวของ PR-02 (PR #105) ในตาราง Section 2 ยังระบุสถานะเป็น `Request Changes → Pending re-review` ทั้งที่ Merge แล้ว แนะนำปรับเป็น `Approved & Merged` ให้ตรงกับความจริงค่ะ
+> 2. **เพิ่ม Section 3.2.3 และ 3.3 ใน `reviewer.md`:** เพิ่มหัวข้อบันทึกการ Approve ของ PR #105 และหัวข้อของ PR #106 เพื่อให้ Trail ใน Section 3 ครบถ้วนตามลำดับค่ะ
+> 
+> ---
+> 
+> ### 🏁 สรุปผลการประเมิน (Conclusion)
+> โค้ด REST API และชุดทดสอบมีความสมบูรณ์ รัดกุม และมีคุณภาพระดับ Enterprise พร้อมสำหรับการนำไปเชื่อมต่อกับฝั่ง UI ใน Issue #4 ได้ทันทีค่ะ **กด Approve ให้เรียบร้อย สามารถ Merge PR #106 เข้าสู่ `lab4-staging` ได้เลยค่ะ!** 🚀
