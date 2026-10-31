@@ -17,7 +17,7 @@
 | PR # | Feature / Issue Title | GitHub Issue | Feature Branch | Target | Reviewer | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
 | **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **PR-02** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
+| **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-03** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-04** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -399,7 +399,8 @@
 
 ---
 
-### PR-02: Issue 28: Database Migration, Schema Evolution & Seed Data for Actions Taken
+### PR #76: Issue 28: Database Migration, Schema Evolution & Seed Data for Actions Taken
+- **PR URL:** [titayaaa/toktickit#76](https://github.com/titayaaa/toktickit/pull/76)
 - **Feature Branch:** `feature/28-db-and-seed`
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
