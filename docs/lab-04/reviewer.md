@@ -576,7 +576,59 @@
 - **Target Branch:** `lab4-staging`
 - **Current Status:** ✅ Approved
 
-#### 💬 Round 1 Review by @titayaaa (Approved)
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ## 🔍 Peer Review: feat(api): Actions Taken REST API, RBAC, and status validation (PR #106)
+> 
+> **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)  
+> **Target Branch:** `lab4-staging`  
+> **Status:** 🛑 **Changes Requested**
+> 
+> ---
+> 
+> ### 🌟 ภาพรวม (Executive Summary)
+> PR #106 พัฒนา REST API สำหรับ Actions Taken ได้อย่างยอดเยี่ยมค่ะ ทั้งการแยกสิทธิ์ RBAC, การป้องกัน Token Spoofing โดยดึง `performedById` จาก JWT เสมอ, การซ่อนข้อมูลด้วย `404` เมื่อ Requester เข้าถึงตั๋วคนอื่น, และ Action Status Finite State Machine ตาม BR-14 ทำได้รัดกุมมาก รันเทสต์ 101/101 ผ่านฉลุยค่ะ 👍
+> 
+> มีจุดสังเกตเชิงเทคนิค 1 จุด และจุดเอกสาร 1 จุดที่อยากให้ปรับก่อน merge นะคะ:
+> 
+> ---
+> 
+> ### 💡 จุดที่แนะนำให้ปรับปรุง (Key Recommendations)
+> 
+> #### 1. อัปเดต Review Trail ของ PR #105 และเพิ่ม PR #106 ใน `docs/lab-04/reviewer.md`
+> - ในตาราง Master PR Table (Section 2) แถวของ **PR-02 (PR #105)** ยังคงขึ้นสถานะค้างเป็น `Request Changes → Pending re-review` และข้อความ "รอ Reviewer ตรวจซ้ำ" ค่ะ เนื่องจาก PR #105 ผ่านการ Approve และ Merge เข้าสู่ `lab4-staging` เรียบร้อยแล้ว รบกวนปรับสถานะเป็น `Approved & Merged` ให้ตรงกับสถานะจริงนะคะ
+> - ใน Section 3 รบกวนเพิ่มบันทึกหัวข้อ `3.2.3 Review #2 — Approved` ของ PR #105 และเพิ่มหัวข้อ `3.3 PR-03 (PR #106)` เพื่อเตรียมบันทึกรอบการรีวิวของ Issue #3 ให้ต่อเนื่องกันค่ะ
+> 
+> #### 2. เคลียร์ `followUpNote = null` เมื่อ `followUpRequired` ถูกปรับเป็น `false` ใน PATCH
+> - **สิ่งที่พบใน `server/src/app.ts`:**
+>   ใน `PATCH /api/tickets/:id/actions-taken/:actionId` หาก Action เดิมเคยมี `followUpRequired = true` และมีข้อความ `followUpNote` ค้างอยู่ แล้วเจ้าหน้าที่ส่ง payload มาปิดเฉพาะ `{ followUpRequired: false }` ค่า `followUpNote` ใน DB จะยังคงค้างข้อความเดิมอยู่ ไม่ได้ถูกล้างเป็น `null`
+> - **ข้อเสนอแนะ:**
+>   ตามกฎ BR-07 เมื่อ `followUpRequired === false` ค่า `followUpNote` ควรเป็น `null` เสมอ แนะนำว่าในจังหวะที่ตรวจพบ `body.followUpRequired === false` ถ้า client ไม่ได้ส่ง `followUpNote` ใหม่มา ให้กำหนด `data.followUpNote = null` อัตโนมัติ เพื่อรักษา Data Hygiene ให้สะอาดค่ะ
+> 
+> #### 3. ฝากเสริม Max Length Validation (Nice to have):
+> - ใน `actionDescription` ตอนนี้เช็กเฉพาะ `length < 3` หากเพิ่มการดักเพดานสูงสุด เช่น `length > 1000` ตาม `api-spec.md` ด้วย จะช่วยป้องกัน Payload ขนาดใหญ่ผิดปกติได้ดียิ่งขึ้นค่ะ
+> 
+> ---
+> 
+> รบกวนปรับแก้จุดที่ 1 และ 2 นิดเดียวนะคะ โค้ดส่วนอื่นสมบูรณ์แบบมากแล้วค่ะ เดี๋ยวรีบเข้ามา Approve ให้ทันทีเลยค่ะ! 🚀
+
+#### 💬 Round 1 Author Response by @jejaebubu
+**Response Date:** 2026-11-01  
+**Commit:** `782d54e` (Fix), `db7e326` (Review trail)  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวค่ะ แก้ไขครบทั้ง 3 จุดแล้วใน commit `782d54e` (review trail `db7e326`)
+> 
+> 1. **Review Trail** — แถว PR-02 ปรับเป็น Request Changes → Approved & Merged (merge `005b157`), เพิ่มหัวข้อ 3.2.3 Review Issue #2 — Approved และ 3.3 PR-03 พร้อม Review Issue #1 / Author Response Issue #1
+> 2. **followUpNote Data Hygiene** — PATCH เมื่อ `followUpRequired === false` และไม่ได้ส่ง note ใหม่ จะตั้ง `followUpNote = null` อัตโนมัติ (BR-04/BR-07) เพิ่มเทสต์ `API-03b` ตรวจว่าปิด follow-up แล้ว note ถูกล้าง และเปิดกลับโดยไม่มี note ใหม่ → 400
+> 3. **Max Length Validation** — `actionDescription` ต้องยาว 3–1000 ตัวอักษรทั้ง POST/PATCH (เกิน 1000 → 400) อัปเดต `api-spec.md` + BR-04 และเพิ่มเทสต์ payload 1001 ตัวอักษร
+> 
+> ตรวจซ้ำ: npm run build ผ่าน, npm test ผ่าน 18 ไฟล์ / 102 เทสต์ (9 new + 93 existing) รบกวนช่วยตรวจอีกรอบนะคะ ขอบคุณค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
 **Review Date:** 2026-11-01  
 **Verdict:** 🟢 Approved  
 **Review Comments (Verbatim):**
@@ -589,47 +641,20 @@
 > 
 > ---
 > 
-> ### 🌟 ภาพรวมการประเมิน (Executive Summary)
-> PR #106 ดำเนินการพัฒนา REST API สำหรับโมดูล Actions Taken (Issue #3) ได้อย่างสมบูรณ์แบบ ตรงตามข้อกำหนดของ Lab 4 ทั้งในแง่ Functional Requirements, Security & RBAC, Data Isolation และ State Machine ค่ะ ชุดทดสอบใหม่ทั้ง 8 ข้อใน `server/tests/lab-04/actions-taken.api.test.ts` เขียนได้อย่างรัดกุม ครอบคลุมทั้ง Positive Flow, Validation Error (400), Role Restriction (403), Data Isolation (404), และ Assignee Guard (422) โดยรันผ่านครบ 18 test files / 101 tests ทั้งหมด 100% ค่ะ 👍
+> ### 🌟 ผลการตรวจทานรอบที่ 2 (Final Verification)
+> ตรวจสอบการแก้ไขตาม commit `782d54e` และเอกสารใน `db7e326` ครบถ้วนสมบูรณ์ 100% ทุกประเด็นแล้วค่ะ:
 > 
-> ---
+> 1. **Data Hygiene ของ `followUpNote` ใน PATCH:**
+>    - ใน `server/src/app.ts` เพิ่มการดัก `if (body.followUpRequired === false && body.followUpNote === undefined)` แล้วรีเซ็ต `data.followUpNote = null` อัตโนมัติ ถูกต้องตาม BR-07
+>    - มีการเพิ่มเทสต์ `API-03b` ตรวจสอบครบวงจร (สร้างพร้อม note $\rightarrow$ ปิด follow-up แล้ว note กลายเป็น null $\rightarrow$ เปิดกลับโดยไม่ใส่ note โดน 400)
+> 2. **Max Length Validation (3–1000 chars):**
+>    - เพิ่มการดักเพดาน `description.length > 1000` ทั้งบน `POST` และ `PATCH` ตอบกลับ `400 Bad Request` อย่างปลอดภัย
+>    - อัปเดตข้อกำหนดใน `api-spec.md` และ `specification.md` (BR-04) สอดคล้องกัน
+>    - มีเทสต์ทดสอบ payload ขนาด 1001 ตัวอักษรดักไว้อย่างรัดกุม
+> 3. **Review Trail ใน `docs/lab-04/reviewer.md` ครบถ้วน:**
+>    - ตาราง Master Table ปรับสถานะ PR-02 เป็น `Approved & Merged (merge 005b157)` เรียบร้อย
+>    - เพิ่ม Section 3.2.3 สำหรับ PR #105 และ Section 3.3 สำหรับ PR #106 ครบทุกขั้นตอนตามลำดับ
+> 4. **ชุดทดสอบผ่านสมบูรณ์ 100%:**
+>    - ชุดทดสอบทั้งหมด 18 ไฟล์ / 102 เทสต์ (9 new + 93 existing) รันผ่านสีเขียวทั้งหมด
 > 
-> ### 👏 จุดเด่นที่ทำได้ยอดเยี่ยมมาก (Key Strengths & Architectural Highlights)
-> 
-> 1. **Identity Enforcement & Anti-Spoofing (ความปลอดภัยสูง):**
->    - ใน `POST /api/tickets/:id/actions-taken` โค้ดมีการบังคับใช้ `performedById: req.user!.id` จาก JWT Identity เสมอ และเพิกเฉยต่อค่าที่ส่งมาใน Body ช่วยป้องกันการปลอมแปลงผู้บันทึกงานได้อย่างแน่นหนา
->    - ใน `PATCH` มีการล็อกไม่ให้แก้ไข `performedById` เพื่อรักษา Audit Trail ให้เป็นความจริงเสมอ
-> 
-> 2. **Data Isolation ป้องกัน Resource Enumeration:**
->    - ใน `GET /api/tickets/:id/actions-taken` มีการตรวจสอบสิทธิ์ว่าหากเป็น `REQUESTER` และตั๋วนั้นไม่ใช่ของตนเอง (`ticket.requesterId !== req.user.id`) ระบบจะตอบกลับด้วย **`404 Not Found`** (ไม่ใช่ 403) ซึ่งสอดคล้องกับ Security Best Practice ในการป้องกันไม่ให้ผู้ใช้เดาหรือสแกนหา Ticket ID ของคนอื่นได้
-> 
-> 3. **Strict Assignee Validation (BR-05 / AC-02):**
->    - ฟังก์ชัน `resolveActionAssignee` มีการดักจับเงื่อนไขชัดเจนว่า User ปลายทางต้อง `isActive === true` และมีบทบาทเป็น `IT_STAFF` หรือ `ADMINISTRATOR` เท่านั้น หากเป็น Requester หรือ Inactive User จะตอบกลับด้วย **`422 Unprocessable Entity`** พร้อมยกเลิกการเขียนข้อมูลลง DB
-> 
-> 4. **Finite State Machine ของ Action Status (BR-14):**
->    - มีการกำหนด `ACTION_STATUS_TRANSITIONS` อย่างเข้มงวด:
->      - `PENDING` $\rightarrow$ `IN_PROGRESS`, `COMPLETED`, `CANCELLED`
->      - `IN_PROGRESS` $\rightarrow$ `COMPLETED`, `CANCELLED`
->      - `COMPLETED` / `CANCELLED` $\rightarrow$ เป็น Terminal State ห้ามเปลี่ยนสถานะต่อ (ตอบกลับ `400 Bad Request`)
-> 
-> 5. **Conditional Result Rule (BR-16):**
->    - อนุญาตให้ `result` เป็น `null` ได้เมื่อสถานะเป็น `PENDING` หรือ `IN_PROGRESS`
->    - บังคับว่าต้องมี `result` (ข้อความห้ามว่าง) เมื่อปรับสถานะเป็น `COMPLETED`
-> 
-> 6. **Follow-Up Note Validation (BR-07):**
->    - มีการตรวจเช็กว่าเมื่อ `followUpRequired === true` ต้องระบุ `followUpNote` เสมอ หากว่างจะถูกปฏิเสธด้วย `400 Bad Request`
-> 
-> 7. **Append-Only Principle:**
->    - ไม่มี Route สำหรับ `DELETE` ช่วยคงประวัติการปฏิบัติงานของเจ้าหน้าที่ไว้ตรวจสอบย้อนหลังได้ตลอดเวลา
-> 
-> ---
-> 
-> ### 💡 ข้อสังเกตและข้อเสนอแนะเพิ่มเติมสำหรับเอกสาร (Minor Doc Suggestions)
-> จุดเหล่านี้ไม่ได้กระทบกับโค้ด แต่ฝากอัปเดตเพื่อความสมบูรณ์ของเอกสารบันทึกการรีวิวค่ะ:
-> 1. **อัปเดต Master Table ใน `reviewer.md`:** แถวของ PR-02 (PR #105) ในตาราง Section 2 ยังระบุสถานะเป็น `Request Changes → Pending re-review` ทั้งที่ Merge แล้ว แนะนำปรับเป็น `Approved & Merged` ให้ตรงกับความจริงค่ะ
-> 2. **เพิ่ม Section 3.2.3 และ 3.3 ใน `reviewer.md`:** เพิ่มหัวข้อบันทึกการ Approve ของ PR #105 และหัวข้อของ PR #106 เพื่อให้ Trail ใน Section 3 ครบถ้วนตามลำดับค่ะ
-> 
-> ---
-> 
-> ### 🏁 สรุปผลการประเมิน (Conclusion)
-> โค้ด REST API และชุดทดสอบมีความสมบูรณ์ รัดกุม และมีคุณภาพระดับ Enterprise พร้อมสำหรับการนำไปเชื่อมต่อกับฝั่ง UI ใน Issue #4 ได้ทันทีค่ะ **กด Approve ให้เรียบร้อย สามารถ Merge PR #106 เข้าสู่ `lab4-staging` ได้เลยค่ะ!** 🚀
+> โค้ด REST API และการจัดการเอกสารมีคุณภาพระดับ Production พร้อมให้ Merge เข้าสู่ `lab4-staging` เพื่อเริ่ม Issue #4 ต่อไปได้ทันทีค่ะ ยินดีด้วยนะคะ! 🎉
