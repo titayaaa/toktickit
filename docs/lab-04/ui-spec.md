@@ -20,11 +20,15 @@ TokTickIT preserves the Zen Green design system established in Labs 2 and 3, ens
   --status-closed: #4b5563;       /* Gray 600 */
   --status-cancelled: #dc2626;    /* Red 600 */
   
-  /* Actions Taken Status Badges */
-  --action-pending: #f59e0b;      /* Amber 500 */
-  --action-in-progress: #3b82f6;  /* Blue 500 */
-  --action-completed: #10b981;    /* Emerald 500 */
-  --action-cancelled: #ef4444;    /* Red 500 */
+  /* Actions Taken Status Badges (High Contrast Text on Soft Backgrounds) */
+  --action-pending-bg: #fffbeb;      /* Amber 50 */
+  --action-pending-text: #92400e;    /* Amber 800 (Contrast 7.1:1) */
+  --action-in-progress-bg: #eff6ff;  /* Blue 50 */
+  --action-in-progress-text: #1e40af;/* Blue 800 (Contrast 8.5:1) */
+  --action-completed-bg: #f0fdf4;    /* Green 50 */
+  --action-completed-text: #166534;  /* Green 800 (Contrast 7.4:1) */
+  --action-cancelled-bg: #fef2f2;    /* Red 50 */
+  --action-cancelled-text: #991b1b;  /* Red 800 (Contrast 7.3:1) */
   
   /* Follow-Up Warning */
   --followup-bg: #fffbeb;         /* Amber 50 */
@@ -50,13 +54,13 @@ TokTickIT preserves the Zen Green design system established in Labs 2 and 3, ens
 
 ### 2.1 Operational Metrics Row
 A 4-card responsive grid presenting authoritative operational counts:
-1. **Unassigned Tickets:** Card with icon and bold count. Clicking drills down to Staff Queue filtered with `assignedTo = unassigned`.
-2. **My Assigned Tickets:** Count of open/in-progress tickets assigned to current user. Clicking drills down to Staff Queue with `assignedTo = me`.
-3. **Urgent Tickets:** High-contrast red/amber indicator for urgent tickets needing attention. Clicking filters Staff Queue by `priority = URGENT`.
+1. **Unassigned Tickets:** Card with icon and bold count. Clicking drills down to Staff Queue filtered with `owner = unassigned`.
+2. **My Assigned Tickets:** Count of open/in-progress tickets where `ownerId == currentUser.id`. Clicking drills down to Staff Queue with `owner = me`.
+3. **Urgent Tickets:** High-contrast red/amber indicator for tickets with `itPriority == URGENT`. Clicking filters Staff Queue by `priority = URGENT`.
 4. **My Pending Actions:** Count of Actions Taken assigned to current user in `PENDING` or `IN_PROGRESS` status.
 
 ### 2.2 Urgent Tickets & My Pending Actions Grid
-- **Left Column: Urgent Tickets List:** Compact table/cards showing Ticket ID, Title, Requester, Time elapsed, and quick "Open Ticket" button.
+- **Left Column: Urgent Tickets List:** Compact table/cards showing Ticket Number, Summary, IT Priority, Time elapsed, and quick "Open Ticket" button.
 - **Right Column: My Actions Taken:** Cards displaying Ticket Number, Action Description, Status badge, and Action Date.
 
 ---
@@ -81,16 +85,21 @@ A 4-card responsive grid tailored strictly to the requester's owned tickets:
 ### 4.1 Layout and Position
 Located immediately below the Ticket summary and above/beside the communication timelines:
 - **Header:** Title "Actions Taken", badge showing total actions count, and "+ Add Action Taken" primary button (visible to IT Staff/Admin only).
-- **Resolution Warning Banner:** If the ticket is in progress and has pending actions, a gentle amber advisory badge appears: *"2 actions in progress. Complete all actions before resolving ticket."*
+- **Resolution Warning Banner:** If the ticket is in progress and has pending actions, an amber advisory badge appears: *"2 action(s) in progress. Complete or cancel all actions before resolving ticket."*
 - **Timeline / Card List:**
   - **Date/Time Stamp:** Formatted local date and time.
-  - **Status Badge:** `PENDING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` with distinct colors.
+  - **Status Badge:** High-contrast badges (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`).
   - **Actors:** "Performed by: [Staff Name]" and "Assigned to: [Assignee Name]".
-  - **Description & Result:** Clear typography distinguishing action taken from observed outcome.
+  - **Description & Result:** Clear typography distinguishing action taken from observed outcome (result shown once completed).
   - **Follow-up Callout:** If `isFollowUpRequired` is true, an amber banner displays "Follow-Up Required" along with the `followUpNote`.
   - **Attachment Notes:** Italicized reference note guiding staff to relevant attachments if provided.
   - **Actions Dropdown / Edit Button:** Allows IT Staff to edit description, result, or change status.
-- **Requester Read-Only View:** For Requesters, all actions taken are clearly visible, but add/edit buttons and action dropdowns are omitted.
+- **Create / Edit Modal Form:**
+  - **Assignee Dropdown:** Displays only active IT Staff and Administrator accounts. Inactive accounts are filtered out.
+  - **Status Selector:** Radio or Select with `PENDING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`.
+  - **Dynamic Result Field:** When `COMPLETED` is selected, `Result` is marked as required with a red asterisk.
+  - **Dynamic Follow-up Note:** When `Follow-up Required` is toggled on, the `Follow-up Note` textarea is revealed with mandatory validation.
+- **Requester Read-Only View:** For Requesters, all actions taken are clearly visible for transparency, but add/edit buttons and action dropdowns are omitted.
 
 ---
 
@@ -104,10 +113,10 @@ Located immediately below the Ticket summary and above/beside the communication 
 
 ---
 
-## 6. Accessibility & Visual Polish Checklist
-- [x] High contrast ratios exceeding WCAG 2.1 AA standards (minimum 4.5:1 for normal text).
-- [x] Visible keyboard focus outlines (`outline: 2px solid var(--zen-primary)`).
-- [x] Screen-reader semantic labels on all icon-only buttons and status badges.
-- [x] Modal dialogs trap focus and support closing via `Esc` key.
-- [x] Forms display field-level validation errors in red immediately below the input.
-- [x] Zero horizontal scrolling on standard mobile widths (320px - 414px).
+## 6. Accessibility & Visual Polish Checklist (To be verified during implementation)
+- [ ] High contrast ratios exceeding WCAG 2.1 AA standards (minimum 4.5:1 for normal text on all badges).
+- [ ] Visible keyboard focus outlines (`outline: 2px solid var(--zen-primary)`).
+- [ ] Screen-reader semantic labels on all icon-only buttons and status badges.
+- [ ] Modal dialogs trap focus and support closing via `Esc` key.
+- [ ] Forms display field-level validation errors in red immediately below the input.
+- [ ] Zero horizontal scrolling on standard mobile widths (320px - 414px).
