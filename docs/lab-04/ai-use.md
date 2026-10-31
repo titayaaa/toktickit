@@ -50,4 +50,6 @@ During Issue 28, pairing with AI helped enforce clean migration practices:
 - Designing `result` as nullable (`String?`) at the schema and migration level allows tasks to be planned and worked on (`PENDING`, `IN_PROGRESS`) without premature fake data, while application rules enforce non-empty completion notes.
 - Using PL/pgSQL exception blocks (`DO $$ BEGIN ... EXCEPTION WHEN duplicate_object THEN null; END $$;`) guarantees idempotent enum and constraint creation in PostgreSQL without migration checksum failures.
 - Adding comprehensive data invariant tests in `db-seed.test.ts` verified that all legacy tickets remained completely intact, that multi-staff collaboration is supported, and that no resolved tickets contain dangling open actions.
+- Synchronizing PostgreSQL serial sequences via `setval(pg_get_serial_sequence(...))` after explicit ID seeding avoids P2002 duplicate key collisions on subsequent dynamic inserts. Replacing hardcoded `requesterId` values with dynamic lookups from `RequesterUser` ensures referential integrity across both clean and existing database states.
+
 

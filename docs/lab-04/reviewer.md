@@ -407,8 +407,82 @@
 - **Target Branch:** `lab4-staging`
 - **Current Status:** ⏳ Pending Peer Review
 
-#### 💬 Round 1 Peer Review by @jejaebubu
-- **Status:** ⏳ Awaiting Review from `@jejaebubu`
+#### 💬 Round 1 Peer Review by @jejaebubu (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ตรวจ schema, migration, seed, tests และ docs เทียบกับ Issue/BR แล้วนะคะ โดยรวมทำได้ดี แต่ขอ Changes Requested ก่อนค่ะ เพราะมีจุดหนึ่งที่อาจกระทบการสร้าง ActionTaken ใน Issue ถัดไป
+> 
+> 🔴 **Blocking: Seed กำหนด ActionTaken.id เอง ทำให้ sequence ไม่ขยับตาม**
+> 
+> ใน `server/prisma/seed.ts:311-449` มีการใช้ `id: 1..6` ใน `actionTaken.upsert`
+> 
+> ปัญหาที่พบเมื่อเริ่มจาก DB ใหม่ แล้วรัน `db push --force-reset` ตามด้วย `npm run prisma:seed` คือ
+> 
+> `actions_taken_id_seq.last_value = 1`  
+> แต่ `MAX(actions_taken.id) = 6`  
+> พอเรียก `prisma.actionTaken.create()` จะเจอ error P2002 ที่ target id เพราะ sequence สร้าง ID ซ้ำกับข้อมูลที่มีอยู่แล้ว  
+> ถ้าปล่อยไว้ API ที่ใช้สร้าง ActionTaken ใน Issue ถัดไปจะไม่สามารถ insert ข้อมูลได้ค่ะ
+> 
+> **แนวทางแก้ที่แนะนำ**
+> 
+> เอา id ออกจาก seed แล้วใช้ natural key ในการ upsert เช่น `ticketId + actionDateTime + actionDescription`  
+> หรือถ้าต้องการใช้ explicit ID ต่อ ให้เรียก `setval` เพื่อปรับ sequence หลัง seed ให้ตรงกับ ID สูงสุด  
+> และรบกวนเพิ่ม test ที่ลองสร้าง ActionTaken ใหม่ 1 รายการหลัง seed ด้วยนะคะ เพื่อป้องกันปัญหานี้กลับมาอีก
+> 
+> ปัญหา sequence แบบเดียวกันมีอยู่เดิมใน `publicComment` และ `internalNote` ด้วย โดย full suite บน clean seed fail 6 tests ซึ่งเป็นปัญหาที่มีอยู่ใน base อยู่แล้ว แต่ PR นี้เพิ่มความเสี่ยงใหม่ให้ ActionTaken ค่ะ อย่างน้อยขอให้แก้ ActionTaken ก่อน และถ้าจะแก้ seed รอบนี้ แนะนำให้จัดการทั้ง 3 ตารางไปพร้อมกันเลยค่ะ
+> 
+> 🟠 **Should fix: requesterId hardcode**
+> 
+> ใน `server/prisma/seed.ts:360,459,480` มีการกำหนด `requesterId: 1/2/3` ไว้ตรง ๆ
+> 
+> ถ้าเอา seed ไปรันบน DB ที่มี Requester ID ไม่ตรงกับ fresh DB อาจทำให้ ticket ไปผูกกับ requester ผิดคน หรือเกิด FK error ได้ค่ะ
+> 
+> แนะนำให้ lookup `RequesterUser` จาก email ก่อน แล้วนำ `.id` ที่ได้มาใช้แทนการ hardcode ค่ะ
+> 
+> 🟡 **Minor: จุดที่แนะนำให้เก็บเพิ่ม**
+> 
+> - `docs/lab-04/reviewer.md:672` ระบุ `782d54e / db7e326` เป็น commit ที่เกี่ยวข้อง แต่ทั้งสองเป็น fix/docs commit ไม่ใช่ merge commit โดย merge commit ของ PR #106 คือ `23166db`
+> - `server/prisma/seed.ts:350` ประกาศ `staffCharlie` ไว้แต่ไม่ได้ใช้งาน
+> - เพิ่ม negative test อีก 2 กรณี:
+>   - `followUpRequired=false` แล้ว `followUpNote=null`
+>   - เมื่อ `status` เป็น `IN_PROGRESS` แล้ว `result=null`
+> - `server/prisma/seed.ts:290` มี indentation ไม่สม่ำเสมอ เป็นแค่เรื่อง formatting ค่ะ
+> 
+> ✅ **ผลตรวจสอบที่ผ่านแล้ว**
+> 
+> - `npm run build` ผ่าน
+> - Migration SQL สามารถ apply ซ้ำ 2 ครั้งได้
+> - `db-seed.test.ts` ผ่าน 10/10
+> - Full suite ผ่าน 128 tests และ fail 6 tests โดยทั้ง 6 ตัวเป็นปัญหาเดิมที่มีอยู่ใน base ได้แก่ attachment ไม่มีใน seed และ explicit comment/note IDs ไม่ใช่ regression ใหม่จาก PR นี้
+> - `prisma migrate deploy` บน DB ใหม่ยังติดที่ base migration `20260917000000_lab3_users_and_workflow` เพราะ `TicketPriority` missing ซึ่งเป็นปัญหาเดิม ไม่ได้เกิดจาก PR นี้ค่ะ
+> 
+> **สรุป:** โครงสร้าง schema, migration และ tests ทำได้ดี และตรงกับ BR หลักแล้วค่ะ แต่ขอให้แก้เรื่อง ActionTaken sequence ก่อน merge และแนะนำให้แก้ requesterId ที่ hardcode ไว้ด้วย หลังแก้แล้ว ping กลับมาให้ re-review ได้เลยค่ะ
+
+#### 💬 Round 2 Author Response & Code Fixes by @titayaaa
+**Response Date:** 2026-11-01  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับคำแนะนำและการตรวจทานที่ละเอียดรอบคอบมาก ๆ ค่ะ แก้ไขครบถ้วนทุกจุดตามคำแนะนำทั้งระดับ Blocking, Should Fix และ Minor ดังนี้ค่ะ:
+> 
+> 1. **🔴 แก้ปัญหา PostgreSQL Sequence ไม่ขยับตาม Explicit ID:**
+>    - ใน `server/prisma/seed.ts` เพิ่มคำสั่ง `setval` ซิงค์ sequence ของทั้ง 3 ตาราง (`actions_taken`, `public_comments`, `internal_notes`) ให้ตรงกับ `MAX(id)` ของข้อมูลที่ seed ลงไป
+>    - เพิ่มเทสต์ใน `server/tests/lab-04/db-seed.test.ts` ที่ทดลองเรียก `prisma.actionTaken.create()` หลัง seed สำเร็จ เพื่อยืนยันว่า auto-increment ทำงานถูกต้องและได้ id $\ge 7$ โดยไม่เกิด error P2002 duplicate key
+> 2. **🟠 แก้ RequesterId Hardcode:**
+>    - ใน `server/prisma/seed.ts` ทำการ lookup `RequesterUser` จาก verified email (`jennifer.anderson@example.com`, `michael.brown@example.com`, `sarah.johnson@example.com`) ก่อนนำ `.id` มาผูกเข้ากับ `ticket` แทนการ hardcode `1/2/3` เพื่อป้องกัน FK mismatch
+> 3. **🟡 เก็บตกจุดย่อย (Minor Fixes):**
+>    - ใน `docs/lab-04/reviewer.md` แก้ไข Merge commit ของ PR #106 เป็น `23166db` ถูกต้อง
+>    - ลบตัวแปร `staffCharlie` ที่ประกาศค้างไว้ใน `seed.ts` ออก
+>    - เพิ่ม Negative Test อีก 2 กรณีใน `db-seed.test.ts` (รวมเป็น 13 เทสต์):
+>      - ตรวจสอบว่า Action ที่ `isFollowUpRequired === false` จะต้องมี `followUpNote === null` (BR-07)
+>      - ตรวจสอบว่า Action ที่สถานะ `IN_PROGRESS` สามารถมี `result === null` ได้จริง (BR-16)
+>    - ปรับปรุง Indentation ใน `seed.ts` บรรทัดที่ 290 ให้เป็นระเบียบสวยงาม
+> 
+> รบกวนตรวจทานรอบที่ 2 นะคะ ขอบคุณมากค่ะ!
+
+#### ⏳ Round 2 Re-review by @jejaebubu
+- **Status:** ⏳ รอผลการตรวจซ้ำจาก `@jejaebubu`
 
 ---
 
@@ -669,5 +743,5 @@
 
 #### 💬 Author Response & Merge by @jejaebubu
 - **Response URL:** [PR #106](https://github.com/jejaebubu/toktickit/pull/106)
-- **Status:** `@jejaebubu` ดำเนินการกด Merge PR #106 เข้าสู่สาขา `lab4-staging` เรียบร้อยแล้ว (Merge commit `782d54e` / `db7e326`)
+- **Status:** `@jejaebubu` ดำเนินการกด Merge PR #106 เข้าสู่สาขา `lab4-staging` เรียบร้อยแล้ว (Merge commit `23166db`)
 

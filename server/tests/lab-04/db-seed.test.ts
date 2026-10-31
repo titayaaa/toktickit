@@ -154,4 +154,46 @@ describe('Issue 28: Lab 4 Database Evolution & Actions Taken Seed Verification',
     expect(indexes[0].indexdef).toContain('ticketId');
     expect(indexes[0].indexdef).toContain('status');
   });
+
+  it('verifies PostgreSQL sequence is properly aligned by creating a new ActionTaken without P2002 error', async () => {
+    const ticket = await prisma.ticket.findFirst({ select: { id: true } });
+    const staff = await prisma.user.findFirst({ where: { role: Role.IT_STAFF, isActive: true }, select: { id: true } });
+    expect(ticket).not.toBeNull();
+    expect(staff).not.toBeNull();
+
+    const created = await prisma.actionTaken.create({
+      data: {
+        ticketId: ticket!.id,
+        performedById: staff!.id,
+        assigneeId: staff!.id,
+        actionDescription: 'Verification test for sequence synchronization after seed',
+        status: ActionTakenStatus.PENDING,
+      },
+    });
+
+    expect(created.id).toBeGreaterThanOrEqual(7);
+
+    // Clean up test record
+    await prisma.actionTaken.delete({ where: { id: created.id } });
+  });
+
+  it('validates negative case: actions with followUpRequired=false have followUpNote as null in seed (BR-07)', async () => {
+    const actionsWithoutFollowUp = await prisma.actionTaken.findMany({
+      where: { isFollowUpRequired: false },
+    });
+
+    expect(actionsWithoutFollowUp.length).toBeGreaterThan(0);
+    for (const act of actionsWithoutFollowUp) {
+      expect(act.followUpNote).toBeNull();
+    }
+  });
+
+  it('validates negative case: allows result to be null when status is IN_PROGRESS in seed data (BR-16)', async () => {
+    const inProgressAction = await prisma.actionTaken.findFirst({
+      where: { status: ActionTakenStatus.IN_PROGRESS },
+    });
+
+    expect(inProgressAction).not.toBeNull();
+    expect(inProgressAction?.result).toBeNull();
+  });
 });

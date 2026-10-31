@@ -232,13 +232,17 @@ async function main() {
   const staffAlice = await prisma.user.findUnique({ where: { email: 'staff.alice@toktickit.com' } });
   const staffBob = await prisma.user.findUnique({ where: { email: 'staff.bob@toktickit.com' } });
 
+  const reqJennifer = await prisma.requesterUser.findUnique({ where: { email: 'jennifer.anderson@example.com' } });
+  const reqMichael = await prisma.requesterUser.findUnique({ where: { email: 'michael.brown@example.com' } });
+  const reqSarah = await prisma.requesterUser.findUnique({ where: { email: 'sarah.johnson@example.com' } });
+
   if (jennifer && staffAlice && catNetwork && sysVpn) {
     const ticket1 = await prisma.ticket.upsert({
       where: { ticketNumber: 'TKT-2026-000101' },
       update: {},
       create: {
         ticketNumber: 'TKT-2026-000101',
-        requesterId: 1,
+        requesterId: reqJennifer?.id ?? 1,
         userId: jennifer.id,
         categoryId: catNetwork.id,
         relatedSystemId: sysVpn.id,
@@ -287,13 +291,13 @@ async function main() {
     });
   }
 
-    if (michael && staffBob && catHardware && sysLaptop) {
+  if (michael && staffBob && catHardware && sysLaptop) {
     const ticket2 = await prisma.ticket.upsert({
       where: { ticketNumber: 'TKT-2026-000102' },
       update: {},
       create: {
         ticketNumber: 'TKT-2026-000102',
-        requesterId: 2,
+        requesterId: reqMichael?.id ?? 2,
         userId: michael.id,
         categoryId: catHardware.id,
         relatedSystemId: sysLaptop.id,
@@ -347,7 +351,6 @@ async function main() {
 
   // 3. Seed Lab 4 specific operational tickets for Actions Taken & Dashboard scenarios
   console.log('Seeding Lab 4 operational tickets and Actions Taken...');
-  const staffCharlie = await prisma.user.findUnique({ where: { email: 'staff.charlie@toktickit.com' } });
   const sarah = await prisma.user.findUnique({ where: { email: 'sarah.johnson@example.com' } });
 
   if (jennifer && staffAlice && staffBob && catNetwork && sysVpn) {
@@ -357,7 +360,7 @@ async function main() {
       update: {},
       create: {
         ticketNumber: 'TKT-2026-000103',
-        requesterId: 1,
+        requesterId: reqJennifer?.id ?? 1,
         userId: jennifer.id,
         categoryId: catNetwork.id,
         relatedSystemId: sysVpn.id,
@@ -389,10 +392,12 @@ async function main() {
       },
     });
 
-    // Action 4: In Progress Action (Assigned to Alice - counts towards My Pending Actions)
+    // Action 4: In Progress Action (Assigned to Alice, null result for ongoing in-progress work)
     await prisma.actionTaken.upsert({
       where: { id: 4 },
-      update: {},
+      update: {
+        result: null,
+      },
       create: {
         id: 4,
         ticketId: ticket3.id,
@@ -400,7 +405,7 @@ async function main() {
         assigneeId: staffAlice.id,
         actionDateTime: new Date('2026-10-30T10:30:00Z'),
         actionDescription: 'Re-routing gateway traffic through secondary fiber line.',
-        result: 'Traffic switch initiated, verifying ping stability.',
+        result: null,
         isFollowUpRequired: false,
         followUpNote: null,
         attachmentNotes: null,
@@ -456,7 +461,7 @@ async function main() {
       update: {},
       create: {
         ticketNumber: 'TKT-2026-000104',
-        requesterId: 3,
+        requesterId: reqSarah?.id ?? 3,
         userId: sarah.id,
         categoryId: catSoftware.id,
         relatedSystemId: sysLaptop.id,
@@ -477,7 +482,7 @@ async function main() {
       update: {},
       create: {
         ticketNumber: 'TKT-2026-000105',
-        requesterId: 1,
+        requesterId: reqJennifer?.id ?? 1,
         userId: jennifer.id,
         categoryId: catNetwork.id,
         relatedSystemId: sysWifi.id,
@@ -490,6 +495,14 @@ async function main() {
       },
     });
   }
+
+  // 4. Synchronize PostgreSQL serial sequences to prevent duplicate key errors (P2002) on subsequent inserts
+  console.log('Synchronizing PostgreSQL serial sequences...');
+  await prisma.$executeRawUnsafe(`
+    SELECT setval(pg_get_serial_sequence('actions_taken', 'id'), COALESCE((SELECT MAX(id) FROM "actions_taken"), 1));
+    SELECT setval(pg_get_serial_sequence('public_comments', 'id'), COALESCE((SELECT MAX(id) FROM "public_comments"), 1));
+    SELECT setval(pg_get_serial_sequence('internal_notes', 'id'), COALESCE((SELECT MAX(id) FROM "internal_notes"), 1));
+  `);
 
   console.log('Seeding completed successfully!');
 }

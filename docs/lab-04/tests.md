@@ -15,7 +15,7 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 
 | Test ID | Type | Requirement / AC | What It Tests | Expected Result | Automated Test File | Final Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
-| **MIG-01** | Migration | BR-01, BR-15 | ActionTaken schema migration & legacy tickets preservation | Table exists with integer FKs; legacy tickets preserved | `server/tests/lab-04/db-seed.test.ts` | Pass |
+| **MIG-01** | Migration | BR-01, BR-15 | ActionTaken schema migration & legacy tickets preservation | Table exists with integer FKs, sequence aligned, legacy preserved (13 tests) | `server/tests/lab-04/db-seed.test.ts` | Pass |
 | **UNIT-01** | Unit | BR-05, AC-02 | Assignee validation utility rejects inactive users or Requesters | Throws validation error or returns false | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | **UNIT-02** | Unit | BR-07, AC-03 | Follow-up note validation requires non-empty note when follow-up is true | Returns validation failure if note is empty | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | **UNIT-03** | Unit | BR-08 | Result validation requires non-empty string when status is COMPLETED | Returns validation error if result is empty on complete | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
