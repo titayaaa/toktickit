@@ -10,6 +10,7 @@ import TicketDetail from './components/TicketDetail';
 import StaffTicketQueue, { StaffQueueInitialFilters } from './components/StaffTicketQueue';
 import AdminUserManagement from './components/AdminUserManagement';
 import StaffDashboard, { StaffDashboardDrillDown } from './components/StaffDashboard';
+import RequesterDashboard, { RequesterDashboardDrillDown } from './components/RequesterDashboard';
 
 interface Category {
   id: number;
@@ -21,7 +22,7 @@ interface RelatedSystem {
   name: string;
 }
 
-type TabType = 'create' | 'my-tickets' | 'staff-dashboard' | 'staff-queue' | 'admin-users';
+type TabType = 'create' | 'my-tickets' | 'staff-dashboard' | 'staff-queue' | 'admin-users' | 'requester-dashboard';
 
 const ROLE_CONFIG: Record<UserRole, { label: string; bg: string; color: string; border: string }> = {
   REQUESTER: {
@@ -53,6 +54,7 @@ const MainApplication: React.FC = () => {
   );
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [staffQueueFilters, setStaffQueueFilters] = useState<StaffQueueInitialFilters | undefined>(undefined);
+  const [myTicketsStatus, setMyTicketsStatus] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
@@ -66,6 +68,12 @@ const MainApplication: React.FC = () => {
       itPriority: drillDown.itPriority,
     });
     setActiveTab('staff-queue');
+  };
+
+  const handleRequesterDrillDown = (drillDown: RequesterDashboardDrillDown) => {
+    setSelectedTicketId(null);
+    setMyTicketsStatus(drillDown.status);
+    setActiveTab('my-tickets');
   };
 
   useEffect(() => {
@@ -165,7 +173,7 @@ const MainApplication: React.FC = () => {
 
       {/* Navigation Tabs */}
       <div className="d-flex flex-wrap gap-2 mb-4">
-        {isStaffOrAdmin && (
+        {isStaffOrAdmin ? (
           <button
             type="button"
             className={`zen-nav-tab ${activeTab === 'staff-dashboard' && !selectedTicketId ? 'active' : ''}`}
@@ -175,6 +183,19 @@ const MainApplication: React.FC = () => {
             }}
             aria-label="Staff Dashboard tab"
             data-testid="nav-staff-dashboard"
+          >
+            Dashboard
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={`zen-nav-tab ${activeTab === 'requester-dashboard' && !selectedTicketId ? 'active' : ''}`}
+            onClick={() => {
+              setSelectedTicketId(null);
+              setActiveTab('requester-dashboard');
+            }}
+            aria-label="Requester Dashboard tab"
+            data-testid="nav-requester-dashboard"
           >
             Dashboard
           </button>
@@ -221,6 +242,7 @@ const MainApplication: React.FC = () => {
           className={`zen-nav-tab ${activeTab === 'my-tickets' && !selectedTicketId ? 'active' : ''}`}
           onClick={() => {
             setSelectedTicketId(null);
+            setMyTicketsStatus('');
             setActiveTab('my-tickets');
           }}
           aria-label="My Tickets tab"
@@ -257,6 +279,24 @@ const MainApplication: React.FC = () => {
             }}
           />
         </div>
+      ) : activeTab === 'requester-dashboard' && !isStaffOrAdmin ? (
+        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
+          <RequesterDashboard
+            onSelectTicket={(ticketId: number) => {
+              setSelectedTicketId(ticketId);
+            }}
+            onDrillDown={handleRequesterDrillDown}
+            onNavigateToCreate={() => {
+              setSelectedTicketId(null);
+              setActiveTab('create');
+            }}
+            onNavigateToMyTickets={(status?: string) => {
+              setSelectedTicketId(null);
+              setMyTicketsStatus(status || '');
+              setActiveTab('my-tickets');
+            }}
+          />
+        </div>
       ) : activeTab === 'admin-users' && isAdmin ? (
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <AdminUserManagement />
@@ -287,6 +327,7 @@ const MainApplication: React.FC = () => {
         <div className="mx-auto" style={{ maxWidth: '1150px' }}>
           <MyTickets
             categories={categories}
+            initialStatus={myTicketsStatus}
             onNavigateToCreate={() => {
               setSelectedTicketId(null);
               setActiveTab('create');

@@ -21,8 +21,8 @@
 | **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #80](https://github.com/titayaaa/toktickit/pull/80)** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-07** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #80](https://github.com/titayaaa/toktickit/pull/80)** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #81](https://github.com/titayaaa/toktickit/pull/81)** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | ⏳ Pending Review |
 | **PR-08** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-09** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-10** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `feature/36-release-and-report`| `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -850,6 +850,61 @@
 >    - ปรับแก้ค่าสถานะใน `staff-metric-card-in-progress` จาก `'In Progress'` เป็น `'IN_PROGRESS'` ตรงตามค่า Enum ของ `StaffTicketQueue.tsx`
 > 
 > รันชุดทดสอบ Client ผ่านครบ 19/19 tests (100%), `npm run build` ผ่าน 0 errors, Server typecheck ผ่าน 0 errors และผลการทดสอบ Backend Dashboard API ผ่านเรียบร้อยค่ะ รบกวนช่วยตรวจทานรอบที่ 2 อีกครั้งนะคะ ขอบคุณมากค่ะ! ✨
+
+#### 💬 Round 2 Review by @jejaebubu (Approved & Merged)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ตรวจ commit `cd3f61f` ในการรีวิวรอบที่ 2 อย่างละเอียดรอบด้านแล้วนะคะ ขอบคุณที่ดำเนินการแก้ไขและปรับปรุงครบทั้ง 4 ประเด็นได้อย่างรวดเร็วและประณีตมากค่ะ:
+> 
+> 1. **Authentication Reliability (`StaffDashboard.tsx`):** มีการดึง JWT จาก `localStorage` (`toktickit_auth_token`) และแนบ `Authorization: Bearer` ไปกับ request ทั้งสอง endpoint ทำให้หน้า Dashboard โหลดข้อมูลได้อย่างเสถียร ไม่หลุด `401 Unauthorized`
+> 2. **Prisma Foreign Key Safety (`staff-dashboard.api.test.ts`):** ปรับการเชื่อมโยง Foreign Key เป็น `requesterId: reqJennifer.id` และ `userId: requesterUser.id` ถูกต้องตาม `schema.prisma` 100%
+> 3. **Precise Drill-Down Filtering:** การ์ด My Pending Actions กรองทั้ง `status: 'IN_PROGRESS'` และ `ownerFilter: 'me'` สอดคล้องกับบทบาทหน้าที่ของเจ้าหน้าที่ พร้อมอัปเดตชุดทดสอบยืนยัน
+> 4. **Enum Consistency:** ปรับ Status Casing ใน Hidden Alias เป็น `'IN_PROGRESS'` สอดรับกับ Dropdown ของ Queue
+> 5. **Documentation & Verification:** บันทึกประวัติการรีวิวใน `docs/lab-04/reviewer.md` ครบถ้วน รันเทสต์ 75/75 ผ่าน 100% และ production build ผ่านฉลุย 0 errors
+> 
+> คุณภาพโค้ดและชุดทดสอบยอดเยี่ยมมาก ขอ **Approve** ให้ Merge เข้า `lab4-staging` ได้เลยค่ะ
+
+#### 💬 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#80](https://github.com/titayaaa/toktickit/pull/80)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `ba347fbe4fdbfe45eec3a42d3c90e0b4d4b1cfeb`
+- **Merged At:** 2026-11-02 05:20:59 +07:00 (22:20:59 UTC)
+- **Status:** ✅ Merged successfully — **Closes #68**
+
+---
+
+### PR #81: Issue 33: Requester Dashboard API & UI Screen
+- **PR URL:** [titayaaa/toktickit#81](https://github.com/titayaaa/toktickit/pull/81)
+- **Feature Branch:** `feature/33-requester-dashboard`
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Peer Review
+- **Scope & Objectives:**
+  - **Backend REST API (`server/src/routes/requester.ts`, `server/src/app.ts`):**
+    - `GET /api/requester/dashboard` (พร้อม alias `GET /api/dashboard/requester`)
+    - คำนวณสถิติเฉพาะของผู้ใช้ที่ยืนยันตัวตนตามกฎ BR-13 (Dual-Ownership & Legacy Safe Fallback: `ticket.userId === currentUser.id OR ticket.requesterUser?.email === currentUser.email OR ticket.requester?.email === currentUser.email`)
+    - เมทริกซ์ 4 ด้าน: `totalOpenCount`, `waitingForRequesterCount`, `recentlyUpdatedCount`, `recentlyResolvedCount` พร้อม alias `myOpen`, `waitingForRequester`, `inProgress`, `resolved`, `closed`
+    - รายการตั๋วที่ต้องตอบกลับ (`actionRequiredTickets`) และตั๋วที่อัปเดตล่าสุด 5 รายการ (`recentTickets`)
+    - ป้องกันการเข้าถึงโดยไม่ยืนยันตัวตนด้วย `401 Unauthorized` และแยกข้อมูลระหว่าง Requester แต่ละคนโดยเด็ดขาด (Data Isolation ตาม AC-10)
+  - **Frontend UI (`client/src/components/RequesterDashboard.tsx`):**
+    - การ์ดสถิติ 4 ใบในธีม Zen Green (`Total Open`, `Waiting for Input`, `Recently Updated`, `Resolved`) พร้อม interactive drill-down ไปยัง `MyTickets`
+    - แถบแจ้งเตือน Action Required Banner (สีม่วง/Amber `#EDE7F6`) เมื่อมีตั๋วรอข้อมูลจากผู้ใช้
+    - แผง Quick Actions (`+ Create New Request`, `View All My Tickets`)
+    - ตาราง My Recent Requests แบบ Responsive (Desktop Table $\ge 768\text{px}$ และ Mobile Card Stack $< 768\text{px}$)
+    - Empty State พร้อมปุ่ม CTA `"Submit a new request"` เมื่อผู้ใช้ยังไม่มีตั๋วในระบบ
+    - Touch targets $\ge 44\text{px}$ และกำหนด `overflowX: 'hidden'`
+  - **Navigation & Drill-down Integration (`client/src/App.tsx`, `MyTickets.tsx`):**
+    - เพิ่มแท็บ Dashboard สำหรับบทบาท Requester (`nav-requester-dashboard`)
+    - ปรับปรุง `MyTickets.tsx` รับ prop `initialStatus?: string` รองรับการกรองสถานะจากการคลิกการ์ดสถิติ
+  - **Automated Verification & Tests:**
+    - `server/tests/lab-04/requester-dashboard.api.test.ts` (API-12, BR-13, AC-10) ผ่าน 5/5
+    - `client/src/test/lab-04/RequesterDashboard.test.tsx` (UI-06, FR-13, AC-10) ผ่าน 6/6
+    - `npm --prefix client test` ผ่านครบ 15/15 files (81/81 tests)
+    - `npm --prefix client run build` ผ่าน 0 errors
 
 ---
 

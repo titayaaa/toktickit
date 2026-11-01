@@ -11,6 +11,7 @@ import authRouter from './routes/auth';
 import staffRouter from './routes/staff';
 import ticketsRouter from './routes/tickets';
 import adminRouter from './routes/admin';
+import requesterRouter from './routes/requester';
 import { extractToken, authenticate, requireRole, AuthRequest } from './middleware/auth';
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/staff', staffRouter);
 app.use('/api/tickets', ticketsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/requester', requesterRouter);
 
 // Sprint 4 — Assignable staff for Actions Taken assignment
 app.get(
@@ -50,6 +52,12 @@ app.get(
 app.use('/api/dashboard/staff', (req, res, next) => {
   req.url = '/dashboard';
   staffRouter(req, res, next);
+});
+
+// Sprint 4 (Issue 33) — Route alias for Requester Dashboard
+app.use('/api/dashboard/requester', (req, res, next) => {
+  req.url = '/dashboard';
+  requesterRouter(req, res, next);
 });
 
 
