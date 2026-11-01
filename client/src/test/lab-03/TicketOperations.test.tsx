@@ -287,7 +287,7 @@ describe('Issue 24: IT Staff Ticket Operations & Confidential Notes UI', () => {
         expect.stringContaining('/api/staff/tickets/101/resolve'),
         expect.objectContaining({
           method: 'PATCH',
-          body: JSON.stringify({ resolutionSummary: 'Reconfigured client MTU to 1420; stable now.' }),
+          body: expect.stringContaining('"resolutionSummary":"Reconfigured client MTU to 1420; stable now."'),
         })
       );
     });

@@ -19,8 +19,8 @@
 | **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-07** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-08** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -720,6 +720,55 @@
 > 
 > ดำเนินการ commit ใน `fca398c` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 64 tests (100%) และรัน `npm run build` ผ่านสมบูรณ์ 0 errors รบกวนช่วยตรวจทานและ Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
 
+### PR #79: Issue 31: Ticket Workflow Operations, Resolution Gate & Concurrency Protection
+- **PR URL:** [titayaaa/toktickit#79](https://github.com/titayaaa/toktickit/pull/79)
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Under Review by @jejaebubu
+- **Scope & Implementation:**
+  - **Resolution Gate Enforcement (BR-09, AC-07, AC-08):** ใน `server/src/routes/staff.ts` (`PATCH /api/staff/tickets/:id/resolve`) ตรวจสอบรายการ Actions Taken ที่เชื่อมโยงกับตั๋ว หากยังมีสถานะเป็น `PENDING` หรือ `IN_PROGRESS` จะปฏิเสธการ Resolve ทันทีด้วย `409 Conflict` พร้อมโค้ด `RESOLUTION_GATE_BLOCKED`, จำนวน `unresolvedCount` และรายชื่อ `blockingActions`
+  - **Optimistic Concurrency Protection (BR-14, AC-12):** รองรับ `expectedUpdatedAt` ใน `PATCH /api/staff/tickets/:id/status` และ `PATCH /api/staff/tickets/:id/resolve` หาก timestamp ไม่ตรงกับ `ticket.updatedAt` ในฐานข้อมูล จะปฏิเสธด้วย `409 Conflict` พร้อมโค้ด `STALE_UPDATE_CONFLICT`
+  - **State Machine Transition Matrix (BR-11, WORKFLOW-01):** บังคับใช้เงื่อนไขการเปลี่ยนสถานะตามตาราง State Transition Matrix 9 สถานะใน `VALID_TRANSITIONS` และบล็อกการเปลี่ยนเป็น `RESOLVED` โดยตรงผ่าน `/status` (ต้องเรียก `/resolve` พร้อม `resolutionSummary` 3–500 ตัวอักษร)
+  - **Resolution Gate Warning Banner (UI-04):** ใน `TicketDetail.tsx` เพิ่มแบนเนอร์แจ้งเตือนสถานะ Resolution Gate สีเหลืองเตือนเจ้าหน้าที่เมื่อมี Action Taken ค้างอยู่ และแสดงข้อความเตือนภายใน Resolve Ticket Modal
+  - **Concurrency Conflict UI Handling:** แสดงแจ้งเตือน `⚠️ Conflict: This ticket has been modified by another user. Please refresh and try again.` เมื่อเกิด Stale update (HTTP 409)
+  - **Automated Tests:**
+    - `server/tests/lab-04/ticket-workflow.api.test.ts` (API-07, API-08, API-09, API-10, API-14, WORKFLOW-01)
+    - `client/src/test/lab-04/TicketWorkflow.test.tsx` (UI-04 4 เคส: Warning banner, banner disappearance on complete, 409 Resolution Gate blocked handling, 409 Stale update conflict handling)
+
+#### 💬 Round 1 Review by @jejaebubu (Suggestions)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟡 Suggestions Addressed
+- **Review Comments (Verbatim):**
+
+> ตรวจโค้ด Ticket Workflow, Resolution Gate, Optimistic Concurrency และชุดทดสอบของ PR #79 (Issue 31) เทียบกับ schema.prisma, specification.md, api-spec.md และ tests.md อย่างละเอียดรอบด้านแล้วนะคะ ภาพรวมทำออกมาได้อย่างยอดเยี่ยมและรัดกุมมากค่ะ
+> 
+> **จุดเด่นที่ทำได้ดีมาก:**
+> - **Resolution Gate Enforcement (BR-09, AC-07, AC-08):** ใน `server/src/routes/staff.ts` (`PATCH /api/staff/tickets/:id/resolve`) ตรวจจับ Actions Taken ที่ค้างสถานะ `PENDING` หรือ `IN_PROGRESS` ได้อย่างแม่นยำ ปฏิเสธด้วย `409 Conflict` (`RESOLUTION_GATE_BLOCKED`) พร้อมส่ง `unresolvedCount` และ `blockingActions` ให้ลูกค้านำไปแสดงผลได้อย่างชัดเจน
+> - **Optimistic Concurrency Protection (BR-14, AC-12):** ตรวจสอบ `expectedUpdatedAt` กับ `ticket.updatedAt` ในทั้งสอง Endpoint พร้อมปัดเศษความคลาดเคลื่อนระดับ 1 วินาที (`Math.abs > 1000`) ตาม RFC 7231 ตอบกลับด้วย `409 Conflict` (`STALE_UPDATE_CONFLICT`) ป้องกันปัญหาแย่งกันแก้ไขข้อมูลได้อย่างสมบูรณ์
+> - **State Machine Transition Matrix (BR-11, WORKFLOW-01):** บังคับใช้เงื่อนไขตามตาราง 9 สถานะใน `VALID_TRANSITIONS` บล็อกไม่ให้ข้ามจาก NEW/OPEN ไป RESOLVED โดยตรง และบังคับใช้ `/resolve` พร้อม `resolutionSummary` 3–500 ตัวอักษร
+> - **UX & Warning Banners (UI-04):** ใน `TicketDetail.tsx` แสดงแบนเนอร์สีเหลืองเตือน Resolution Gate ทั้งบน Operational Toolbar และภายใน Resolve Modal รวมถึงการแจ้งเตือน Stale update เมื่อเกิด Conflict (409)
+> - **Test Suite:** ชุดทดสอบ `ticket-workflow.api.test.ts` (API-07 ถึง API-10, API-14, WORKFLOW-01) และ `TicketWorkflow.test.tsx` (UI-04 4 เคส) ครอบคลุมครบถ้วน รันผ่าน 100%
+> 
+> **ข้อเสนอแนะเพิ่มเติมเพื่อความสมบูรณ์แบบ (Should Fix & Minor):**
+> 1. **State Transition ใน `TicketDetail.tsx` (บรรทัด 483–485) ขาดสถานะ PENDING ในเคส REOPENED:** ใน `server/src/routes/staff.ts` และ `specification.md` Section 5.1 กำหนดให้สถานะ `REOPENED` สามารถย้ายไป `PENDING` (พักรอ Vendor) ได้ แต่ใน `TicketDetail.tsx` ฟังก์ชัน `getAllowedNextStatuses` ระบุ: `case 'REOPENED': return ['IN_PROGRESS', 'RESOLVED', 'CANCELLED'];` แนะนำให้เพิ่ม `'PENDING'` เข้าไปในอาร์เรย์เป็น `['IN_PROGRESS', 'PENDING', 'RESOLVED', 'CANCELLED']` เพื่อให้เจ้าหน้าที่สามารถเลือกสถานะนี้จาก Dropdown บนหน้าเว็บได้ค่ะ
+> 2. **บันทึก AI Pairing Log ใน `docs/lab-04/ai-use.md` สำหรับ Issue 31:** แนะนำให้เพิ่ม Prompt 11 และ Section 3.5 Reflection สำหรับ Ticket Workflow, Resolution Gate และ Optimistic Concurrency ใน `docs/lab-04/ai-use.md` ให้ครบถ้วนตามเกณฑ์ส่งงานของ Lab 4 ค่ะ
+> 3. **อัปเดตเอกสาร `docs/lab-04/api-spec.md` (หัวข้อ 3.1 และ 3.2):** นำคำว่า *(Planned for Issue 31)* ออก และปรับตัวอย่าง JSON response ของ Conflict (409) ให้ตรงกับโครงสร้างจริง (`code: 'RESOLUTION_GATE_BLOCKED'` / `'STALE_UPDATE_CONFLICT'`)
+> 4. **การส่ง `relatedSystemId` ใน `ticket-workflow.api.test.ts`:** ในฟังก์ชันทดสอบมีการระบุ `relatedSystemId: relatedSystem?.id || null` เนื่องจากฟิลด์นี้ใน `schema.prisma` เป็น required (`Int` ไม่ nullable) แนะนำให้ใช้ `relatedSystem.id` ตรง ๆ เหมือนกับ `categoryId: category.id` ค่ะ
+
+#### 💬 Author Response by @titayaaa (Changes Addressed)
+- **Response Date:** 2026-11-02
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณ @jejaebubu สำหรับการตรวจทานที่ละเอียดรอบคอบมากค่ะ ดำเนินการปรับแก้ครบถ้วนทั้ง 4 ข้อเสนอแนะเรียบร้อยแล้วค่ะ:
+> 1. **เพิ่มสถานะ 'PENDING' ในเคส REOPENED ของ `TicketDetail.tsx`:** ปรับ `getAllowedNextStatuses` ในเคส `'REOPENED'` เป็น `['IN_PROGRESS', 'PENDING', 'RESOLVED', 'CANCELLED']` ให้ตรงกับ State Transition Matrix ใน Section 5.1 และ backend `VALID_TRANSITIONS`
+> 2. **บันทึก AI Pairing Log ใน `docs/lab-04/ai-use.md`:** เพิ่ม Prompt 11 และ Section 3.5 Reflection สำหรับ Issue 31 (Resolution Gate, Optimistic Concurrency, Clock Skew Tolerance และ Preventive UI) ครบถ้วน
+> 3. **อัปเดต `docs/lab-04/api-spec.md` (หัวข้อ 3.1 และ 3.2):** นำหมายเหตุ *(Planned for Issue 31)* ออก และปรับปรุงตัวอย่าง JSON response ของ HTTP 409 Conflict ให้มีฟิลด์ `code: "STALE_UPDATE_CONFLICT"` และ `code: "RESOLUTION_GATE_BLOCKED"` พร้อม `unresolvedCount` และ `blockingActions` ตรงกับ response จริงจาก Backend
+> 4. **ปรับการส่ง `relatedSystemId` ใน `ticket-workflow.api.test.ts`:** เปลี่ยนจาก `relatedSystem?.id || null` เป็น `relatedSystem.id` ตรง ๆ ทุกจุด ให้สอดคล้องกับ schema type `Int` (Non-nullable)
+> 
+> รันชุดทดสอบ Client ผ่าน 13/13 test files (68/68 tests 100%), Server Typecheck ผ่าน 0 errors, และ Client build (`tsc && vite build`) ผ่านเรียบร้อยค่ะ รบกวนช่วยตรวจทานรอบสุดท้ายและพิจารณา Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
+
+---
 
 # Part 2: Records of Student (@titayaaa) Reviewing Partner (@jejaebubu)
 
@@ -1277,3 +1326,48 @@
 >    - บันทึกประวัติการรีวิวรอบที่ 1 และผลการแก้ไขครบถ้วนสมบูรณ์ตามเกณฑ์ของ Lab 4
 > 
 > ผลการรันชุดทดสอบผ่านครบ 201/201 เทสต์ (Server 110 + Client 91) โค้ดมีคุณภาพสูงมากและพร้อมสำหรับการใช้งานจริง ขออนุมัติ (Approve) และยินดีดำเนินการกด Merge เข้าสู่ `lab4-staging` ให้ทันทีค่ะ 🎉
+
+---
+
+### PR #111: feat(dashboard): Requester Dashboard API, owned ticket metrics, and UI screen (Issue #7)
+- **PR URL:** [jejaebubu/toktickit#111](https://github.com/jejaebubu/toktickit/pull/111)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved (Round 1)
+- **Scope & Objectives:**
+  - `GET /api/dashboard/requester`: API แสดงภาพรวมสำหรับ Requester พร้อมการกักกันข้อมูล (Data Isolation) ให้เห็นเฉพาะตั๋วที่ตนเองสร้างอย่างเคร่งครัด (`AC-05`, `FR-09`, `BR-11`)
+  - คำนวณสรุปสถิติตัวชี้วัด 4 หมวด: `myOpen`, `inProgress`, `resolved`, `closed`
+  - ส่งคืนรายการ `recentTickets` 5 รายการล่าสุดเรียงตาม `updatedAt: desc` พร้อม Quick Actions (`create-ticket`, `view-tickets`)
+  - พัฒนาคอมโพเนนต์ `RequesterDashboard.tsx` ธีม Zen Green พร้อมการ์ดตัวชี้วัดที่รองรับการคลิก Drill-down ไปยัง `MyTicketsList` ตามสถานะ (`FR-10`)
+  - อัปเดต `Header.tsx` นำแท็บเมนู `Dashboard` กลับมาสำหรับบทบาท `REQUESTER`
+  - ชุดทดสอบ API (`requester-dashboard.api.test.ts`) และ UI (`RequesterDashboard.test.tsx`) ครอบคลุม 6 เคสใหม่ รวมเป็น 207 เทสต์ (Server 112 / Client 95)
+
+#### 💬 Round 1 Review by @titayaaa (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### PR-07 Review & Verification: APPROVED (LGTM! 🚀)
+> 
+> ตรวจทานความถูกต้องของ PR #111 (Issue #7: Requester Dashboard API and UI) อย่างละเอียดครบถ้วนทุกมิติแล้วค่ะ:
+> 
+> 1. **Strict Data Isolation & Zero Data Leakage (`AC-05`, `FR-09`, `BR-11`)**:
+>    - `GET /api/dashboard/requester` ผูก `where: { requesterId: req.user.id }` ทั้งใน `prisma.ticket.count` ทั้ง 4 หมวดและ `prisma.ticket.findMany` (จำกัด 5 รายการล่าสุดตาม `updatedAt: desc`) 
+>    - ทดสอบยืนยันแล้วว่าตั๋วของ Requester ท่านอื่นไม่รั่วไหลเข้ามาในผลลัพธ์อย่างเด็ดขาด
+> 2. **Access Control & RBAC (`AC-06`)**:
+>    - ตรวจสอบ JWT ผ่าน `authenticateToken` (คืน `401 Unauthorized` หากไม่ล็อกอิน) และจำกัดบทบาทเฉพาะ `REQUESTER` (คืน `403 Forbidden` สำหรับ Staff และ Admin)
+> 3. **UI/UX & Zen Green Design System Compliance (`STYLE-01`)**:
+>    - คอมโพเนนต์ `RequesterDashboard.tsx` ใช้งานชุดสี Zen Green (`#006B3C`, `#EAF6EF`) ชัดเจน สวยงาม
+>    - รองรับ Responsive สมบูรณ์แบบ (Desktop Table + Mobile Card Stack)
+>    - Touch Target ของปุ่มและการ์ดทุกลูกได้ขนาด `>= 44px` ตามมาตรฐาน WCAG Accessibility
+>    - มี Empty State พร้อมปุ่ม CTA `"Submit a new request"` เมื่อยังไม่มีประวัติตั๋ว
+> 4. **Interactive Drill-Down & Navigation Flow (`FR-10`)**:
+>    - การคลิกการ์ด Metrics นำทางไปยัง `MyTicketsList` พร้อมส่งฟิลเตอร์สถานะที่เกี่ยวข้องได้อย่างแม่นยำ
+>    - อัปเดต `STATUS_OPTIONS` ใน `MyTicketsList.tsx` ครอบคลุมสถานะตั๋วทั้งหมด
+>    - ปลดล็อกเมนู `Dashboard` สำหรับ Requester ใน `Header.tsx` เรียบร้อย
+> 5. **Test Coverage**:
+>    - ชุดทดสอบ Backend `requester-dashboard.api.test.ts` (API-11, API-11b) ผ่าน 100%
+>    - ชุดทดสอบ Frontend `RequesterDashboard.test.tsx` (UI-05a, UI-05b, UI-05c, UI-05d) ครอบคลุมครบถ้วน
+> 
+> งานเรียบร้อยสมบูรณ์แบบมากค่ะ พร้อมสำหรับ Approve และ Merge เข้าสู่ `lab4-staging` ได้เลยค่ะ! 🎉

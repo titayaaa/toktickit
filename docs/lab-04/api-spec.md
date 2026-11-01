@@ -165,10 +165,11 @@ Transition ticket status across non-terminal states per the `VALID_TRANSITIONS` 
      }
      ```
   3. **Terminal State Immutability:** If ticket is already `CLOSED` or `CANCELLED`, returns `422 Unprocessable Entity`.
-  4. **Concurrency Check (Stale Update - Planned for Issue 31):** If `expectedUpdatedAt` does not match server `ticket.updatedAt`, returns `409 Conflict`:
+  4. **Concurrency Check (Stale Update):** If `expectedUpdatedAt` does not match server `ticket.updatedAt` (tolerance threshold > 1000ms), returns `409 Conflict`:
      ```json
      {
        "error": "ConflictError",
+       "code": "STALE_UPDATE_CONFLICT",
        "message": "Ticket has been modified by another user. Please refresh and review latest changes.",
        "currentUpdatedAt": "2026-10-30T10:00:00.000Z"
      }
@@ -179,7 +180,7 @@ Transition ticket status across non-terminal states per the `VALID_TRANSITIONS` 
   - `401 Unauthorized`: Missing or invalid token.
   - `403 Forbidden`: Requester role.
   - `404 Not Found`: Ticket not found.
-  - `409 Conflict`: Stale update detected via `expectedUpdatedAt` *(Planned for Issue 31)*.
+  - `409 Conflict`: Stale update detected via `expectedUpdatedAt`.
   - `422 Unprocessable Entity`: Target status is `RESOLVED` or invalid transition.
 
 ---
@@ -203,12 +204,24 @@ Formal ticket resolution requiring a resolution summary and enforcing that all A
        "error": "Resolution summary must be a non-empty string between 3 and 500 characters"
      }
      ```
-  2. **Resolution Gate Check (BR-09 - Planned for Issue 31):** The backend inspects all Actions Taken associated with the ticket. If any action has status `PENDING` or `IN_PROGRESS`, the request is rejected with `409 Conflict`:
+  2. **Resolution Gate Check (BR-09):** The backend inspects all Actions Taken associated with the ticket. If any action has status `PENDING` or `IN_PROGRESS`, the request is rejected with `409 Conflict`:
      ```json
      {
        "error": "ResolutionGateBlocked",
-       "message": "Cannot resolve ticket because there are 2 active Actions Taken (PENDING or IN_PROGRESS). Please complete or cancel all actions before resolving.",
-       "pendingActionsCount": 2
+       "code": "RESOLUTION_GATE_BLOCKED",
+       "message": "Cannot resolve ticket: 2 action(s) are still pending or in progress. Please complete or cancel all actions first.",
+       "unresolvedCount": 2,
+       "blockingActions": [
+         {
+           "id": 12,
+           "actionDescription": "Reviewing hardware specifications",
+           "status": "PENDING",
+           "assignee": {
+             "id": 2,
+             "fullName": "Alice Smith"
+           }
+         }
+       ]
      }
      ```
   3. **Transition Check:** Current status must permit transition to `RESOLVED` (i.e. `IN_PROGRESS`, `WAITING_FOR_REQUESTER`, `PENDING`, or `REOPENED`). If not allowed (e.g. from `NEW` or `OPEN`), returns `422 Unprocessable Entity`:
@@ -217,14 +230,22 @@ Formal ticket resolution requiring a resolution summary and enforcing that all A
        "error": "Cannot transition from OPEN to RESOLVED"
      }
      ```
-  4. **Concurrency Check (Planned for Issue 31):** If `expectedUpdatedAt` mismatch, returns `409 Conflict`.
+  4. **Concurrency Check (Stale Update):** If `expectedUpdatedAt` does not match server `ticket.updatedAt` (tolerance threshold > 1000ms), returns `409 Conflict`:
+     ```json
+     {
+       "error": "ConflictError",
+       "code": "STALE_UPDATE_CONFLICT",
+       "message": "Ticket has been modified by another user. Please refresh and review latest changes.",
+       "currentUpdatedAt": "2026-10-30T10:00:00.000Z"
+     }
+     ```
 - **Responses:**
   - `200 OK`: Ticket resolved successfully, status updated to `RESOLVED`, `resolutionSummary` recorded.
   - `400 Bad Request`: Invalid ticket ID.
   - `401 Unauthorized`: Token missing or invalid.
   - `403 Forbidden`: Requester role forbidden.
   - `404 Not Found`: Ticket not found.
-  - `409 Conflict`: Active Actions Taken exist (Resolution Gate) or stale update *(Planned for Issue 31)*.
+  - `409 Conflict`: Active Actions Taken exist (Resolution Gate) or stale update.
   - `422 Unprocessable Entity`: Invalid transition or missing/invalid `resolutionSummary`.
 
 ---

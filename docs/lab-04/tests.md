@@ -25,21 +25,21 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **API-04** | API | FR-06, AC-05 | Requester attempts to retrieve Actions Taken for unowned ticket | 404 Not Found (Data Isolation) | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
 | **API-05** | API | FR-05, AC-01 | IT Staff updates Action Taken status to `COMPLETED` | 200 OK with updated record | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
 | **API-06** | API | BR-05, AC-02 | Attempt to assign Action Taken to inactive user | 422 Unprocessable Entity | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
-| **API-07** | API | BR-09, AC-07 | Attempt to resolve Ticket when `PENDING` Action Taken exists | 409 Conflict with clear resolution error | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| **API-08** | API | BR-09, AC-07 | Attempt to resolve Ticket when `IN_PROGRESS` Action Taken exists | 409 Conflict with clear resolution error | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| **API-09** | API | BR-09, AC-08 | Resolve Ticket when all Actions Taken are `COMPLETED` or `CANCELLED` | 200 OK and ticket status becomes `RESOLVED` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| **API-10** | API | BR-09, BR-15 | Resolve Ticket when zero Actions Taken exist | 200 OK and ticket status becomes `RESOLVED` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
+| **API-07** | API | BR-09, AC-07 | Attempt to resolve Ticket when `PENDING` Action Taken exists | 409 Conflict with clear resolution error | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
+| **API-08** | API | BR-09, AC-07 | Attempt to resolve Ticket when `IN_PROGRESS` Action Taken exists | 409 Conflict with clear resolution error | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
+| **API-09** | API | BR-09, AC-08 | Resolve Ticket when all Actions Taken are `COMPLETED` or `CANCELLED` | 200 OK and ticket status becomes `RESOLVED` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
+| **API-10** | API | BR-09, BR-15 | Resolve Ticket when zero Actions Taken exist | 200 OK and ticket status becomes `RESOLVED` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
 | **API-11** | API | FR-12, BR-12 | IT Staff Dashboard metrics retrieval | 200 OK with accurate operational counts | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 | **API-12** | API | FR-13, BR-13 | Requester Dashboard metrics retrieval | 200 OK with authenticated user's ticket counts | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
 | **API-13** | API | FR-12, AC-09 | Requester attempts to access IT Staff Dashboard endpoint | 403 Forbidden | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
-| **API-14** | API | BR-14, AC-12 | Concurrency check: Stale update rejected on ticket status update | 409 Conflict when expectedUpdatedAt does not match | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| **WORKFLOW-01** | API | BR-11 | Validate 9-state Ticket Transition Matrix (including PENDING) across roles | Rejects disallowed transitions with 422 Unprocessable Entity | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
+| **API-14** | API | BR-14, AC-12 | Concurrency check: Stale update rejected on ticket status update | 409 Conflict when expectedUpdatedAt does not match | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
+| **WORKFLOW-01** | API | BR-11 | Validate 9-state Ticket Transition Matrix (including PENDING) across roles | Rejects disallowed transitions with 422 Unprocessable Entity | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
 | **SAFE-01** | API | - | Safe error responses (never leak stack trace in 500) | JSON response `{ error: string }` | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
 | **PERF-01** | Smoke | - | Dashboard API response time under load smoke test | Returns within 200ms for 50 concurrent requests | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 | **UI-01** | Component | FR-01, FR-06 | Actions Taken list renders on Ticket Detail in Zen Green style | Displays list of actions or empty state | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **UI-02** | Component | FR-01, FR-03 | Create Action Taken modal form open and submit | Calls API and refreshes action list | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **UI-03** | Component | FR-07, AC-04 | Requester role hides Action Taken create/edit buttons | Action items are read-only | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
-| **UI-04** | Component | BR-09, AC-07 | Resolution warning banner displayed if pending actions exist | "Resolve" option warns user of open actions | `client/src/test/lab-04/TicketWorkflow.test.tsx` | Planned |
+| **UI-04** | Component | BR-09, AC-07 | Resolution warning banner displayed if pending actions exist | "Resolve" option warns user of open actions | `client/src/test/lab-04/TicketWorkflow.test.tsx` | Pass |
 | **UI-05** | Component | FR-12, AC-11 | IT Staff Dashboard renders metric cards and urgent tickets | Interactive drill-down filters work | `client/src/test/lab-04/StaffDashboard.test.tsx` | Planned |
 | **UI-06** | Component | FR-13, AC-11 | Requester Dashboard renders cards and attention list | Interactive navigation to Ticket Detail | `client/src/test/lab-04/RequesterDashboard.test.tsx` | Planned |
 | **STYLE-01** | Style | ui-spec §1 | Zen Green token compliance (colors, typography, badges) | All components consume CSS variables | `client/src/test/lab-04/StaffDashboard.test.tsx` | Planned |
