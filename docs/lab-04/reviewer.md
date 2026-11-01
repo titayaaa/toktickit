@@ -17,8 +17,8 @@
 | PR # | Feature / Issue Title | GitHub Issue | Feature Branch | Target | Reviewer | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
 | **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-03** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-04** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -481,8 +481,105 @@
 > 
 > รบกวนตรวจทานรอบที่ 2 นะคะ ขอบคุณมากค่ะ!
 
-#### ⏳ Round 2 Re-review by @jejaebubu
-- **Status:** ⏳ รอผลการตรวจซ้ำจาก `@jejaebubu`
+#### 💬 Round 2 Review by @jejaebubu (Approved)
+**Review Date:** 2026-11-01  
+**Verdict:** 🟢 Approved  
+**Review Comments (Verbatim):**
+
+> ### การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ตรวจ commits `06e01c2` และ `018981d` แล้วนะคะ แก้ไขครบถ้วนทุกประเด็นที่แจ้งไว้ในรอบแรก ทั้งระดับ Blocking, Should Fix และ Minor เลยค่ะ:
+> 
+> 1. **PostgreSQL Sequence Synchronization (`seed.ts` & `db-seed.test.ts`):**
+>    - เพิ่มการซิงก์ค่า sequence ด้วย `setval(pg_get_serial_sequence(...))` สำหรับตาราง `actions_taken`, `public_comments` และ `internal_notes` ให้ตรงกับ `MAX(id)` หลัง seed
+>    - เพิ่มเทสต์ใน `db-seed.test.ts` ทดสอบสร้าง `ActionTaken` ใหม่หลัง seed โดยไม่ระบุ `id` ได้ค่า `id >= 7` และไม่เกิด `P2002`
+> 2. **Dynamic Requester Lookup (`seed.ts`):**
+>    - เปลี่ยนจากการ hardcode `requesterId: 1/2/3` เป็นการ lookup `RequesterUser` จากอีเมล (`reqJennifer`, `reqMichael`, `reqSarah`) เรียบร้อย
+> 3. **Negative Tests & Code Cleanliness (`db-seed.test.ts`, `seed.ts`, `reviewer.md`):**
+>    - เพิ่ม negative tests ตรวจสอบกรณี `isFollowUpRequired = false` (`followUpNote === null`) และกรณี `status = IN_PROGRESS` (`result === null`) ครบถ้วน
+>    - ลบตัวแปร `staffCharlie` ที่ไม่ได้ใช้งาน จัด indentation ใน `seed.ts` และอัปเดต SHA ของ merge commit PR #106 (`23166db`) พร้อมบันทึกประวัติการรีวิวใน `reviewer.md` ครบถ้วน
+> 
+> โค้ดและชุดทดสอบพร้อมสำหรับทำ Issue 29 ต่อแล้วค่ะ ขออนุมัติ (**Approve**) และกด Merge เข้าสู่ `lab4-staging` ให้เลยนะคะ!
+
+#### 💬 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#76](https://github.com/titayaaa/toktickit/pull/76)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `33922325eed3ee5deba3f7872f8b2193ef8bce8a`
+- **Merged At:** 2026-11-01 18:03:13 +07:00 (11:03:13 UTC)
+- **Status:** ✅ Merged successfully — **Closes #64**
+
+---
+
+### PR #77: Issue 29: Actions Taken Backend REST API & Authorization Middleware
+- **PR URL:** [titayaaa/toktickit#77](https://github.com/titayaaa/toktickit/pull/77)
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Review (Round 1)
+- **Scope & Objectives:**
+  - `GET /api/tickets/:id/actions-taken`: คืนรายการ Action Taken เรียงตามวันเวลา พร้อมระบบ Data Isolation (ตอบ 404 สำหรับ Requester ที่เข้าดูตั๋วของผู้อื่น)
+  - `POST /api/tickets/:id/actions-taken`: บันทึก Action Taken ใหม่ ผูก `performedById` จาก JWT อัตโนมัติ, ตรวจสอบ Assignee ว่าต้องเป็น IT Staff/Admin ที่ Active เท่านั้น (ตอบ 422), บังคับผลลัพธ์เมื่อ Completed (2-1000 ตัวอักษร), และบังคับโน้ตเมื่อมี Follow-up
+  - `PATCH /api/tickets/:id/actions-taken/:actionId`: แก้ไขข้อมูลตาม Action Status Matrix (ห้ามย้อนจาก Completed/Cancelled), บังคับผลลัพธ์เมื่อ Completed, และล้างโน้ตเมื่อ Follow-up เป็น false
+  - `GET /api/users/assignable`: ดึงเฉพาะ IT Staff และ Admin ที่ active สำหรับ dropdown
+  - รวม `actionsTaken` ลงใน `GET /api/tickets/:id` รองรับหน้า Ticket Detail
+  - เพิ่มชุดทดสอบ Integration API ครอบคลุม 11 เคสใน `server/tests/lab-04/actions-taken.api.test.ts`
+
+#### 💬 Round 1 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-01
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจโค้ด REST API, RBAC, tests และเอกสารของ PR [#77](https://github.com/titayaaa/toktickit/pull/77) (Issue 29) เทียบกับ schema.prisma, specification.md, api-spec.md และ tests.md แล้วนะคะ ภาพรวมโครงสร้าง endpoint GET/POST/PATCH /:id/actions-taken, GET /api/users/assignable, การดึง performedById จาก JWT, validateAssignee (422) และ state machine ของ Action status ทำไว้ดีเลยค่ะ
+> แต่ขอ Changes Requested ก่อนนะคะ เพราะมีจุดที่ทำให้ npm run build (tsc) กับ vitest พังใน beforeAll และมีจุดเรื่อง ownership check กับ traceability matrix ที่ต้องปรับให้ตรงกันค่ะ
+> 
+> 🔴 **Blocking: ต้องแก้ก่อน Merge**
+> 1. `server/tests/lab-04/actions-taken.api.test.ts` (บรรทัด 62–85): ขาด `relatedSystemId` และ `requestedPriority` ใน `prisma.ticket.create` + ผูก `requesterId` ข้ามตารางใน schema.prisma โมเดล Ticket กำหนดให้ `relatedSystemId` และ `requestedPriority` เป็น required fields แต่ใน `beforeAll` ตอนสร้าง `ownTicket` และ `otherTicket` ไม่ได้ส่ง 2 ฟิลด์นี้เข้าไป ทำให้:
+>    - รัน npm run build (tsc) ไม่ผ่าน เพราะติด TypeScript error (Property 'relatedSystemId' is missing, Property 'requestedPriority' is missing)
+>    - รัน vitest run tests/lab-04/actions-taken.api.test.ts พังตั้งแต่ beforeAll ด้วย PrismaClientValidationError
+>    - นอกจากนี้ `requesterId: requester.id / otherRequester.id` เอา `User.id` ไปใส่ในฟิลด์ `Ticket.requesterId` ซึ่งอ้างอิงตาราง `RequesterUser.id` ค่ะ  
+>    *แนวทางแก้:* ดึง relatedSystem จาก `prisma.relatedSystem.findFirst({ where: { isActive: true } })` และ lookup RequesterUser จาก email (`reqJennifer`, `reqMichael`) แล้วส่ง `relatedSystemId`, `requestedPriority: TicketPriority.MEDIUM` และ `requesterId: reqJennifer.id` ให้ครบทั้ง ownTicket และ otherTicket ค่ะ
+> 2. `server/src/routes/tickets.ts` (บรรทัด 226–231): การเช็ก `ticket.requesterId === currentUser.id` เสี่ยงเกิด Cross-model ID collision ใน `GET /api/tickets/:id/actions-taken`  
+>    *แนวทางแก้:* เอาบรรทัด `ticket.requesterId === currentUser.id` ออก แล้วเช็กเฉพาะ `ticket.userId === currentUser.id || ticket.requester?.id === currentUser.id || ticket.requester?.email === currentUser.email || ticket.requesterUser?.email === currentUser.email` ค่ะ
+> 
+> 🟠 **Should Fix: ความสอดคล้องของ Traceability Matrix และ API Spec**
+> 1. อัปเดต `docs/lab-04/tests.md` และปรับรหัส Test ID ใน `actions-taken.api.test.ts` ให้ตรงกัน: ปรับรหัสเทสต์ใน `actions-taken.api.test.ts` กับตารางใน `docs/lab-04/tests.md` ให้ตรงกันแบบ 1-ต่อ-1 และเปลี่ยนสถานะเทสต์ที่รันผ่านใน PR นี้เป็น `Pass` (พร้อมอัปเดต `docs/lab-04/ai-use.md` สำหรับ Issue 29 ด้วยนะคะ)
+> 2. ปรับ `docs/lab-04/api-spec.md` (§2.1, §2.2) กับ `server/src/routes/tickets.ts` ให้ตรงกัน:
+>    - `GET /api/tickets/:id/actions-taken/:actionId`: ใน specification.md §8 และ api-spec.md §2.2 ระบุว่ามี endpoint ดึง Action รายตัว แต่ใน tickets.ts ยังไม่มี route นี้
+>    - Response shape และการเรียงลำดับของ `GET /api/tickets/:id/actions-taken`: ใน api-spec.md §2.1 เขียนว่าคืน `{ data: [...], meta: {...} }` และเรียง desc แต่โค้ดจริงใน tickets.ts คืนเป็น Array `res.status(200).json(actions)` และเรียง `actionDateTime: 'asc'` แนะนำให้แก้ api-spec.md §2.1 ให้ตรงกับที่โค้ดคืนจริง เพื่อไม่ให้ตอนทำ UI ใน Issue 30 สับสนค่ะ
+> 
+> 🟡 **Minor: จุดที่แนะนำให้เก็บเพิ่ม**
+> 1. ใน `PATCH /:id/actions-taken/:actionId` โค้ดมีการล้าง `followUpNote = null` เมื่อ `isFollowUpRequired = false` ไว้ถูกต้องแล้ว แนะนำให้เพิ่ม test case ใน `actions-taken.api.test.ts` ที่ส่ง `PATCH { isFollowUpRequired: false }` แล้วเช็กว่า `followUpNote` กลายเป็น null จริงด้วยค่ะ
+> 2. ใน POST และ PATCH: ถ้าส่ง `actionDateTime` ที่ไม่ใช่วันที่ที่ถูกต้อง (`isNaN(parsed.getTime())`) แนะนำให้ตอบ 400 Bad Request แทนการ fallback เงียบ ๆ
+> 3. เช็กความยาว `result.length > 1000` ทุกสถานะ (ไม่ใช่เฉพาะตอน COMPLETED) และเช็ก `attachmentNotes.length > 500` ให้ตอบ 400 แทนการ `.slice(0, 500)`
+> 4. ปรับความยาวขั้นต่ำของ `followUpNote` ในโค้ด (>= 1) กับใน api-spec.md (min 2 chars) ให้ตรงกันค่ะ
+
+#### 💬 Author Response by @titayaaa (Changes Addressed)
+- **Response Date:** 2026-11-01
+- **Status:** 🔄 Changes Addressed — Ready for Re-Review
+- **Response Details (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวที่ละเอียดและแม่นยำมาก ๆ ค่ะ @jejaebubu ได้ทำการแก้ไขปรับปรุงครบถ้วนทุกข้อทั้ง Blocking, Should Fix และ Minor ใน commit ล่าสุดเรียบร้อยแล้วค่ะ:
+> 
+> 1. **แก้ไข Ticket Setup ใน Test `beforeAll`**:
+>    - เพิ่ม `relatedSystemId: relatedSystem.id` และ `requestedPriority: TicketPriority.MEDIUM` ตามโมเดล `Ticket` ใน `schema.prisma`
+>    - ทำ lookup `RequesterUser` จากอีเมลของ requester (`reqJennifer` และ `reqMichael`) เพื่อผูก `requesterId` อย่างถูกต้องตรงตามโมเดล ไม่เอา `User.id` ไปใส่ข้ามตารางอีกต่อไป
+> 2. **ป้องกัน Cross-model ID Collision (BR-13)**:
+>    - นำเงื่อนไข `ticket.requesterId === currentUser.id` ออกใน `GET /api/tickets/:id/actions-taken` และ `GET /api/tickets/:id/actions-taken/:actionId`
+>    - ตรวจสอบความเป็นเจ้าของเฉพาะ `ticket.userId === currentUser.id || ticket.requester?.id === currentUser.id || ticket.requester?.email === currentUser.email || ticket.requesterUser?.email === currentUser.email`
+> 3. **เพิ่ม Endpoint ดึง Action รายตัว (`GET /:id/actions-taken/:actionId`)**:
+>    - เพิ่ม route `GET /api/tickets/:id/actions-taken/:actionId` ใน `server/src/routes/tickets.ts` พร้อมการตรวจสอบ Data Isolation อย่างรัดกุม
+> 4. **ปรับความสอดคล้องของ API Spec และ Traceability Matrix**:
+>    - ปรับ Response shape ใน `docs/lab-04/api-spec.md` §2.1 ให้เป็น Array `[ ... ]` เรียงตาม `actionDateTime: asc` ตรงตามการทำงานจริง
+>    - แมป Test ID ใน `server/tests/lab-04/actions-taken.api.test.ts` ให้ตรงกับ `docs/lab-04/tests.md` แบบ 1-ต่อ-1 (`API-01`..`06`, `UNIT-01`..`03`, `SAFE-01`) และอัปเดตสถานะเป็น `Pass` ครบถ้วน
+>    - บันทึก Prompt 9 และ Reflection ของ Issue 29 ลงใน `docs/lab-04/ai-use.md`
+> 5. **จุดเก็บตก Validation & Test Cases**:
+>    - ตรวจจับวันที่ไม่ถูกต้อง: ส่ง `actionDateTime` ผิดรูปแบบตอบกลับ `400 Bad Request` ทันทีทั้งใน POST และ PATCH
+>    - ตรวจสอบความยาว: `result.length > 1000` และ `attachmentNotes.length > 500` ตอบกลับ `400 Bad Request`
+>    - ปรับความยาวขั้นต่ำของ `followUpNote` เป็นอย่างน้อย 2 ตัวอักษร
+>    - เพิ่มเทสต์เคสการส่ง `PATCH { isFollowUpRequired: false }` แล้วตรวจสอบว่า `followUpNote` ถูกเคลียร์เป็น `null` จริง
+> 
+> ตรวจสอบการคอมไพล์ผ่านฉลุยทั้ง `npm run build` (tsc) ฝั่ง Server และ Client เรียบร้อยค่ะ รบกวนช่วยตรวจซ้ำอีกรอบนะคะ ขอบคุณมากค่ะ! ✨
 
 ---
 

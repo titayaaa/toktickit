@@ -16,15 +16,15 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | Test ID | Type | Requirement / AC | What It Tests | Expected Result | Automated Test File | Final Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
 | **MIG-01** | Migration | BR-01, BR-15 | ActionTaken schema migration & legacy tickets preservation | Table exists with integer FKs, sequence aligned, legacy preserved (13 tests) | `server/tests/lab-04/db-seed.test.ts` | Pass |
-| **UNIT-01** | Unit | BR-05, AC-02 | Assignee validation utility rejects inactive users or Requesters | Throws validation error or returns false | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **UNIT-02** | Unit | BR-07, AC-03 | Follow-up note validation requires non-empty note when follow-up is true | Returns validation failure if note is empty | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **UNIT-03** | Unit | BR-08 | Result validation requires non-empty string when status is COMPLETED | Returns validation error if result is empty on complete | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **API-01** | API | FR-01, AC-01 | Create Action Taken by IT Staff with valid data | 201 Created with authenticated creator as `performedById` | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **API-02** | API | FR-07, AC-06 | Requester attempts to create Action Taken | 403 Forbidden | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **API-03** | API | FR-06, AC-04 | Requester retrieves Actions Taken for owned ticket | 200 OK with list of actions | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **API-04** | API | FR-06, AC-05 | Requester attempts to retrieve Actions Taken for unowned ticket | 404 Not Found (Data Isolation) | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **API-05** | API | FR-05, AC-01 | IT Staff updates Action Taken status to `COMPLETED` | 200 OK with updated record | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| **API-06** | API | BR-05, AC-02 | Attempt to assign Action Taken to inactive user | 422 Unprocessable Entity | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
+| **UNIT-01** | Unit | BR-05, AC-02 | Assignee validation utility rejects inactive users or Requesters | Throws validation error or returns false | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **UNIT-02** | Unit | BR-07, AC-03 | Follow-up note validation requires non-empty note when follow-up is true | Returns validation failure if note is empty | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **UNIT-03** | Unit | BR-08 | Result validation requires non-empty string when status is COMPLETED | Returns validation error if result is empty on complete | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **API-01** | API | FR-01, AC-01 | Create Action Taken by IT Staff with valid data | 201 Created with authenticated creator as `performedById` | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **API-02** | API | FR-07, AC-06 | Requester attempts to create Action Taken | 403 Forbidden | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **API-03** | API | FR-06, AC-04 | Requester retrieves Actions Taken for owned ticket | 200 OK with list of actions | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **API-04** | API | FR-06, AC-05 | Requester attempts to retrieve Actions Taken for unowned ticket | 404 Not Found (Data Isolation) | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **API-05** | API | FR-05, AC-01 | IT Staff updates Action Taken status to `COMPLETED` | 200 OK with updated record | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
+| **API-06** | API | BR-05, AC-02 | Attempt to assign Action Taken to inactive user | 422 Unprocessable Entity | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
 | **API-07** | API | BR-09, AC-07 | Attempt to resolve Ticket when `PENDING` Action Taken exists | 409 Conflict with clear resolution error | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | **API-08** | API | BR-09, AC-07 | Attempt to resolve Ticket when `IN_PROGRESS` Action Taken exists | 409 Conflict with clear resolution error | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | **API-09** | API | BR-09, AC-08 | Resolve Ticket when all Actions Taken are `COMPLETED` or `CANCELLED` | 200 OK and ticket status becomes `RESOLVED` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
@@ -34,7 +34,7 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **API-13** | API | FR-12, AC-09 | Requester attempts to access IT Staff Dashboard endpoint | 403 Forbidden | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 | **API-14** | API | BR-14, AC-12 | Concurrency check: Stale update rejected on ticket status update | 409 Conflict when expectedUpdatedAt does not match | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | **WORKFLOW-01** | API | BR-11 | Validate 9-state Ticket Transition Matrix (including PENDING) across roles | Rejects disallowed transitions with 422 Unprocessable Entity | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| **SAFE-01** | API | - | Safe error responses (never leak stack trace in 500) | JSON response `{ error: string }` | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
+| **SAFE-01** | API | - | Safe error responses (never leak stack trace in 500) | JSON response `{ error: string }` | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
 | **PERF-01** | Smoke | - | Dashboard API response time under load smoke test | Returns within 200ms for 50 concurrent requests | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 | **UI-01** | Component | FR-01, FR-06 | Actions Taken list renders on Ticket Detail in Zen Green style | Displays list of actions or empty state | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |
 | **UI-02** | Component | FR-01, FR-03 | Create Action Taken modal form open and submit | Calls API and refreshes action list | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |

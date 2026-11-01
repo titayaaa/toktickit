@@ -28,42 +28,37 @@ Retrieve all Actions Taken records associated with a specific ticket with pagina
   - `orderBy`: optional string (`asc` or `desc` by `actionDateTime`, default `desc`)
 - **Success Response (`200 OK`)**:
   ```json
-  {
-    "data": [
-      {
-        "id": 1,
-        "ticketId": 101,
-        "performedById": 2,
-        "performedBy": {
-          "id": 2,
-          "fullName": "Jane Staff",
-          "email": "jane@toktickit.com"
-        },
-        "assigneeId": 3,
-        "assignee": {
-          "id": 3,
-          "fullName": "Bob Senior",
-          "email": "bob@toktickit.com"
-        },
-        "actionDateTime": "2026-10-30T10:15:00.000Z",
-        "actionDescription": "Replaced RAM module and ran diagnostic test suite.",
-        "result": "Memory test passed 100% with no errors.",
-        "isFollowUpRequired": true,
-        "followUpNote": "Monitor system stability over next 48 hours.",
-        "attachmentNotes": "Refer to diagnostics-report.pdf in Ticket attachments.",
-        "status": "COMPLETED",
-        "createdAt": "2026-10-30T10:20:00.000Z",
-        "updatedAt": "2026-10-30T10:20:00.000Z"
-      }
-    ],
-    "meta": {
-      "total": 1,
-      "page": 1,
-      "limit": 10,
-      "totalPages": 1
+  [
+    {
+      "id": 1,
+      "ticketId": 101,
+      "performedById": 2,
+      "performedBy": {
+        "id": 2,
+        "fullName": "Jane Staff",
+        "email": "jane@toktickit.com",
+        "role": "IT_STAFF"
+      },
+      "assigneeId": 3,
+      "assignee": {
+        "id": 3,
+        "fullName": "Bob Senior",
+        "email": "bob@toktickit.com",
+        "role": "IT_STAFF"
+      },
+      "actionDateTime": "2026-10-30T10:15:00.000Z",
+      "actionDescription": "Replaced RAM module and ran diagnostic test suite.",
+      "result": "Memory test passed 100% with no errors.",
+      "isFollowUpRequired": true,
+      "followUpNote": "Monitor system stability over next 48 hours.",
+      "attachmentNotes": "Refer to diagnostics-report.pdf in Ticket attachments.",
+      "status": "COMPLETED",
+      "createdAt": "2026-10-30T10:20:00.000Z",
+      "updatedAt": "2026-10-30T10:20:00.000Z"
     }
-  }
+  ]
   ```
+  *(Ordered chronologically by `actionDateTime: asc, createdAt: asc`)*
 - **Error Responses**:
   - `401 Unauthorized`: Missing or invalid Bearer token / session.
   - `404 Not Found`: Ticket does not exist or belongs to another user (for Requester).
