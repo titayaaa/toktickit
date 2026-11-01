@@ -18,8 +18,8 @@
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
 | **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-04** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-07** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -581,7 +581,145 @@
 > 
 > ตรวจสอบการคอมไพล์ผ่านฉลุยทั้ง `npm run build` (tsc) ฝั่ง Server และ Client เรียบร้อยค่ะ รบกวนช่วยตรวจซ้ำอีกรอบนะคะ ขอบคุณมากค่ะ! ✨
 
+#### 💬 Round 2 Peer Review by @jejaebubu (Approved)
+- **Review Date:** 2026-11-01 19:00 UTC+7
+- **Verdict:** 🟢 Approved
+- **Review Summary:**
+  - ยืนยันการแก้ไขครบถ้วนทุกข้อ: `relatedSystemId`, `requestedPriority`, `RequesterUser` lookup ใน test setup
+  - การป้องกัน Cross-model ID collision ใน ownership check
+  - Endpoint `GET /api/tickets/:id/actions-taken/:actionId` และการปรับ array response shape ใน `api-spec.md`
+  - ตาราง Traceability Matrix ใน `tests.md` และ `ai-use.md`
+  - รันการทดสอบและ build ผ่าน 100%
+
+#### 💬 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#77](https://github.com/titayaaa/toktickit/pull/77)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `b13cb435cc1816edf2939f7ae59a3e321a7c43f0`
+- **Merged At:** 2026-11-01 19:00:30 +07:00 (12:00:30 UTC)
+- **Status:** ✅ Merged successfully — **Closes #65**
+
 ---
+
+### PR #78: Issue 30: Actions Taken Frontend Component on Ticket Detail
+- **PR URL:** [titayaaa/toktickit#78](https://github.com/titayaaa/toktickit/pull/78)
+- **Feature Branch:** `feature/30-actions-taken-ui`
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Peer Review
+- **Scope & Objectives:**
+  - `client/src/components/ActionsTaken.tsx`: สร้างคอมโพเนนต์แสดงรายการ Action Taken ในธีม Zen Green เรียงตามวันเวลา พร้อมสถานะ Badge (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`), Assignee pill, และ Follow-up highlight
+  - Modal แบบ Accessible (WCAG 2.1 AA): รองรับ Touch targets $\ge 44\text{px}$, ARIA `role="alert"` สำหรับ error feedback, `aria-hidden="true"` สำหรับ icon emoji, และปิดด้วยปุ่ม `Escape`
+  - Dynamic Validation: ตรวจสอบความถูกต้องแบบ Real-time บังคับ `result` (min 2 chars) เฉพาะเมื่อสถานะเป็น `COMPLETED`, บังคับ `followUpNote` เมื่อเปิด Follow-up, และป้องกัน Double Submission ด้วย Busy state
+  - State Synchronization: ส่ง callback `onActionsChange` กลับไปยัง `TicketDetail.tsx` เพื่อให้ state แม่ซิงก์แบบ Real-time รองรับ Resolution Gate ใน Issue 31
+  - ชุดทดสอบ Component Vitest 7 เคสใน `client/src/test/lab-04/ActionsTaken.test.tsx` (UI-01, UI-02, UI-03, DUP-01, A11Y-01) ผ่านครบ 100%
+
+#### 💬 Round 1 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-01
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจโค้ดคอมโพเนนต์ Actions Taken, State sync, การตรวจสอบสิทธิ์, และชุดทดสอบ UI ของ PR #78 (Issue 30) เทียบกับ specification.md, ui-spec.md และ api-spec.md แล้วนะคะ ภาพรวมการจัดวางโครงสร้างหน้าจอในธีม Zen Green, การทำ dynamic validation เมื่อเลือกสถานะ Completed, การซ่อนปุ่มควบคุมสำหรับ Requester และการทำ accessibility ตามเกณฑ์ WCAG AA ทำออกมาได้ประณีตและน่าใช้งานมากค่ะ
+> 
+> แต่ขอ Changes Requested ก่อนนะคะ เนื่องจากพบจุดสำคัญที่กระทบต่อการทำงานจริงในระบบและจุดที่ต้องปรับปรุงความสมบูรณ์ของคอมโพเนนต์ดังนี้ค่ะ:
+> 
+> 🔴 **Blocking: ต้องแก้ก่อน Merge**
+> 1. `client/src/components/ActionsTaken.tsx`: ปัญหา Auth Token Key Mismatch — คอมโพเนนต์ดึง token ด้วย `localStorage.getItem('token')` ในขณะที่ระบบ Authentication จาก Lab 3 บันทึกคีย์ว่า `'toktickit_auth_token'` ส่งผลให้เมื่อรันบนแอปจริง หน้าจอจะไม่สามารถดึงรายชื่อ Assignee จาก `GET /api/users/assignable` ได้และถูกบล็อกด้วย 401 Unauthorized แนะนำให้ทำ helper ดึง token ที่รองรับทั้ง `'toktickit_auth_token'` และ `'token'`
+> 2. `server/src/app.ts`: ขาดฟิลด์ `actionsTaken` ในคำตอบของ `GET /api/tickets/:id` — แม้ว่าใน query Prisma จะมี `include: { actionsTaken: ... }` แล้ว แต่ในอ็อบเจกต์ที่ส่งคืน `res.status(200).json({ ... })` บรรทัด 595–605 ไม่ได้แนบ `actionsTaken` ออกมา ทำให้หน้า Ticket Detail ไม่ได้รับข้อมูลเริ่มต้น
+> 3. `client/src/components/ActionsTaken.tsx`: การดึงข้อความแจ้งเตือน Error — ในบล็อก catch ของการสร้างและแก้ไข มีการตรวจสอบเพียง `data.message` แต่ backend API ส่ง error ในรูป `{ error: "..." }` ทำให้กรณีเกิดข้อผิดพลาดจาก validation จะแสดงข้อความ fallback ทั่วไปแทนที่จะเป็นคำอธิบายที่แท้จริง
+> 
+> 🟠 **Should Fix: พฤติกรรมของ UI และการเรียงลำดับ**
+> 1. **การเรียงลำดับรายการ Action Taken:** เมื่อสร้าง Action สำเร็จ UI นำรายการใหม่ไปแทรกไว้หน้าสุด (`[created, ...items]`) แต่ Backend และ Database เรียงตาม `actionDateTime: asc` แนะนำให้ต่อท้าย (`[...items, created]`) เพื่อให้สอดคล้องกับ audit trail
+> 2. **ความยาวและเงื่อนไข Validation:**
+>    - บังคับ `followUpNote` ความยาวขั้นต่ำ 2 ตัวอักษรและจำกัด `maxLength={500}` ให้ตรงกับ API validation
+>    - กำหนด `maxLength={1000}` ให้กับ `actionDescription` และ `result`
+> 3. **จำกัดสถานะใน Modal แก้ไข (Action Status Transition Matrix):** ปัจจุบัน Dropdown แสดงครบ 4 สถานะเสมอ แม้ Action จะอยู่ในสถานะ Completed หรือ Cancelled แล้ว แนะนำให้ล็อกหรือกรองตัวเลือกตาม State Matrix (ห้ามย้อนจาก Completed/Cancelled)
+> 
+> 🟡 **Minor: จุดเก็บตกเล็กน้อย**
+> 1. ปรับโทนสี Status Badge ให้สอดคล้องกับ Zen Green tokens ใน `ui-spec.md` (`PENDING`: `#FFFBEB`/`#92400E`, `IN_PROGRESS`: `#EFF6FF`/`#1E40AF`)
+> 2. ปรับชื่อ Test ID ใน `client/src/test/lab-04/ActionsTaken.test.tsx` เพื่อป้องกันการซ้ำซ้อนกับ `UI-06` ของ Dashboard
+> 3. ฟิลด์ `actionDateTime` (`type="datetime-local"`): เพิ่มฟิลด์ระบุวันเวลาในการปฏิบัติการในฟอร์มสร้างและแก้ไข Action Taken พร้อมตั้งค่าเริ่มต้นเป็นวันเวลาปัจจุบัน ให้สอดคล้องกับ API schema และ `ui-spec.md` §3.1
+> 
+> ฝากปรับแก้จุดด้านบนแล้ว ping มาตรวจซ้ำนะคะ ขอบคุณมากค่ะ!
+
+#### 💬 Round 1 Author Response by @titayaaa
+- **Response Date:** 2026-11-01
+- **Status:** 🔄 Changes Addressed
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวที่ละเอียดและช่วยดักจุดผิดพลาดสำคัญได้อย่างแม่นยำมากค่ะ @jejaebubu ได้ทำการแก้ไขปรับปรุงครบถ้วนทุกข้อเรียบร้อยแล้วค่ะ:
+> 
+> 1. **Auth Token Retrieval (`ActionsTaken.tsx`)**: เพิ่ม helper `getAuthToken()` ดึงค่าจาก `localStorage.getItem('toktickit_auth_token') || localStorage.getItem('token')` ทำให้รองรับ token ทั้งสองรูปแบบทั้งในสภาพแวดล้อมจริงและชุดทดสอบอย่างสมบูรณ์
+> 2. **คืนค่า `actionsTaken` ใน `GET /api/tickets/:id` (`server/src/app.ts`)**: แนบ `actionsTaken: ticket.actionsTaken` ใน `res.status(200).json({ ... })` เรียบร้อยแล้ว ทำให้หน้า Ticket Detail ได้รับข้อมูลเริ่มต้นครบถ้วน
+> 3. **Error Message Extraction (`ActionsTaken.tsx`)**: ปรับปรุงการดึงข้อความผิดพลาดเป็น `data.error || data.message || ...` ครอบคลุมทั้งกรณีที่เซิร์ฟเวอร์ส่ง `error` หรือ `message`
+> 4. **Item Ordering (`ActionsTaken.tsx`)**: ปรับการอัปเดต stateหลังสร้าง Action สำเร็จเป็น `const nextItems = [...items, created];` เพื่อรักษาลำดับแบบเรียงตามเวลาจากอดีตไปปัจจุบัน (chronological order)
+> 5. **Validation & Field Length Limits**:
+>    - ตรวจสอบ `followUpNote.trim().length < 2` เมื่อเปิดสวิตช์ Follow-up พร้อมกำหนด `maxLength={500}` บน textarea
+>    - กำหนด `maxLength={1000}` บน `action-description` และ `action-result` ป้องกันข้อความยาวเกินขนาดฟิลด์
+> 6. **Action Status Transition Matrix ใน Edit Modal**:
+>    - หาก Action เป็น `COMPLETED` หรือ `CANCELLED` จะล็อก Dropdown ไม่ให้เปลี่ยนสถานะย้อนกลับ
+>    - หาก Action เป็น `IN_PROGRESS` จะแสดงเฉพาะตัวเลือก `IN_PROGRESS`, `COMPLETED`, `CANCELLED`
+>    - หาก Action เป็น `PENDING` จะอนุญาตให้ย้ายไปยังสถานะใดก็ได้
+> 7. **Zen Green Status Badge Tokens**: ปรับคู่สีพื้นหลังและตัวอักษรของป้ายสถานะให้ตรงตาม Design System Tokens (`PENDING`: `#FFFBEB`/`#92400E`, `IN_PROGRESS`: `#EFF6FF`/`#1E40AF`)
+> 8. **TypeScript & Test ID Polish**:
+>    - ปรับแก้ type error ใน `ActionsTaken.tsx` สำหรับแอตทริบิวต์ `disabled={Boolean(...)}` รัน `npm run build` ผ่าน 100%
+>    - ปรับรหัสเทสต์ใน `ActionsTaken.test.tsx` จาก `UI-06` เป็น `UI-02` เพื่อไม่ให้ชนกับรหัสของ Staff Dashboard
+> 9. **Action Date/Time Field (`ActionsTaken.tsx`)**: เพิ่มฟิลด์ระบุวันเวลา `actionDateTime` (`type="datetime-local"`) ในฟอร์มสร้างและแก้ไข พร้อมตั้งค่าเริ่มต้นเป็นวันเวลาปัจจุบัน (`new Date().toISOString()`) ครบถ้วนตาม Handout และ `ui-spec.md` §3.1
+> 
+> ดำเนินการ commit ใน `5ecac1a` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 63 tests และ build production bundle ผ่านฉลุย 100% ค่ะ รบกวนช่วยตรวจทานซ้ำอีกครั้งนะคะ ขอบคุณมากค่ะ! ✨
+
+#### 💬 Round 2 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจ commit 5ecac1a รอบที่ 2 อย่างละเอียดแล้วนะคะ ขอบคุณที่ตามเก็บทั้ง 9 ข้อให้ค่ะ แต่จากการไล่เช็กโค้ดและไฟล์ reviewer.md พบจุดที่ต้องรบกวนช่วยปรับแก้อีก 4 จุดก่อนกด Approve & Merge นะคะ:
+> 
+> 1. **เวลาในช่อง actionDateTime (datetime-local) เลื่อนถอยหลัง 7 ชั่วโมงทุกครั้งที่เปิดฟอร์ม/กดบันทึก (ActionsTaken.tsx บรรทัด 120, 136–138)**
+>    - **ปัญหา:** `<input type="datetime-local" />` ใช้เวลาแบบ Local Time (YYYY-MM-DDTHH:mm) แต่ใน openCreateForm และ openEditForm ใช้ `.toISOString().slice(0, 16)` ซึ่งเป็นเวลา UTC พอเปิดในโซนเวลาไทย (UTC+7) เวลาจะถอยหลังไป 7 ชั่วโมง และทุกครั้งที่กด Edit แล้วกด Save (`new Date(actionDateTime).toISOString()`) เวลาของรายการนั้นจะถูกเลื่อนถอยหลังไปเรื่อย ๆ ครั้งละ 7 ชั่วโมงค่ะ
+>    - **แนวทางแก้:** สร้าง helper แปลง Date เป็น Local YYYY-MM-DDTHH:mm สำหรับใส่ใน state actionDateTime แทนการใช้ `.toISOString().slice(0, 16)` ค่ะ เช่น:
+>      `const toLocalDateTimeInput = (iso?: string) => { const d = iso ? new Date(iso) : new Date(); const pad = (n: number) => String(n).padStart(2, '0'); return \`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}\`; };`
+> 
+> 2. **การกดปุ่มลัด Complete บนการ์ดทำให้ editingAction.status กลายเป็น COMPLETED แล้วล็อกช่อง Status (ActionsTaken.tsx บรรทัด 133, 267, 495)**
+>    - **ปัญหา:** ใน handleQuickStatusChange (บรรทัด 267) เรียก `openEditForm({ ...action, status: 'COMPLETED' })` ซึ่งทำให้ `editingAction.status` ถูกทับเป็น 'COMPLETED' ส่งผลให้ `<select id="action-status">` (บรรทัด 495–501) เข้าใจผิดว่า Action นี้อยู่ในสถานะ Terminal (COMPLETED) ไปแล้วและสั่ง disabled ล็อกช่องเลือกสถานะทันที ทั้งที่สถานะจริงใน DB ยังเป็น PENDING หรือ IN_PROGRESS
+>    - **แนวทางแก้:** ปรับ `openEditForm(action: ActionTakenItem, initialStatus?: string)` ให้เก็บ `setEditingAction(action)` ตามสถานะจริงใน DB เหมือนเดิม แล้วเซ็ต `setStatus(initialStatus ?? action.status)` แทนค่ะ (และตอนกดปุ่ม Complete ให้เรียก `openEditForm(action, 'COMPLETED')`)
+> 
+> 3. **ความถูกต้องของบันทึกใน docs/lab-04/reviewer.md (บรรทัด 623–669)**
+>    - ในหัวข้อ Round 1 Review by @jejaebubu (Changes Requested) (บรรทัด 623–643) บันทึกไว้แค่ 8 ข้อ (ในหมวด Minor มีแค่ 2 ข้อ ขาดข้อ ฟิลด์ actionDateTime ซึ่งไปโผล่เป็นข้อ 9 ในฝั่ง Author Response แทน) รบกวนปรับข้อความใน Review Comments (Verbatim) ให้ครบทั้ง 9 ข้อตรงกับคอมเมนต์จริงบน GitHub ด้วยนะคะ
+>    - ในหัวข้อ Round 1 Author Response by @titayaaa (บรรทัด 669) ระบุว่า ดำเนินการ commit ใน 2d6f47e แต่ commit จริงบน PR คือ 5ecac1a รบกวนอัปเดตเลข commit ให้ตรงกันด้วยค่ะ
+> 
+> 4. **เพิ่มเคสทดสอบใน client/src/test/lab-04/ActionsTaken.test.tsx**
+>    - รบกวนเพิ่ม test ยืนยันการเปิด Edit Modal (ตรวจว่าการกรองตัวเลือก Status ตาม State Machine ทำงานถูกต้อง และใช้คีย์ toktickit_auth_token ได้จริง) อีกสัก 1 เคสนะคะ
+> 
+> แก้ 4 จุดนี้เสร็จแล้วทักมาได้เลยนะคะ เดี๋ยวรีบตรวจและกด Approve & Merge ให้ทันทีค่ะ ขอบคุณมากค่ะ!
+
+#### 💬 Round 2 Author Response by @titayaaa
+- **Response Date:** 2026-11-02
+- **Status:** 🔄 Changes Addressed
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณ @jejaebubu สำหรับการตรวจทานรอบที่ 2 อย่างละเอียดถี่ถ้วนมากค่ะ ได้ดำเนินการปรับปรุงและแก้ไขครบถ้วนทั้ง 4 จุดเรียบร้อยแล้วค่ะ:
+> 
+> 1. **แก้ไขปัญหา Timezone Shift ในช่อง `actionDateTime` (`ActionsTaken.tsx`)**:
+>    - เพิ่ม helper `toLocalDateTimeInput(iso?: string)` สำหรับแปลงเวลาให้เป็น Local Time string ในฟอร์แมต `YYYY-MM-DDTHH:mm`
+>    - ปรับปรุง `openCreateForm` และ `openEditForm` ให้เรียกใช้ helper ดังกล่าวแทนการใช้ `.toISOString().slice(0, 16)` ซึ่งเป็น UTC ทำให้เวลาไม่ถอยหลัง 7 ชั่วโมงเมื่อเปิดฟอร์มหรือบันทึกข้อมูลในเขตเวลาไทย (UTC+7)
+> 2. **แก้ไขการล็อกช่อง Status เมื่อกดปุ่ม Quick Complete (`ActionsTaken.tsx`)**:
+>    - ปรับ signature ของฟังก์ชันเป็น `openEditForm(action: ActionTakenItem, initialStatus?: string)`
+>    - ให้ `setEditingAction(action)` เก็บข้อมูลสถานะจริงจากฐานข้อมูลเหมือนเดิม เพื่อให้ State Machine Guard ประเมินสถานะก่อนหน้าได้อย่างถูกต้อง และกำหนด `setStatus(initialStatus ?? action.status)` เป็นค่าเริ่มต้นของฟอร์ม
+>    - เมื่อกดปุ่ม Complete ด่วน จะเรียก `openEditForm(action, 'COMPLETED')` ทำให้ modal เปิดขึ้นพร้อมเลือกสถานะ COMPLETED ให้ทันทีโดยที่ Dropdown ไม่ถูก disabled ล็อกค้าง
+> 3. **ปรับปรุงความถูกต้องของเอกสาร `docs/lab-04/reviewer.md`**:
+>    - ปรับข้อความ Round 1 Review by @jejaebubu ให้มีครบทั้ง 9 ข้อโดยเพิ่มข้อ 3 ในหมวด Minor เรื่องฟิลด์ `actionDateTime` ตรงกับคอมเมนต์จริง
+>    - อัปเดตเลขอ้างอิง commit ใน Round 1 Author Response จาก `2d6f47e` เป็น `5ecac1a` ให้ตรงกับประวัติคอมมิตจริงบน GitHub
+>    - บันทึกบทสนทนาการรีวิว Round 2 ทั้งข้อเสนอแนะและคำตอบรับอย่างครบถ้วน
+> 4. **เพิ่มเคสทดสอบ Edit Modal และ State Machine ใน `ActionsTaken.test.tsx`**:
+>    - เพิ่มเคสทดสอบ `UI-02: verifies Edit modal filters Status by State Machine and uses toktickit_auth_token`
+>    - ทดสอบยืนยันว่าการเปิด Edit Modal ดึง `toktickit_auth_token` ส่งไปยัง header `Authorization: Bearer ...` สำเร็จ
+>    - ทดสอบยืนยันว่า State Machine กรองสถานะสำหรับ Action ที่เป็น `IN_PROGRESS` ให้เหลือเฉพาะ `IN_PROGRESS`, `COMPLETED`, และ `CANCELLED` (ไม่มี `PENDING`)
+>    - ทดสอบยืนยันว่าการกด Quick Complete เปิด Edit modal ด้วยสถานะ COMPLETED โดยช่อง select ไม่ถูก disabled
+> 
+> ดำเนินการ commit ใน `fca398c` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 64 tests (100%) และรัน `npm run build` ผ่านสมบูรณ์ 0 errors รบกวนช่วยตรวจทานและ Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
+
 
 # Part 2: Records of Student (@titayaaa) Reviewing Partner (@jejaebubu)
 
@@ -949,4 +1087,193 @@
 - **Merged At:** 2026-11-01 17:42:22 +07:00 (10:42:22 UTC)
 - **Status:** ✅ Merged successfully
 
+---
 
+### PR #109: feat(workflow): Ticket Status Transition Matrix, Resolution Gate, and Concurrency Check (Issue #5)
+- **PR URL:** [jejaebubu/toktickit#109](https://github.com/jejaebubu/toktickit/pull/109)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ขอบคุณสำหรับ PR #109 ที่ครอบคลุมการทำงานของ Ticket Workflow, Resolution Gate และ Optimistic Concurrency Check สำหรับ **Issue #5 (PR-05)** ได้อย่างเป็นระบบมากค่ะ โดยเฉพาะ:
+> - การวางโครงสร้าง State Transition ควบคุมทั้งปุ่มใน UI และ Guard ใน Backend
+> - การทำ Resolution Gate Confirmation Modal เมื่อยังมี Action ค้าง (`PENDING`/`IN_PROGRESS`) พร้อม fallback ลอง resolve เพื่อรับ error 409
+> - การดักจับ Concurrency Mismatch (`STALE_UPDATE`) ทั้งจาก Body `expectedUpdatedAt` และ Header `If-Unmodified-Since`
+> - ชุดทดสอบครบทั้ง Server (108 tests) และ Client (87 tests) รวม 195/195 tests ผ่าน 100%
+>
+> อย่างไรก็ตาม จากการตรวจสอบอย่างละเอียดเปรียบเทียบกับข้อกำหนดใน `specification.md`, `api-spec.md` และหลักความปลอดภัยของระบบ พบจุดบกพร่องและข้อขัดแย้งกับสเปกที่จำเป็นต้องปรับปรุงแก้ไข 3 จุดสำคัญ (Required Changes) และข้อเสนอแนะเพิ่มเติมเพื่อความสมบูรณ์แบบ (Minor Suggestions) ดังนี้ค่ะ:
+>
+> ---
+>
+> ### 🛑 1. ประเด็นที่ต้องแก้ไขให้ถูกต้อง (Required Changes — Blocking)
+>
+> #### 1.1 State Transition Matrix: สถานะ `Open` ข้ามไป `Resolved` โดยตรงไม่ได้ และสถานะ `Pending` หายไป
+> - **ไฟล์ที่พบ:** `server/src/app.ts` และ `client/src/components/StaffTicketDetail.tsx`
+> - **ปัญหา:**
+>   1. ตั๋วที่อยู่ในสถานะ `Open` ห้ามข้ามไป `Resolved` โดยตรง งานจะต้องถูกส่งเข้าสู่สถานะปฏิบัติงานจริงก่อน (`In Progress`, `Waiting for Requester` หรือ `Pending`) ดังนั้นในอาร์เรย์ของ `Open` จะต้องไม่มี `"Resolved"`
+>   2. สถานะ **`Pending`** หายไปจาก Matrix ส่งผลให้หากมีตั๋วค้างอยู่ในสถานะ `Pending` จะถูกล็อกตายกลายเป็น Terminal state ทันที
+> - **แนวทางแก้ไข:**
+>   - ปรับ `Open` เป็น `["In Progress", "Waiting for Requester", "Pending", "Cancelled"]`
+>   - เพิ่มคีย์ `"Pending": ["In Progress", "Waiting for Requester", "Resolved", "Cancelled"]` พร้อมอนุญาตให้ `In Progress`, `Waiting for Requester` และ `Reopened` ย้ายไป `Pending` ได้
+>
+> #### 1.2 Side-effect การเปลี่ยนสถานะตั๋วเมื่อ Requester แจ้งว่าปัญหาได้รับการแก้ไข
+> - **ไฟล์ที่พบ:** `server/src/app.ts`
+> - **ปัญหา:** การใส่เงื่อนไข `nextStatusForRequester` เปลี่ยนสถานะเป็น `"Waiting for Requester"` เป็น side-effect ที่ขัดกับข้อกำหนดที่ระบุว่าการแจ้งของ Requester เป็นเพียง advisory และต้องไม่เปลี่ยนสถานะตั๋ว
+> - **แนวทางแก้ไข:** ในการอัปเดต advisory flag ของ Requester ให้ส่งเฉพาะ `data: { requesterIndicatedResolved: true }` คงสถานะเดิมของตั๋วไว้ 100%
+>
+> #### 1.3 ป้องกันข้อมูลภายในรั่วไหลในบล็อก 500 Catch (ตามกฎ SAFE-01)
+> - **ไฟล์ที่พบ:** `server/src/app.ts`
+> - **แนวทางแก้ไข:** บันทึก error ลง `console.error` ฝั่งเซิร์ฟเวอร์ และส่งคืนเฉพาะ `{ error: "Internal Server Error", message: "Failed to update ticket." }` โดยไม่ส่ง `err?.message`
+>
+> ### 💡 2. ข้อเสนอแนะเพิ่มเติม & จุดเก็บตก (Minor Suggestions)
+> - **HTTP Status Code สำหรับ Transition ที่ไม่อนุญาต:** ตรวจสอบความสอดคล้องกับเอกสารสัญญาของโปรเจกต์ (`400 Bad Request` ตาม `specification.md` AC-07, `api-spec.md` §4.1 และ `tests.md` API-06)
+> - **Precision ของ Header `If-Unmodified-Since`:** ตามมาตรฐาน RFC 7231 เวลาใน HTTP Header มีความละเอียดระดับวินาที แนะนำให้ปัดเศษเทียบระดับวินาที `Math.floor(expectedTime / 1000) !== Math.floor(actualTime / 1000)` เมื่อรับมาจาก Header
+> - **การแสดงผล Advisory Banner บนตั๋วที่ Resolve/Closed ไปแล้ว:** ใน `TicketDetail.tsx` และ `StaffTicketDetail.tsx` แนะนำให้เพิ่มเงื่อนไข `!["Resolved", "Closed", "Cancelled"].includes(ticket.status)` เพื่อไม่ให้ข้อความ `"Pending Staff Review"` ค้างบนตั๋วที่จบงานไปแล้ว
+> - **UX ของ Stale Update Modal:** เพิ่มปุ่ม `"Dismiss"` ใน `StaffTicketDetail.tsx` เพื่อให้เจ้าหน้าที่สามารถปิด Modal ชั่วคราวไปคัดลอกข้อความ Note/Comment ที่กำลังพิมพ์ค้างไว้ได้
+> - **สีของปุ่ม `Cancelled` ใน Workflow Action Bar:** เปลี่ยนจาก `btn-outline-success` เป็น `btn-outline-danger` เพื่อความชัดเจนของ UI
+
+#### 💬 Round 1 Author Response by @jejaebubu
+**Response Date:** 2026-11-01  
+**Commits:** `45b424d`, `8f8c8e6`  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวที่ละเอียดและรอบคอบมากค่ะ [@titayaaa](https://github.com/titayaaa) ดำเนินการแก้ไขครบทั้ง 3 Required Changes และ Minor Suggestions ทั้งหมดใน commits 45b424d และ 8f8c8e6 เรียบร้อยแล้วค่ะ:
+> 
+> 1. **ปรับปรุง TICKET_STATUS_TRANSITIONS (`server/src/app.ts`, `StaffTicketDetail.tsx`, `specification.md`)**: นำ "Resolved" ออกจากสถานะถัดไปของ Open (Open: ["In Progress", "Waiting for Requester", "Pending", "Cancelled"]) เพื่อบังคับให้ตั๋วต้องเข้าสู่สถานะปฏิบัติงานจริงก่อนจึงจะกด Resolve ได้ พร้อมเพิ่มเทสต์ยืนยันว่า Open -> Resolved ถูกปฏิเสธด้วย INVALID_STATUS_TRANSITION
+> 2. **เพิ่มสถานะ "Pending" ใน TICKET_STATUSES และ TICKET_STATUS_TRANSITIONS**: (Pending: ["In Progress", "Waiting for Requester", "Resolved", "Cancelled"]) และอนุญาตให้ย้ายไป Pending ได้จาก Open, In Progress, Waiting for Requester, Reopened
+> 3. **ตัด Side-effect การเปลี่ยนสถานะเมื่อ Requester แจ้งเจตนา (`server/src/app.ts`, `staff-ticket-detail.api.test.ts`)**: ปรับการอัปเดตเมื่อ Requester ส่ง { requesterIndicatedResolved: true } ให้ส่งเพียง data: { requesterIndicatedResolved: true } โดยคงสถานะ ticket.status เดิมไว้ 100%
+> 4. **Safe Error Response ตามเกณฑ์ SAFE-01 (`server/src/app.ts`)**: ในบล็อก catch ของ handleTicketPatch บันทึก console.error("Failed to update ticket:", err) และส่งคืนเฉพาะ { error: "Internal Server Error", message: "Failed to update ticket." } โดยไม่แนบ err?.message
+> 5. **Minor Suggestions ทั้งหมด**:
+>    - **RFC 7231 If-Unmodified-Since Precision**: ปรับการเทียบเวลาใน server/src/app.ts ให้เทียบความละเอียดระดับวินาที (Math.floor(expectedTime / 1000) !== Math.floor(actualTime / 1000)) เมื่ออ่านจาก Header If-Unmodified-Since และเทียบระดับมิลลิวินาทีเมื่อส่งผ่าน expectedUpdatedAt ใน JSON body พร้อมเพิ่มเทสต์ toUTCString() ใน API-08
+>    - **ซ่อน Advisory Banner บนตั๋วที่จบงานแล้ว**: เพิ่มเงื่อนไข !["Resolved", "Closed", "Cancelled"].includes(ticket.status) ในทั้ง StaffTicketDetail.tsx และ TicketDetail.tsx
+>    - **UX ของ Stale Update Modal**: เพิ่มปุ่ม "Dismiss" (data-testid="stale-update-dismiss") ใน StaffTicketDetail.tsx เพื่อให้เจ้าหน้าที่ปิดหน้าต่างไปคัดลอกข้อความที่พิมพ์ค้างไว้ได้ก่อนกด Reload
+>    - **สีปุ่ม Cancelled ใน Workflow Action Bar**: ปรับคลาสของปุ่ม Cancelled เป็น btn-outline-danger
+>    - **หมายเหตุเรื่อง HTTP Status Code ของ INVALID_STATUS_TRANSITION**: ในเอกสารสัญญาของฝั่งโปรเจกต์เรา (docs/lab-04/specification.md AC-07, docs/lab-04/api-spec.md §4.1 และ docs/lab-04/tests.md API-06) กำหนดให้ Invalid Status Transition คืนค่า 400 Bad Request (ส่วน 422 Unprocessable Entity ใช้สำหรับ assigneeId ที่ไม่ถูกต้องตาม AC-12) จึงคง 400 ไว้ให้ตรงตาม Engineering Contract ของเรโค่ะ
+> 
+> รันชุดทดสอบผ่านครบ 195/195 เทสต์ (Server 108 + Client 87) รบกวนช่วยตรวจทานซ้ำอีกครั้งนะคะ ขอบคุณมากค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+**Review Date:** 2026-11-01  
+**Verdict:** 🟢 Approved  
+**Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ขอบคุณ @jejaebubu ที่ดำเนินการแก้ไขปรับปรุงครบถ้วนสมบูรณ์ทั้ง 3 Required Changes และ Minor Suggestions ทั้งหมดใน commits `45b424d` และ `8f8c8e6` อย่างรอบคอบและรวดเร็วมากค่ะ ตรวจสอบโค้ดและชุดทดสอบซ้ำอย่างละเอียดแล้ว:
+> 
+> 1. **State Transition Matrix สมบูรณ์ 100%**:
+>    - นำ `"Resolved"` ออกจากสถานะถัดไปของ `Open` บังคับให้งานต้องเข้าสู่สถานะดำเนินการก่อน
+>    - เพิ่มสถานะ `"Pending"` เข้าสู่ `TICKET_STATUSES` และ `TICKET_STATUS_TRANSITIONS` ครบถ้วนทั้ง backend, frontend และเอกสาร `specification.md`
+>    - เพิ่มเทสต์ตรวจสอบการปฏิเสธ `Open -> Resolved` ด้วย `400 INVALID_STATUS_TRANSITION` ชัดเจน
+> 2. **ขจัด Side-effect ใน Requester Advisory สำเร็จ**:
+>    - เมื่อ Requester กด "My problem is resolved" ระบบอัปเดตเฉพาะ `requesterIndicatedResolved: true` โดยคงสถานะเดิมของตั๋วไว้ 100%
+>    - ปรับแก้เทสต์เดิมใน `staff-ticket-detail.api.test.ts` และเพิ่มการยืนยันใน `ticket-workflow.api.test.ts` (API-07) ครบถ้วน
+> 3. **ความปลอดภัยตามเกณฑ์ SAFE-01**:
+>    - บล็อก `catch` ของ `handleTicketPatch` บันทึก log ภายในเซิร์ฟเวอร์ และตอบกลับด้วย generic error ไม่ส่ง `err?.message` ออกสู่ภายนอก
+> 4. **Minor Suggestions & UX Polish**:
+>    - คำนวณ RFC 7231 `If-Unmodified-Since` ปัดเศษระดับวินาทีอย่างถูกต้อง และรองรับ `toUTCString()`
+>    - ซ่อน Advisory Banner เมื่อตั๋วอยู่ในสถานะ Resolved / Closed / Cancelled บนทั้งสองมุมมอง
+>    - เพิ่มปุ่ม Dismiss บน Stale Update Modal เพื่อป้องกันข้อมูลที่เจ้าหน้าที่กำลังพิมพ์สูญหาย
+>    - ปรับสีปุ่ม Cancelled เป็น `btn-outline-danger` ตรงตาม Semantics
+>    - คำชี้แจงเรื่อง Status Code 400 สำหรับ Invalid Status Transition สอดคล้องกับ Engineering Contract ใน `specification.md` และ `api-spec.md` เป็นอย่างดี
+> 
+> ผลการรันเทสต์ผ่านครบ 195/195 เทสต์ (Server 108 + Client 87) โค้ดมีคุณภาพสูงและพร้อมสำหรับการใช้งานจริง ขออนุมัติ (Approve) และยินดีดำเนินการกด Merge เข้าสู่ `lab4-staging` ให้ทันทีค่ะ 🎉
+
+#### 💬 Merge Event by Reviewer @titayaaa
+- **Merged PR URL:** [jejaebubu/toktickit#109](https://github.com/jejaebubu/toktickit/pull/109)
+- **Merged by:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `468a7ca`
+- **Status:** ✅ Merged successfully — **Closes Issue #5**
+
+---
+
+### PR #110: feat(dashboard): IT Staff Dashboard API, summary metrics, and UI screen (Issue #6)
+- **PR URL:** [jejaebubu/toktickit#110](https://github.com/jejaebubu/toktickit/pull/110)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved (Round 2)
+- **Scope & Objectives:**
+  - `GET /api/dashboard/staff`: REST API สำหรับ IT Staff และ Admin ในการดึง metrics เชิงปฏิบัติการแบบ real-time (`new`, `open`, `inProgress`, `waitingForRequester`, `myAssigned`), ปฏิเสธ Requester ด้วย `403 Forbidden`, และส่งคืน `recentTickets` 5 รายการล่าสุด
+  - พารามิเตอร์ `ownerId=me` บน `GET /api/tickets`
+  - คอมโพเนนต์ `StaffDashboard.tsx`: การ์ดตัวชี้วัด 5 ใบพร้อมฟังก์ชัน Drill-down เชื่อมโยงไปยัง `StaffTicketQueue` ตามตัวกรอง, ตารางและ Mobile card รายการตั๋วล่าสุด, และปุ่ม Quick Actions
+  - ชุดทดสอบ API (`staff-dashboard.api.test.ts`) และ UI (`StaffDashboard.test.tsx`) ครอบคลุม 6 เคสใหม่ รวมเป็น 201 เทสต์
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+- **Review Date:** 2026-11-01
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ขอบคุณสำหรับ PR #110 ที่พัฒนาโมดูล IT Staff Dashboard (Issue #6) ได้อย่างครบครัน สวยงาม และออกแบบการใช้งานได้ดีมากค่ะ ภาพรวมของการ์ดสรุปตัวชี้วัด 5 ใบ, ระบบ Drill-down กรองตั๋วตามสถานะอัตโนมัติ, การรองรับ Responsive สลับระหว่าง Desktop Table และ Mobile Cards, ตลอดจนชุดทดสอบใหม่ทั้ง 6 เคส (API-09, API-10, UI-04, STYLE-01, RESP-01) เขียนได้อย่างเป็นระบบมากค่ะ
+> 
+> อย่างไรก็ตาม จากการตรวจทานโค้ดอย่างละเอียดเปรียบเทียบกับ flow การทำงานของแอปพลิเคชันและเอกสารของโปรเจกต์ พบจุดบกพร่องระดับ Blocking ที่ทำให้เกิด Regression บนหน้าจอของผู้ใช้ Requester และจุดที่ควรปรับปรุงเพื่อความชัดเจน 3 ข้อดังนี้ค่ะ:
+> 
+> ---
+> 
+> ### 🔴 1. ประเด็นที่ต้องแก้ไขก่อน Merge (Required Changes — Blocking)
+> 
+> #### 1.1 Requester Navbar ทำให้เกิดหน้าจอว่างเปล่า (Blank Screen Regression)
+> - **ไฟล์ที่พบ:** `client/src/components/Header.tsx` (บรรทัด 35–39) และ `client/src/App.tsx` (บรรทัด 102–115)
+> - **ปัญหา:** ใน `Header.tsx` มีการเพิ่ม `{ id: "dashboard", label: "Dashboard", matches: ["dashboard"] }` ให้กับเมนูของ `REQUESTER` แต่ใน `App.tsx` ฟังก์ชัน `RequesterViews` ยังไม่มีการดักจับ `activeView === "dashboard"` (เนื่องจาก Requester Dashboard เป็นขอบเขตของ Issue #7 / PR-07)
+> - **ผลกระทบ:** เมื่อผู้ใช้ที่มีบทบาท `REQUESTER` ล็อกอินเข้าสู่ระบบและกดที่แท็บ `"Dashboard"` ใน Navbar หน้าจอ `<main>` จะไม่เรนเดอร์อะไรเลย กลายเป็นหน้าว่างเปล่า (Blank Page)
+> - **แนวทางแก้ไข:** นำ `{ id: "dashboard", label: "Dashboard", matches: ["dashboard"] }` ออกจากอาเรย์ `REQUESTER` ใน `NAV_BY_ROLE` ของ `Header.tsx` โดยให้คงไว้เฉพาะสำหรับ `IT_STAFF` และ `ADMINISTRATOR` เท่านั้น จนกว่าจะเริ่มพัฒนา Issue #7 ใน PR ถัดไปค่ะ
+> 
+> ---
+> 
+> ### 🟠 2. ประเด็นที่ควรปรับปรุงเพื่อความถูกต้องของ UI (Should Fix)
+> 
+> #### 2.1 หัวข้อแผง "My Recent Tickets" ขัดแย้งกับขอบเขตข้อมูลจริงของ Query
+> - **ไฟล์ที่พบ:** `client/src/components/StaffDashboard.tsx` (บรรทัด 468–472) และ `server/src/app.ts` (บรรทัด 1236–1245)
+> - **ปัญหา:** ใน `server/src/app.ts` การดึง `rawRecentTickets` เป็นการดึง 5 รายการตั๋วที่อัปเดตล่าสุดของคิวบริการทั้งหมด (`take: 5, orderBy: [{ updatedAt: "desc" }]`) โดยไม่ได้กรองตาม `ownerId: req.user.id` แต่ในหน้า UI กลับใช้หัวข้อว่า `"My Recent Tickets"` แม้ว่าคำบรรยายย่อยด้านล่างจะเขียนว่า `"Latest 5 service desk tickets updated in the queue"` ก็ตาม ทำให้เจ้าหน้าที่อาจเข้าใจผิดว่าตั๋วที่แสดงเป็นตั๋วที่ตนเองได้รับมอบหมายเท่านั้น
+> - **แนวทางแก้ไข:** ปรับเปลี่ยนหัวข้อแผงใน `StaffDashboard.tsx` ให้ตรงกับข้อเท็จจริง เช่น เป็น `"Recent Queue Tickets"` หรือ `"Recent Service Desk Tickets"` เพื่อสื่อความหมายที่ชัดเจนและสอดคล้องกับ subtitle ค่ะ
+> 
+> ---
+> 
+> ### 🟡 3. จุดเก็บตกเอกสารการบันทึกการรีวิว (Minor Doc Polish)
+> 
+> #### 3.1 ลิงก์และข้อมูล PR URL ใน `docs/lab-04/reviewer.md`
+> - ใน Master PR Table (Section 2) แถวของ `PR-06` ยังเป็นเพียงข้อความธรรมดา แนะนำให้ใส่ลิงก์ GitHub PR `[GitHub #110](https://github.com/jejaebubu/toktickit/pull/110)`
+> - ในหัวข้อ Section 3.6 บรรทัดที่ 1125–1130 ขาดการระบุ `- **PR URL:** https://github.com/jejaebubu/toktickit/pull/110`
+> 
+> ---
+> 
+> ฝากแก้ไขจุดที่ 1 เรื่องเมนูของ Requester และจุดที่ 2 เรื่อง wording ของหัวข้อแผงตั๋ว จากนั้น push commit ขึ้นมาใหม่นะคะ เดี๋ยวจะรีบเข้ามาตรวจซ้ำและกด Approve / Merge ให้ทันทีเลยค่ะ ขอบคุณมาก ๆ ค่ะ! 🚀
+
+#### 💬 Round 1 Author Response by @jejaebubu
+- **Response Date:** 2026-11-02
+- **Commits:** `1419b97`, `512cbab`
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวที่ละเอียดและช่วยตรวจพบจุด Regression ของเมนู Requester ค่ะ @titayaaa ดำเนินการแก้ไขครบทั้ง 3 ประเด็นใน commits 1419b97 และ 512cbab เรียบร้อยแล้วค่ะ:
+> 1. นำเมนู Dashboard ออกจาก REQUESTER ใน Header.tsx (Required 1.1): ปรับ NAV_BY_ROLE.REQUESTER ให้คงเฉพาะ My Tickets และ Create Ticket (เปิด Dashboard เฉพาะ IT_STAFF และ ADMINISTRATOR ใน PR นี้) เพื่อป้องกันปัญหาหน้าว่างก่อนพัฒนา Issue #7 (Requester Dashboard)
+> 2. ปรับหัวข้อแผงตั๋วล่าสุดใน StaffDashboard.tsx เป็น "Recent Queue Tickets" (Should Fix 2.1): เปลี่ยนจาก "My Recent Tickets" เป็น "Recent Queue Tickets" ให้ตรงกับขอบเขตข้อมูลจริงที่ดึงตั๋วอัปเดตล่าสุด 5 รายการของคิวบริการทั้งหมด พร้อมเพิ่ม assertion ยืนยันใน StaffDashboard.test.tsx
+> 3. อัปเดตลิงก์ PR #110 และบันทึกการรีวิวใน docs/lab-04/reviewer.md (Minor Doc Polish 3.1): เพิ่มลิงก์ [GitHub #110](https://github.com/jejaebubu/toktickit/pull/110) ในตาราง Master PR Table (Section 2) และในหัวข้อ Section 3.6 PR-06 พร้อมบันทึกผลการรีวิวรอบที่ 1 และการแก้ไขครบถ้วนค่ะ
+> 
+> รันชุดทดสอบผ่านครบ 201/201 เทสต์ (Server 110 + Client 91) รบกวนช่วยตรวจทานซ้ำอีกครั้งนะคะ ขอบคุณมากค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ขอบคุณ @jejaebubu ที่ดำเนินการแก้ไขปรับปรุงครบถ้วนสมบูรณ์ทั้งประเด็น Blocking, Should Fix และ Minor Suggestions ใน commits `1419b97` และ `512cbab` อย่างรวดเร็วและประณีตมากค่ะ ตรวจสอบโค้ดและชุดทดสอบซ้ำอย่างละเอียดแล้ว:
+> 
+> 1. **ขจัด Regression หน้าจอว่างเปล่าของ Requester สำเร็จ (Required 1.1)**:
+>    - นำ `{ id: "dashboard", label: "Dashboard" }` ออกจากเมนูของ `REQUESTER` ใน `Header.tsx` เรียบร้อย ทำให้คงเหลือเฉพาะเมนูที่รองรับจริงในปัจจุบัน (`My Tickets` และ `Create Ticket`) เมนูจะไม่นำทางไปสู่หน้าว่างเปล่าอีกต่อไป
+> 2. **ความสอดคล้องของหัวข้อแผงตั๋วกับ Query ข้อมูลจริง (Should Fix 2.1)**:
+>    - ปรับเปลี่ยนหัวข้อแผงใน `StaffDashboard.tsx` เป็น `"Recent Queue Tickets"` ถูกต้องตรงกับขอบเขตข้อมูลจริงที่ query ดึงตั๋ว 5 รายการล่าสุดของคิวบริการทั้งหมด
+>    - อัปเดต assertion ใน `StaffDashboard.test.tsx` ตรวจสอบข้อความใหม่ได้อย่างถูกต้อง
+> 3. **ความสมบูรณ์ของเอกสารบันทึกการรีวิว (Minor 3.1)**:
+>    - มีการใส่ลิงก์ `[GitHub #110](https://github.com/jejaebubu/toktickit/pull/110)` ใน Master PR Table (Section 2) และใน Section 3.6 ครบถ้วน
+>    - บันทึกประวัติการรีวิวรอบที่ 1 และผลการแก้ไขครบถ้วนสมบูรณ์ตามเกณฑ์ของ Lab 4
+> 
+> ผลการรันชุดทดสอบผ่านครบ 201/201 เทสต์ (Server 110 + Client 91) โค้ดมีคุณภาพสูงมากและพร้อมสำหรับการใช้งานจริง ขออนุมัติ (Approve) และยินดีดำเนินการกด Merge เข้าสู่ `lab4-staging` ให้ทันทีค่ะ 🎉

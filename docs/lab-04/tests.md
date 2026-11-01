@@ -36,15 +36,15 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **WORKFLOW-01** | API | BR-11 | Validate 9-state Ticket Transition Matrix (including PENDING) across roles | Rejects disallowed transitions with 422 Unprocessable Entity | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | **SAFE-01** | API | - | Safe error responses (never leak stack trace in 500) | JSON response `{ error: string }` | `server/tests/lab-04/actions-taken.api.test.ts` | Pass |
 | **PERF-01** | Smoke | - | Dashboard API response time under load smoke test | Returns within 200ms for 50 concurrent requests | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
-| **UI-01** | Component | FR-01, FR-06 | Actions Taken list renders on Ticket Detail in Zen Green style | Displays list of actions or empty state | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |
-| **UI-02** | Component | FR-01, FR-03 | Create Action Taken modal form open and submit | Calls API and refreshes action list | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |
-| **UI-03** | Component | FR-07, AC-04 | Requester role hides Action Taken create/edit buttons | Action items are read-only | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |
+| **UI-01** | Component | FR-01, FR-06 | Actions Taken list renders on Ticket Detail in Zen Green style | Displays list of actions or empty state | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
+| **UI-02** | Component | FR-01, FR-03 | Create Action Taken modal form open and submit | Calls API and refreshes action list | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
+| **UI-03** | Component | FR-07, AC-04 | Requester role hides Action Taken create/edit buttons | Action items are read-only | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **UI-04** | Component | BR-09, AC-07 | Resolution warning banner displayed if pending actions exist | "Resolve" option warns user of open actions | `client/src/test/lab-04/TicketWorkflow.test.tsx` | Planned |
 | **UI-05** | Component | FR-12, AC-11 | IT Staff Dashboard renders metric cards and urgent tickets | Interactive drill-down filters work | `client/src/test/lab-04/StaffDashboard.test.tsx` | Planned |
 | **UI-06** | Component | FR-13, AC-11 | Requester Dashboard renders cards and attention list | Interactive navigation to Ticket Detail | `client/src/test/lab-04/RequesterDashboard.test.tsx` | Planned |
 | **STYLE-01** | Style | ui-spec §1 | Zen Green token compliance (colors, typography, badges) | All components consume CSS variables | `client/src/test/lab-04/StaffDashboard.test.tsx` | Planned |
-| **DUP-01** | UI | BR-16 | Prevent double submission on Action Taken create button | Button disabled during in-flight submission | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |
-| **A11Y-01** | A11Y | ui-spec §6 | Keyboard focus, ARIA labels, and touch target size | Touch targets >= 44px, visible focus ring | `client/src/test/lab-04/ActionsTaken.test.tsx` | Planned |
+| **DUP-01** | UI | BR-16 | Prevent double submission on Action Taken create button | Button disabled during in-flight submission | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
+| **A11Y-01** | A11Y | ui-spec §6 | Keyboard focus, ARIA labels, and touch target size | Touch targets >= 44px, visible focus ring | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **RESP-01** | Responsive | AC-13 | Visual audit of Dashboards on Mobile, Tablet, Desktop | Zero horizontal overflow; cards stack neatly | `client/src/test/lab-04/StaffDashboard.test.tsx` | Planned |
 | **E2E-01** | E2E | FR-01, FR-04 | IT Staff creates and updates Action Taken through full UI | Action appears on timeline with correct badge | `e2e/lab-04/actions-taken-flow.spec.ts` | Planned |
 | **E2E-02** | E2E | BR-09, AC-07 | End-to-end resolution gate enforcement workflow | Blocks resolution until action completed | `e2e/lab-04/ticket-resolution.spec.ts` | Planned |

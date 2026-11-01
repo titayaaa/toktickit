@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRequester } from '../contexts/RequesterContext';
 import { useAuth } from '../contexts/AuthContext';
 import { AttachmentSection, AttachmentItem } from './AttachmentSection';
+import { ActionsTaken, ActionTakenItem } from './ActionsTaken';
 
 export interface PublicCommentItem {
   id: number;
@@ -60,6 +61,7 @@ export interface TicketDetailData {
   relatedSystem?: { id: number; name: string } | null;
   attachments: AttachmentItem[];
   publicComments?: PublicCommentItem[];
+  actionsTaken?: ActionTakenItem[];
 }
 
 interface TicketDetailProps {
@@ -917,6 +919,19 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
             </div>
           </div>
         )}
+
+        {/* Actions Taken Section */}
+        <div className="border-top pt-4 mb-4">
+          <ActionsTaken
+            ticketId={ticket.id}
+            actions={ticket.actionsTaken || []}
+            currentUserRole={user?.role}
+            currentUserId={user?.id}
+            onActionsChange={(updatedActions) => {
+              setTicket((prev) => (prev ? { ...prev, actionsTaken: updatedActions } : prev));
+            }}
+          />
+        </div>
 
         {/* Attachments Section */}
         <div className="border-top pt-4 mb-4">

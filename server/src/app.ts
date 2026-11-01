@@ -602,6 +602,7 @@ app.get('/api/tickets/:id', async (req: Request, res: Response): Promise<void> =
       relatedSystem: ticket.relatedSystem,
       attachments: ticket.attachments,
       publicComments: ticket.publicComments,
+      actionsTaken: ticket.actionsTaken,
     });
 
   } catch (error) {
