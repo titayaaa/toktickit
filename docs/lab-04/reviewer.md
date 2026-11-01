@@ -17,8 +17,8 @@
 | PR # | Feature / Issue Title | GitHub Issue | Feature Branch | Target | Reviewer | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
 | **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-03** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **PR-03** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ⏳ In Progress |
 | **PR-04** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -481,8 +481,33 @@
 > 
 > รบกวนตรวจทานรอบที่ 2 นะคะ ขอบคุณมากค่ะ!
 
-#### ⏳ Round 2 Re-review by @jejaebubu
-- **Status:** ⏳ รอผลการตรวจซ้ำจาก `@jejaebubu`
+#### 💬 Round 2 Review by @jejaebubu (Approved)
+**Review Date:** 2026-11-01  
+**Verdict:** 🟢 Approved  
+**Review Comments (Verbatim):**
+
+> ### การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ตรวจ commits `06e01c2` และ `018981d` แล้วนะคะ แก้ไขครบถ้วนทุกประเด็นที่แจ้งไว้ในรอบแรก ทั้งระดับ Blocking, Should Fix และ Minor เลยค่ะ:
+> 
+> 1. **PostgreSQL Sequence Synchronization (`seed.ts` & `db-seed.test.ts`):**
+>    - เพิ่มการซิงก์ค่า sequence ด้วย `setval(pg_get_serial_sequence(...))` สำหรับตาราง `actions_taken`, `public_comments` และ `internal_notes` ให้ตรงกับ `MAX(id)` หลัง seed
+>    - เพิ่มเทสต์ใน `db-seed.test.ts` ทดสอบสร้าง `ActionTaken` ใหม่หลัง seed โดยไม่ระบุ `id` ได้ค่า `id >= 7` และไม่เกิด `P2002`
+> 2. **Dynamic Requester Lookup (`seed.ts`):**
+>    - เปลี่ยนจากการ hardcode `requesterId: 1/2/3` เป็นการ lookup `RequesterUser` จากอีเมล (`reqJennifer`, `reqMichael`, `reqSarah`) เรียบร้อย
+> 3. **Negative Tests & Code Cleanliness (`db-seed.test.ts`, `seed.ts`, `reviewer.md`):**
+>    - เพิ่ม negative tests ตรวจสอบกรณี `isFollowUpRequired = false` (`followUpNote === null`) และกรณี `status = IN_PROGRESS` (`result === null`) ครบถ้วน
+>    - ลบตัวแปร `staffCharlie` ที่ไม่ได้ใช้งาน จัด indentation ใน `seed.ts` และอัปเดต SHA ของ merge commit PR #106 (`23166db`) พร้อมบันทึกประวัติการรีวิวใน `reviewer.md` ครบถ้วน
+> 
+> โค้ดและชุดทดสอบพร้อมสำหรับทำ Issue 29 ต่อแล้วค่ะ ขออนุมัติ (**Approve**) และกด Merge เข้าสู่ `lab4-staging` ให้เลยนะคะ!
+
+#### 💬 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#76](https://github.com/titayaaa/toktickit/pull/76)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `33922325eed3ee5deba3f7872f8b2193ef8bce8a`
+- **Merged At:** 2026-11-01 18:03:13 +07:00 (11:03:13 UTC)
+- **Status:** ✅ Merged successfully — **Closes #64**
 
 ---
 
