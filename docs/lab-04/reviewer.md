@@ -18,7 +18,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
 | **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **PR-03** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ⏳ In Progress |
+| **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-04** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -508,6 +508,25 @@
 - **Merge Commit SHA:** `33922325eed3ee5deba3f7872f8b2193ef8bce8a`
 - **Merged At:** 2026-11-01 18:03:13 +07:00 (11:03:13 UTC)
 - **Status:** ✅ Merged successfully — **Closes #64**
+
+---
+
+### PR #77: Issue 29: Actions Taken Backend REST API & Authorization Middleware
+- **PR URL:** [titayaaa/toktickit#77](https://github.com/titayaaa/toktickit/pull/77)
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Review (Round 1)
+- **Scope & Objectives:**
+  - `GET /api/tickets/:id/actions-taken`: คืนรายการ Action Taken เรียงตามวันเวลา พร้อมระบบ Data Isolation (ตอบ 404 สำหรับ Requester ที่เข้าดูตั๋วของผู้อื่น)
+  - `POST /api/tickets/:id/actions-taken`: บันทึก Action Taken ใหม่ ผูก `performedById` จาก JWT อัตโนมัติ, ตรวจสอบ Assignee ว่าต้องเป็น IT Staff/Admin ที่ Active เท่านั้น (ตอบ 422), บังคับผลลัพธ์เมื่อ Completed (2-1000 ตัวอักษร), และบังคับโน้ตเมื่อมี Follow-up
+  - `PATCH /api/tickets/:id/actions-taken/:actionId`: แก้ไขข้อมูลตาม Action Status Matrix (ห้ามย้อนจาก Completed/Cancelled), บังคับผลลัพธ์เมื่อ Completed, และล้างโน้ตเมื่อ Follow-up เป็น false
+  - `GET /api/users/assignable`: ดึงเฉพาะ IT Staff และ Admin ที่ active สำหรับ dropdown
+  - รวม `actionsTaken` ลงใน `GET /api/tickets/:id` รองรับหน้า Ticket Detail
+  - เพิ่มชุดทดสอบ Integration API ครอบคลุม 11 เคสใน `server/tests/lab-04/actions-taken.api.test.ts`
+
+#### ⏳ Round 1 Review by @jejaebubu
+- **Status:** ⏳ รอการตรวจทานรอบที่ 1 จาก `@jejaebubu`
 
 ---
 
