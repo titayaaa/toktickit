@@ -131,6 +131,10 @@ describe('Issue 32 / PR-06: IT Staff Dashboard Frontend UI (UI-05, STYLE-01, RES
       // Click Urgent card
       fireEvent.click(screen.getByTestId('staff-metric-card-urgent'));
       expect(handleDrillDown).toHaveBeenCalledWith({ itPriority: 'URGENT' });
+
+      // Click My Pending Actions card
+      fireEvent.click(screen.getByTestId('staff-metric-card-my-pending-actions'));
+      expect(handleDrillDown).toHaveBeenCalledWith({ status: 'IN_PROGRESS', ownerFilter: 'me' });
     });
 
     it('renders urgent incident queue with correct ticket numbers and summaries', async () => {

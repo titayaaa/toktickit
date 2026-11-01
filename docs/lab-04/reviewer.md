@@ -809,6 +809,48 @@
     - `server/tests/lab-04/staff-dashboard.api.test.ts` (API-11, API-13, PERF-01)
     - `client/src/test/lab-04/StaffDashboard.test.tsx` (UI-05, STYLE-01, RESP-01)
 
+#### 💬 Round 1 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🛑 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจโค้ด REST API, การคำนวณ Operational Metrics, หน้าจอ UI StaffDashboard.tsx และชุดทดสอบของ PR #80 (Issue 32) เทียบกับ schema.prisma, specification.md, api-spec.md และ ui-spec.md อย่างละเอียดรอบด้านแล้วนะคะ ภาพรวมการจัดเลย์เอาต์ธีม Zen Green, การ์ดสรุปสถิติ 4 ใบ, ตาราง Responsive Urgent Queue และการเชื่อมโยง Drill-down ไปยัง Queue ทำไว้ดีมากเลยค่ะ
+> แต่ขอ Changes Requested ก่อนนะคะ เนื่องจากมีจุดสำคัญเรื่องการยืนยันตัวตน (Authentication) บนหน้าเว็บจริง และ Foreign Key Constraint ในชุดทดสอบที่ต้องรบกวนช่วยปรับแก้ก่อน Merge ค่ะ:
+> 
+> 🔴 **Blocking: ต้องแก้ก่อน Merge**
+> 1. `client/src/components/StaffDashboard.tsx` (บรรทัด 122, 126): ขาด Authorization Header ใน fetchDashboardData ทำให้หน้าเว็บจริงเสี่ยงติด 401 Unauthorized
+>    - **ปัญหา:** ใน fetchDashboardData เรียก `fetch('/api/staff/dashboard')` และ fallback `fetch('/api/dashboard/staff')` โดยไม่ได้ส่ง headers ใด ๆ ในระบบ TokTickIT ผู้ใช้เก็บ JWT token ไว้ใน localStorage ด้วยคีย์ `'toktickit_auth_token'` หากไม่ส่ง headers API จะปฏิเสธด้วย 401 Unauthorized
+>    - **แนวทางแก้:** ดึง token จาก `localStorage.getItem('toktickit_auth_token')` แล้วส่ง headers ในคำสั่ง fetch เช่น `const headers: HeadersInit = token ? { Authorization: \`Bearer \${token}\` } : {};`
+> 2. `server/tests/lab-04/staff-dashboard.api.test.ts` (บรรทัด 75, 98, 115): ผูก `requesterId: requesterUser.id` ข้ามตาราง และไม่ได้ส่ง `userId`
+>    - **ปัญหา:** ใน `beforeAll` ตอนสร้างตั๋วทดสอบ มีการระบุ `requesterId: requesterUser.id` โดยตรง ซึ่ง `requesterUser` มาจากตาราง User ตาม schema.prisma โมเดล Ticket ฟิลด์ `requesterId` ชี้ไปยัง `RequesterUser.id` ส่วน `User.id` จะเชื่อมผ่านฟิลด์ `userId`
+>    - **แนวทางแก้:** ค้นหาหรือสร้าง RequesterUser (`reqJennifer`) ก่อน แล้วส่ง `requesterId: reqJennifer.id` พร้อมทั้งส่ง `userId: requesterUser.id`
+> 
+> 🟠 **Should Fix: ความสอดคล้องของ Filter Drill-Down**
+> 3. `client/src/components/StaffDashboard.tsx` (บรรทัด 334): การคลิกการ์ด "My Pending Actions" ขาดการกรอง `ownerFilter: 'me'`
+>    - **ปัญหา:** ตอนคลิกการ์ด My Pending Actions มีการเรียก `onDrillDown?.({ status: 'IN_PROGRESS' })` เพียงอย่างเดียว ทำให้พอนำทางไปหน้าคิวตั๋ว ระบบจะแสดงตั๋ว In Progress ของทุกคนในระบบ แทนที่จะแสดงเฉพาะงานของตนเอง
+>    - **แนวทางแก้:** ปรับเป็น `onDrillDown?.({ status: 'IN_PROGRESS', ownerFilter: 'me' })`
+> 4. `client/src/components/StaffDashboard.tsx` (บรรทัด 369): Status Casing ใน Hidden Alias
+>    - ในแท็ก `<span data-testid="staff-metric-card-in-progress" onClick={() => onDrillDown?.({ status: 'In Progress' })}>...</span>` ส่งค่า `'In Progress'` (มีช่องว่าง) แต่ใน Dropdown ของ `StaffTicketQueue.tsx` ตัวเลือกใช้ค่า value เป็น `'IN_PROGRESS'` แนะนำให้ปรับเป็น `status: 'IN_PROGRESS'` ให้ตรงกันค่ะ
+
+#### 💬 Author Response by @titayaaa (Changes Addressed)
+- **Response Date:** 2026-11-02
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณ @jejaebubu สำหรับการตรวจทานที่ละเอียดรอบคอบและช่วยจับจุดสำคัญเรื่อง Auth Header และ Foreign Key Constraint ค่ะ ได้ดำเนินการแก้ไขปรับปรุงครบทั้ง 4 ประเด็นเรียบร้อยแล้วค่ะ:
+> 
+> 1. **เพิ่ม Authorization Header ใน `fetchDashboardData` (`StaffDashboard.tsx`)**:
+>    - ดึง JWT token จาก `localStorage.getItem('toktickit_auth_token')` และแนบ `Authorization: Bearer <token>` ไปกับคำขอทั้ง endpoint หลัก `/api/staff/dashboard` และ endpoint สำรอง `/api/dashboard/staff` ทำให้หน้าจอโหลดข้อมูลสถิติได้อย่างถูกต้อง ไม่ติดปัญหา 401 Unauthorized
+> 2. **แก้ไขการผูก Foreign Key ของตั๋วทดสอบใน `staff-dashboard.api.test.ts`**:
+>    - ค้นหาและสร้างข้อมูลในตาราง `RequesterUser` (`reqJennifer`) ให้สอดคล้องกับโครงสร้างของ `schema.prisma`
+>    - ส่ง `requesterId: reqJennifer.id` คู่กับ `userId: requesterUser.id` ในการสร้างตั๋วทดสอบทั้ง 4 ใบ ทำให้ Foreign key constraints และ relation `TicketRequester` ถูกต้องสมบูรณ์ 100%
+> 3. **ปรับการกรอง Drill-Down ของการ์ด My Pending Actions (`StaffDashboard.tsx`)**:
+>    - เพิ่มการส่ง `ownerFilter: 'me'` ควบคู่กับ `status: 'IN_PROGRESS'` เมื่อผู้ใช้คลิกการ์ด "My Pending Actions" ทำให้เมื่อนำทางไปยังหน้าคิวตั๋ว ระบบจะกรองแสดงเฉพาะตั๋วที่เป็นงานของตนเองอย่างถูกต้อง
+>    - เพิ่ม assertion ตรวจสอบใน `StaffDashboard.test.tsx` ครอบคลุมการคลิกการ์ดใบนี้
+> 4. **ปรับ Status Casing ใน Hidden Alias (`StaffDashboard.tsx`)**:
+>    - ปรับแก้ค่าสถานะใน `staff-metric-card-in-progress` จาก `'In Progress'` เป็น `'IN_PROGRESS'` ตรงตามค่า Enum ของ `StaffTicketQueue.tsx`
+> 
+> รันชุดทดสอบ Client ผ่านครบ 19/19 tests (100%), `npm run build` ผ่าน 0 errors, Server typecheck ผ่าน 0 errors และผลการทดสอบ Backend Dashboard API ผ่านเรียบร้อยค่ะ รบกวนช่วยตรวจทานรอบที่ 2 อีกครั้งนะคะ ขอบคุณมากค่ะ! ✨
+
 ---
 
 # Part 2: Records of Student (@titayaaa) Reviewing Partner (@jejaebubu)

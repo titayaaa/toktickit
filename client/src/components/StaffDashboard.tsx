@@ -111,10 +111,13 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/staff/dashboard');
+      const token = localStorage.getItem('toktickit_auth_token');
+      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const res = await fetch('/api/staff/dashboard', { headers });
       if (!res.ok) {
         // Fallback to alias if needed
-        const fallbackRes = await fetch('/api/dashboard/staff');
+        const fallbackRes = await fetch('/api/dashboard/staff', { headers });
         if (!fallbackRes.ok) {
           throw new Error('Failed to load IT Staff dashboard');
         }
@@ -339,11 +342,11 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               cursor: 'pointer',
               minHeight: 44,
             }}
-            onClick={() => onDrillDown?.({ status: 'IN_PROGRESS' })}
+            onClick={() => onDrillDown?.({ status: 'IN_PROGRESS', ownerFilter: 'me' })}
             data-testid="staff-metric-card-my-pending-actions"
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && onDrillDown?.({ status: 'IN_PROGRESS' })}
+            onKeyDown={(e) => e.key === 'Enter' && onDrillDown?.({ status: 'IN_PROGRESS', ownerFilter: 'me' })}
             aria-label={`My Pending Actions: ${metrics.myPendingActionsCount ?? metrics.myPendingActions ?? 0}.`}
           >
             <div className="d-flex justify-content-between align-items-center mb-1">
@@ -375,7 +378,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
         <span data-testid="staff-metric-value-new">{metrics.openTicketsCount ?? 0}</span>
         <span data-testid="staff-metric-card-open">{metrics.openTicketsCount ?? 0}</span>
         <span data-testid="staff-metric-value-open">{metrics.openTicketsCount ?? 0}</span>
-        <span data-testid="staff-metric-card-in-progress" onClick={() => onDrillDown?.({ status: 'In Progress' })}>{metrics.inProgressTicketsCount ?? 0}</span>
+        <span data-testid="staff-metric-card-in-progress" onClick={() => onDrillDown?.({ status: 'IN_PROGRESS' })}>{metrics.inProgressTicketsCount ?? 0}</span>
         <span data-testid="staff-metric-value-in-progress">{metrics.inProgressTicketsCount ?? 0}</span>
         <span data-testid="staff-metric-card-waiting-for-requester">{0}</span>
         <span data-testid="staff-metric-value-waiting-for-requester">{0}</span>

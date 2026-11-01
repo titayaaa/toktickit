@@ -12,6 +12,7 @@ describe('Issue 32 / PR-06: IT Staff Dashboard API & Metrics (API-11, API-13, PE
   let staffBob: any;
   let adminUser: any;
   let requesterUser: any;
+  let reqJennifer: any;
   let staffAliceToken: string;
   let requesterToken: string;
   let adminToken: string;
@@ -43,6 +44,15 @@ describe('Issue 32 / PR-06: IT Staff Dashboard API & Metrics (API-11, API-13, PE
         where: { role: Role.REQUESTER, isActive: true },
       });
 
+      reqJennifer = await prisma.requesterUser.findFirst({
+        where: { email: requesterUser.email },
+      });
+      if (!reqJennifer) {
+        reqJennifer = await prisma.requesterUser.create({
+          data: { name: requesterUser.fullName, email: requesterUser.email, isActive: true },
+        });
+      }
+
       staffAliceToken = generateToken({
         id: staffAlice.id,
         email: staffAlice.email,
@@ -67,7 +77,8 @@ describe('Issue 32 / PR-06: IT Staff Dashboard API & Metrics (API-11, API-13, PE
           description: 'Test description for unassigned metric',
           categoryId: category.id,
           relatedSystemId: relatedSystem.id,
-          requesterId: requesterUser.id,
+          requesterId: reqJennifer.id,
+          userId: requesterUser.id,
           ownerId: null,
           currentStatus: TicketStatus.OPEN,
           requestedPriority: TicketPriority.HIGH,
@@ -82,7 +93,8 @@ describe('Issue 32 / PR-06: IT Staff Dashboard API & Metrics (API-11, API-13, PE
           description: 'Test description for urgent metric',
           categoryId: category.id,
           relatedSystemId: relatedSystem.id,
-          requesterId: requesterUser.id,
+          requesterId: reqJennifer.id,
+          userId: requesterUser.id,
           ownerId: staffAlice.id,
           currentStatus: TicketStatus.IN_PROGRESS,
           requestedPriority: TicketPriority.URGENT,
@@ -97,7 +109,8 @@ describe('Issue 32 / PR-06: IT Staff Dashboard API & Metrics (API-11, API-13, PE
           description: 'Test description for Bob urgent metric',
           categoryId: category.id,
           relatedSystemId: relatedSystem.id,
-          requesterId: requesterUser.id,
+          requesterId: reqJennifer.id,
+          userId: requesterUser.id,
           ownerId: staffBob.id,
           currentStatus: TicketStatus.NEW,
           requestedPriority: TicketPriority.URGENT,
@@ -112,7 +125,8 @@ describe('Issue 32 / PR-06: IT Staff Dashboard API & Metrics (API-11, API-13, PE
           description: 'Closed ticket should not count towards active metrics',
           categoryId: category.id,
           relatedSystemId: relatedSystem.id,
-          requesterId: requesterUser.id,
+          requesterId: reqJennifer.id,
+          userId: requesterUser.id,
           ownerId: staffAlice.id,
           currentStatus: TicketStatus.CLOSED,
           requestedPriority: TicketPriority.URGENT,
