@@ -59,7 +59,7 @@ const mockAssignableStaff: AssignableUser[] = [
   { id: 4, fullName: 'Carol Admin', email: 'carol@toktickit.com', role: 'ADMINISTRATOR' },
 ];
 
-describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01)', () => {
+describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, DUP-01, A11Y-01)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
@@ -234,7 +234,7 @@ describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01)',
     });
   });
 
-  it('UI-06 & DUP-01: validates Follow-up Note when toggle is on and disables save button during submission', async () => {
+  it('UI-02 & DUP-01: validates Follow-up Note when toggle is on and disables save button during submission', async () => {
     let resolvePost: (val: any) => void;
     const pendingPromise = new Promise((resolve) => {
       resolvePost = resolve;
@@ -343,7 +343,7 @@ describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01)',
     });
   });
 
-  it('UI-06: quick Complete and Cancel status actions trigger PATCH endpoint', async () => {
+  it('UI-02: quick Complete and Cancel status actions trigger PATCH endpoint', async () => {
     const onActionsChangeMock = vi.fn();
 
     const patchMock = vi.fn().mockImplementation((url: string, opts: any) => {

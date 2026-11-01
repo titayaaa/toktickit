@@ -63,6 +63,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
   const [editingAction, setEditingAction] = useState<ActionTakenItem | null>(null);
 
   // Form State
+  const [actionDateTime, setActionDateTime] = useState<string>('');
   const [assigneeId, setAssigneeId] = useState<number | string>('');
   const [status, setStatus] = useState<string>('PENDING');
   const [actionDescription, setActionDescription] = useState<string>('');
@@ -83,11 +84,14 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
     setItems(actions);
   }, [actions]);
 
+  // Helper for resilient auth token retrieval
+  const getAuthToken = () => localStorage.getItem('toktickit_auth_token') || localStorage.getItem('token');
+
   // Load assignable staff when form opens or component mounts for staff
   const loadAssignableStaff = useCallback(async () => {
     if (!canManage) return;
     try {
-      const token = localStorage.getItem('token');
+      const token = getAuthToken();
       const res = await fetch('/api/users/assignable', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -113,6 +117,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
 
   const openCreateForm = () => {
     setEditingAction(null);
+    setActionDateTime(new Date().toISOString().slice(0, 16));
     setAssigneeId(currentUserId || (assignableStaff[0]?.id ?? ''));
     setStatus('PENDING');
     setActionDescription('');
@@ -127,6 +132,11 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
 
   const openEditForm = (action: ActionTakenItem) => {
     setEditingAction(action);
+    setActionDateTime(
+      action.actionDateTime
+        ? new Date(action.actionDateTime).toISOString().slice(0, 16)
+        : new Date().toISOString().slice(0, 16)
+    );
     setAssigneeId(action.assigneeId);
     setStatus(action.status);
     setActionDescription(action.actionDescription);
@@ -173,8 +183,8 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
       errors.result = 'Result summary is required (min 2 characters) when completing an action.';
     }
 
-    if (isFollowUpRequired && (!followUpNote || followUpNote.trim().length === 0)) {
-      errors.followUpNote = 'Follow-up note is mandatory when follow-up is required.';
+    if (isFollowUpRequired && (!followUpNote || followUpNote.trim().length < 2)) {
+      errors.followUpNote = 'Follow-up note is mandatory (min 2 characters) when follow-up is required.';
     }
 
     setFieldErrors(errors);
@@ -188,13 +198,14 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
     setIsSaving(true);
     setFormError(null);
 
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
     const payload = {
+      actionDateTime: actionDateTime ? new Date(actionDateTime).toISOString() : new Date().toISOString(),
       assigneeId: Number(assigneeId),
       actionDescription: actionDescription.trim(),
       status,
@@ -215,7 +226,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
 
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.message || `Failed to update action (HTTP ${res.status})`);
+          throw new Error(data.error || data.message || `Failed to update action (HTTP ${res.status})`);
         }
 
         const updated = await res.json();
@@ -232,11 +243,11 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
 
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.message || `Failed to create action (HTTP ${res.status})`);
+          throw new Error(data.error || data.message || `Failed to create action (HTTP ${res.status})`);
         }
 
         const created = await res.json();
-        const nextItems = [created, ...items];
+        const nextItems = [...items, created];
         setItems(nextItems);
         onActionsChange?.(nextItems);
       }
@@ -258,7 +269,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
     }
 
     setBusyActionId(action.id);
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
     try {
       const res = await fetch(`/api/tickets/${ticketId}/actions-taken/${action.id}`, {
         method: 'PATCH',
@@ -271,7 +282,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Failed to update action status');
+        throw new Error(data.error || data.message || 'Failed to update action status');
       }
 
       const updated = await res.json();
@@ -300,13 +311,13 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
   };
 
   const renderStatusBadge = (actionStatus: string) => {
-    let bg = '#FEF3C7';
+    let bg = '#FFFBEB';
     let color = '#92400E';
 
     switch (actionStatus) {
       case 'IN_PROGRESS':
         bg = '#EFF6FF';
-        color = '#1D4ED8';
+        color = '#1E40AF';
         break;
       case 'COMPLETED':
         bg = '#F0FDF4';
@@ -318,7 +329,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
         break;
       case 'PENDING':
       default:
-        bg = '#FEF3C7';
+        bg = '#FFFBEB';
         color = '#92400E';
         break;
     }
@@ -441,7 +452,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
           <form onSubmit={handleSubmit}>
             <div className="row g-3">
               {/* Assignee */}
-              <div className="col-12 col-md-6">
+              <div className="col-12 col-md-4">
                 <label htmlFor="action-assignee" className="form-label fw-semibold small text-dark mb-1">
                   Assignee <span className="text-danger">*</span>
                 </label>
@@ -472,7 +483,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
               </div>
 
               {/* Status */}
-              <div className="col-12 col-md-6">
+              <div className="col-12 col-md-4">
                 <label htmlFor="action-status" className="form-label fw-semibold small text-dark mb-1">
                   Status <span className="text-danger">*</span>
                 </label>
@@ -481,15 +492,46 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
                   className="form-select"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  disabled={isSaving}
+                  disabled={Boolean(isSaving || (editingAction && ['COMPLETED', 'CANCELLED'].includes(editingAction.status)))}
                   data-testid="action-status-select"
                   style={{ minHeight: 44 }}
                 >
-                  <option value="PENDING">PENDING</option>
-                  <option value="IN_PROGRESS">IN_PROGRESS</option>
-                  <option value="COMPLETED">COMPLETED</option>
-                  <option value="CANCELLED">CANCELLED</option>
+                  {editingAction?.status === 'COMPLETED' ? (
+                    <option value="COMPLETED">COMPLETED</option>
+                  ) : editingAction?.status === 'CANCELLED' ? (
+                    <option value="CANCELLED">CANCELLED</option>
+                  ) : editingAction?.status === 'IN_PROGRESS' ? (
+                    <>
+                      <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="COMPLETED">COMPLETED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="PENDING">PENDING</option>
+                      <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="COMPLETED">COMPLETED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                    </>
+                  )}
                 </select>
+              </div>
+
+              {/* Action Date / Time */}
+              <div className="col-12 col-md-4">
+                <label htmlFor="action-date-time" className="form-label fw-semibold small text-dark mb-1">
+                  Action Date & Time
+                </label>
+                <input
+                  id="action-date-time"
+                  type="datetime-local"
+                  className="form-control"
+                  value={actionDateTime}
+                  onChange={(e) => setActionDateTime(e.target.value)}
+                  disabled={isSaving}
+                  data-testid="action-date-time-input"
+                  style={{ minHeight: 44 }}
+                />
               </div>
 
               {/* Description */}
@@ -501,7 +543,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
                   id="action-description"
                   className={`form-control ${fieldErrors.actionDescription ? 'is-invalid' : ''}`}
                   rows={3}
-                  maxLength={2000}
+                  maxLength={1000}
                   value={actionDescription}
                   onChange={(e) => {
                     setActionDescription(e.target.value);
@@ -528,7 +570,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
                   id="action-result"
                   className={`form-control ${fieldErrors.result ? 'is-invalid' : ''}`}
                   rows={2}
-                  maxLength={2000}
+                  maxLength={1000}
                   value={result}
                   onChange={(e) => {
                     setResult(e.target.value);
@@ -578,7 +620,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
                     id="action-followup-note"
                     className={`form-control ${fieldErrors.followUpNote ? 'is-invalid' : ''}`}
                     rows={2}
-                    maxLength={1000}
+                    maxLength={500}
                     value={followUpNote}
                     onChange={(e) => {
                       setFollowUpNote(e.target.value);

@@ -613,9 +613,60 @@
   - Modal แบบ Accessible (WCAG 2.1 AA): รองรับ Touch targets $\ge 44\text{px}$, ARIA `role="alert"` สำหรับ error feedback, `aria-hidden="true"` สำหรับ icon emoji, และปิดด้วยปุ่ม `Escape`
   - Dynamic Validation: ตรวจสอบความถูกต้องแบบ Real-time บังคับ `result` (min 2 chars) เฉพาะเมื่อสถานะเป็น `COMPLETED`, บังคับ `followUpNote` เมื่อเปิด Follow-up, และป้องกัน Double Submission ด้วย Busy state
   - State Synchronization: ส่ง callback `onActionsChange` กลับไปยัง `TicketDetail.tsx` เพื่อให้ state แม่ซิงก์แบบ Real-time รองรับ Resolution Gate ใน Issue 31
-  - ชุดทดสอบ Component Vitest 7 เคสใน `client/src/test/lab-04/ActionsTaken.test.tsx` (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01) ผ่านครบ 100%
+  - ชุดทดสอบ Component Vitest 7 เคสใน `client/src/test/lab-04/ActionsTaken.test.tsx` (UI-01, UI-02, UI-03, DUP-01, A11Y-01) ผ่านครบ 100%
 
----
+#### 💬 Round 1 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-01
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจโค้ดคอมโพเนนต์ Actions Taken, State sync, การตรวจสอบสิทธิ์, และชุดทดสอบ UI ของ PR #78 (Issue 30) เทียบกับ specification.md, ui-spec.md และ api-spec.md แล้วนะคะ ภาพรวมการจัดวางโครงสร้างหน้าจอในธีม Zen Green, การทำ dynamic validation เมื่อเลือกสถานะ Completed, การซ่อนปุ่มควบคุมสำหรับ Requester และการทำ accessibility ตามเกณฑ์ WCAG AA ทำออกมาได้ประณีตและน่าใช้งานมากค่ะ
+> 
+> แต่ขอ Changes Requested ก่อนนะคะ เนื่องจากพบจุดสำคัญที่กระทบต่อการทำงานจริงในระบบและจุดที่ต้องปรับปรุงความสมบูรณ์ของคอมโพเนนต์ดังนี้ค่ะ:
+> 
+> 🔴 **Blocking: ต้องแก้ก่อน Merge**
+> 1. `client/src/components/ActionsTaken.tsx`: ปัญหา Auth Token Key Mismatch — คอมโพเนนต์ดึง token ด้วย `localStorage.getItem('token')` ในขณะที่ระบบ Authentication จาก Lab 3 บันทึกคีย์ว่า `'toktickit_auth_token'` ส่งผลให้เมื่อรันบนแอปจริง หน้าจอจะไม่สามารถดึงรายชื่อ Assignee จาก `GET /api/users/assignable` ได้และถูกบล็อกด้วย 401 Unauthorized แนะนำให้ทำ helper ดึง token ที่รองรับทั้ง `'toktickit_auth_token'` และ `'token'`
+> 2. `server/src/app.ts`: ขาดฟิลด์ `actionsTaken` ในคำตอบของ `GET /api/tickets/:id` — แม้ว่าใน query Prisma จะมี `include: { actionsTaken: ... }` แล้ว แต่ในอ็อบเจกต์ที่ส่งคืน `res.status(200).json({ ... })` บรรทัด 595–605 ไม่ได้แนบ `actionsTaken` ออกมา ทำให้หน้า Ticket Detail ไม่ได้รับข้อมูลเริ่มต้น
+> 3. `client/src/components/ActionsTaken.tsx`: การดึงข้อความแจ้งเตือน Error — ในบล็อก catch ของการสร้างและแก้ไข มีการตรวจสอบเพียง `data.message` แต่ backend API ส่ง error ในรูป `{ error: "..." }` ทำให้กรณีเกิดข้อผิดพลาดจาก validation จะแสดงข้อความ fallback ทั่วไปแทนที่จะเป็นคำอธิบายที่แท้จริง
+> 
+> 🟠 **Should Fix: พฤติกรรมของ UI และการเรียงลำดับ**
+> 1. **การเรียงลำดับรายการ Action Taken:** เมื่อสร้าง Action สำเร็จ UI นำรายการใหม่ไปแทรกไว้หน้าสุด (`[created, ...items]`) แต่ Backend และ Database เรียงตาม `actionDateTime: asc` แนะนำให้ต่อท้าย (`[...items, created]`) เพื่อให้สอดคล้องกับ audit trail
+> 2. **ความยาวและเงื่อนไข Validation:**
+>    - บังคับ `followUpNote` ความยาวขั้นต่ำ 2 ตัวอักษรและจำกัด `maxLength={500}` ให้ตรงกับ API validation
+>    - กำหนด `maxLength={1000}` ให้กับ `actionDescription` และ `result`
+> 3. **จำกัดสถานะใน Modal แก้ไข (Action Status Transition Matrix):** ปัจจุบัน Dropdown แสดงครบ 4 สถานะเสมอ แม้ Action จะอยู่ในสถานะ Completed หรือ Cancelled แล้ว แนะนำให้ล็อกหรือกรองตัวเลือกตาม State Matrix (ห้ามย้อนจาก Completed/Cancelled)
+> 
+> 🟡 **Minor: จุดเก็บตกเล็กน้อย**
+> 1. ปรับโทนสี Status Badge ให้สอดคล้องกับ Zen Green tokens ใน `ui-spec.md` (`PENDING`: `#FFFBEB`/`#92400E`, `IN_PROGRESS`: `#EFF6FF`/`#1E40AF`)
+> 2. ปรับชื่อ Test ID ใน `client/src/test/lab-04/ActionsTaken.test.tsx` เพื่อป้องกันการซ้ำซ้อนกับ `UI-06` ของ Dashboard
+> 
+> ฝากปรับแก้จุดด้านบนแล้ว ping มาตรวจซ้ำนะคะ ขอบคุณมากค่ะ!
+
+#### 💬 Round 1 Author Response by @titayaaa
+- **Response Date:** 2026-11-01
+- **Status:** 🔄 Changes Addressed
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวที่ละเอียดและช่วยดักจุดผิดพลาดสำคัญได้อย่างแม่นยำมากค่ะ @jejaebubu ได้ทำการแก้ไขปรับปรุงครบถ้วนทุกข้อเรียบร้อยแล้วค่ะ:
+> 
+> 1. **Auth Token Retrieval (`ActionsTaken.tsx`)**: เพิ่ม helper `getAuthToken()` ดึงค่าจาก `localStorage.getItem('toktickit_auth_token') || localStorage.getItem('token')` ทำให้รองรับ token ทั้งสองรูปแบบทั้งในสภาพแวดล้อมจริงและชุดทดสอบอย่างสมบูรณ์
+> 2. **คืนค่า `actionsTaken` ใน `GET /api/tickets/:id` (`server/src/app.ts`)**: แนบ `actionsTaken: ticket.actionsTaken` ใน `res.status(200).json({ ... })` เรียบร้อยแล้ว ทำให้หน้า Ticket Detail ได้รับข้อมูลเริ่มต้นครบถ้วน
+> 3. **Error Message Extraction (`ActionsTaken.tsx`)**: ปรับปรุงการดึงข้อความผิดพลาดเป็น `data.error || data.message || ...` ครอบคลุมทั้งกรณีที่เซิร์ฟเวอร์ส่ง `error` หรือ `message`
+> 4. **Item Ordering (`ActionsTaken.tsx`)**: ปรับการอัปเดต state หลังสร้าง Action สำเร็จเป็น `const nextItems = [...items, created];` เพื่อรักษาลำดับแบบเรียงตามเวลาจากอดีตไปปัจจุบัน (chronological order)
+> 5. **Validation & Field Length Limits**:
+>    - ตรวจสอบ `followUpNote.trim().length < 2` เมื่อเปิดสวิตช์ Follow-up พร้อมกำหนด `maxLength={500}` บน textarea
+>    - กำหนด `maxLength={1000}` บน `action-description` และ `action-result` ป้องกันข้อความยาวเกินขนาดฟิลด์
+> 6. **Action Status Transition Matrix ใน Edit Modal**:
+>    - หาก Action เป็น `COMPLETED` หรือ `CANCELLED` จะล็อก Dropdown ไม่ให้เปลี่ยนสถานะย้อนกลับ
+>    - หาก Action เป็น `IN_PROGRESS` จะแสดงเฉพาะตัวเลือก `IN_PROGRESS`, `COMPLETED`, `CANCELLED`
+>    - หาก Action เป็น `PENDING` จะอนุญาตให้ย้ายไปยังสถานะใดก็ได้
+> 7. **Zen Green Status Badge Tokens**: ปรับคู่สีพื้นหลังและตัวอักษรของป้ายสถานะให้ตรงตาม Design System Tokens (`PENDING`: `#FFFBEB`/`#92400E`, `IN_PROGRESS`: `#EFF6FF`/`#1E40AF`)
+> 8. **TypeScript & Test ID Polish**:
+>    - ปรับแก้ type error ใน `ActionsTaken.tsx` สำหรับแอตทริบิวต์ `disabled={Boolean(...)}` รัน `npm run build` ผ่าน 100%
+>    - ปรับรหัสเทสต์ใน `ActionsTaken.test.tsx` จาก `UI-06` เป็น `UI-02` เพื่อไม่ให้ชนกับรหัสของ Staff Dashboard
+> 9. **Action Date/Time Field (`ActionsTaken.tsx`)**: เพิ่มฟิลด์ระบุวันเวลา `actionDateTime` (`type="datetime-local"`) ในฟอร์มสร้างและแก้ไข พร้อมตั้งค่าเริ่มต้นเป็นวันเวลาปัจจุบัน (`new Date().toISOString()`) ครบถ้วนตาม Handout และ `ui-spec.md` §3.1
+> 
+> ดำเนินการ commit ใน `2d6f47e` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 63 tests และ build production bundle ผ่านฉลุย 100% ค่ะ รบกวนช่วยตรวจทานซ้ำอีกครั้งนะคะ ขอบคุณมากค่ะ! ✨
 
 # Part 2: Records of Student (@titayaaa) Reviewing Partner (@jejaebubu)
 
@@ -1081,5 +1132,63 @@
 > 
 > ผลการรันเทสต์ผ่านครบ 195/195 เทสต์ (Server 108 + Client 87) โค้ดมีคุณภาพสูงและพร้อมสำหรับการใช้งานจริง ขออนุมัติ (Approve) และยินดีดำเนินการกด Merge เข้าสู่ `lab4-staging` ให้ทันทีค่ะ 🎉
 
+#### 💬 Merge Event by Reviewer @titayaaa
+- **Merged PR URL:** [jejaebubu/toktickit#109](https://github.com/jejaebubu/toktickit/pull/109)
+- **Merged by:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `468a7ca`
+- **Status:** ✅ Merged successfully — **Closes Issue #5**
 
+---
 
+### PR #110: feat(dashboard): IT Staff Dashboard API, summary metrics, and UI screen (Issue #6)
+- **PR URL:** [jejaebubu/toktickit#110](https://github.com/jejaebubu/toktickit/pull/110)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Changes Requested (Round 1)
+- **Scope & Objectives:**
+  - `GET /api/dashboard/staff`: REST API สำหรับ IT Staff และ Admin ในการดึง metrics เชิงปฏิบัติการแบบ real-time (`new`, `open`, `inProgress`, `waitingForRequester`, `myAssigned`), ปฏิเสธ Requester ด้วย `403 Forbidden`, และส่งคืน `recentTickets` 5 รายการล่าสุด
+  - พารามิเตอร์ `ownerId=me` บน `GET /api/tickets`
+  - คอมโพเนนต์ `StaffDashboard.tsx`: การ์ดตัวชี้วัด 5 ใบพร้อมฟังก์ชัน Drill-down เชื่อมโยงไปยัง `StaffTicketQueue` ตามตัวกรอง, ตารางและ Mobile card รายการตั๋วล่าสุด, และปุ่ม Quick Actions
+  - ชุดทดสอบ API (`staff-dashboard.api.test.ts`) และ UI (`StaffDashboard.test.tsx`) ครอบคลุม 6 เคสใหม่ รวมเป็น 201 เทสต์
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+- **Review Date:** 2026-11-01
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ขอบคุณสำหรับ PR #110 ที่พัฒนาโมดูล IT Staff Dashboard (Issue #6) ได้อย่างครบครัน สวยงาม และออกแบบการใช้งานได้ดีมากค่ะ ภาพรวมของการ์ดสรุปตัวชี้วัด 5 ใบ, ระบบ Drill-down กรองตั๋วตามสถานะอัตโนมัติ, การรองรับ Responsive สลับระหว่าง Desktop Table และ Mobile Cards, ตลอดจนชุดทดสอบใหม่ทั้ง 6 เคส (API-09, API-10, UI-04, STYLE-01, RESP-01) เขียนได้อย่างเป็นระบบมากค่ะ
+> 
+> อย่างไรก็ตาม จากการตรวจทานโค้ดอย่างละเอียดเปรียบเทียบกับ flow การทำงานของแอปพลิเคชันและเอกสารของโปรเจกต์ พบจุดบกพร่องระดับ Blocking ที่ทำให้เกิด Regression บนหน้าจอของผู้ใช้ Requester และจุดที่ควรปรับปรุงเพื่อความชัดเจน 3 ข้อดังนี้ค่ะ:
+> 
+> ---
+> 
+> ### 🔴 1. ประเด็นที่ต้องแก้ไขก่อน Merge (Required Changes — Blocking)
+> 
+> #### 1.1 Requester Navbar ทำให้เกิดหน้าจอว่างเปล่า (Blank Screen Regression)
+> - **ไฟล์ที่พบ:** `client/src/components/Header.tsx` (บรรทัด 35–39) และ `client/src/App.tsx` (บรรทัด 102–115)
+> - **ปัญหา:** ใน `Header.tsx` มีการเพิ่ม `{ id: "dashboard", label: "Dashboard", matches: ["dashboard"] }` ให้กับเมนูของ `REQUESTER` แต่ใน `App.tsx` ฟังก์ชัน `RequesterViews` ยังไม่มีการดักจับ `activeView === "dashboard"` (เนื่องจาก Requester Dashboard เป็นขอบเขตของ Issue #7 / PR-07)
+> - **ผลกระทบ:** เมื่อผู้ใช้ที่มีบทบาท `REQUESTER` ล็อกอินเข้าสู่ระบบและกดที่แท็บ `"Dashboard"` ใน Navbar หน้าจอ `<main>` จะไม่เรนเดอร์อะไรเลย กลายเป็นหน้าว่างเปล่า (Blank Page)
+> - **แนวทางแก้ไข:** นำ `{ id: "dashboard", label: "Dashboard", matches: ["dashboard"] }` ออกจากอาเรย์ `REQUESTER` ใน `NAV_BY_ROLE` ของ `Header.tsx` โดยให้คงไว้เฉพาะสำหรับ `IT_STAFF` และ `ADMINISTRATOR` เท่านั้น จนกว่าจะเริ่มพัฒนา Issue #7 ใน PR ถัดไปค่ะ
+> 
+> ---
+> 
+> ### 🟠 2. ประเด็นที่ควรปรับปรุงเพื่อความถูกต้องของ UI (Should Fix)
+> 
+> #### 2.1 หัวข้อแผง "My Recent Tickets" ขัดแย้งกับขอบเขตข้อมูลจริงของ Query
+> - **ไฟล์ที่พบ:** `client/src/components/StaffDashboard.tsx` (บรรทัด 468–472) และ `server/src/app.ts` (บรรทัด 1236–1245)
+> - **ปัญหา:** ใน `server/src/app.ts` การดึง `rawRecentTickets` เป็นการดึง 5 รายการตั๋วที่อัปเดตล่าสุดของคิวบริการทั้งหมด (`take: 5, orderBy: [{ updatedAt: "desc" }]`) โดยไม่ได้กรองตาม `ownerId: req.user.id` แต่ในหน้า UI กลับใช้หัวข้อว่า `"My Recent Tickets"` แม้ว่าคำบรรยายย่อยด้านล่างจะเขียนว่า `"Latest 5 service desk tickets updated in the queue"` ก็ตาม ทำให้เจ้าหน้าที่อาจเข้าใจผิดว่าตั๋วที่แสดงเป็นตั๋วที่ตนเองได้รับมอบหมายเท่านั้น
+> - **แนวทางแก้ไข:** ปรับเปลี่ยนหัวข้อแผงใน `StaffDashboard.tsx` ให้ตรงกับข้อเท็จจริง เช่น เป็น `"Recent Queue Tickets"` หรือ `"Recent Service Desk Tickets"` เพื่อสื่อความหมายที่ชัดเจนและสอดคล้องกับ subtitle ค่ะ
+> 
+> ---
+> 
+> ### 🟡 3. จุดเก็บตกเอกสารการบันทึกการรีวิว (Minor Doc Polish)
+> 
+> #### 3.1 ลิงก์และข้อมูล PR URL ใน `docs/lab-04/reviewer.md`
+> - ใน Master PR Table (Section 2) แถวของ `PR-06` ยังเป็นเพียงข้อความธรรมดา แนะนำให้ใส่ลิงก์ GitHub PR `[GitHub #110](https://github.com/jejaebubu/toktickit/pull/110)`
+> - ในหัวข้อ Section 3.6 บรรทัดที่ 1125–1130 ขาดการระบุ `- **PR URL:** https://github.com/jejaebubu/toktickit/pull/110`
+> 
+> ---
+> 
+> ฝากแก้ไขจุดที่ 1 เรื่องเมนูของ Requester และจุดที่ 2 เรื่อง wording ของหัวข้อแผงตั๋ว จากนั้น push commit ขึ้นมาใหม่นะคะ เดี๋ยวจะรีบเข้ามาตรวจซ้ำและกด Approve / Merge ให้ทันทีเลยค่ะ ขอบคุณมาก ๆ ค่ะ! 🚀
