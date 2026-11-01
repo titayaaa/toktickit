@@ -19,8 +19,8 @@
 | **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ⏳ Ready for PR |
 | **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-07** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-08** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -719,6 +719,22 @@
 >    - ทดสอบยืนยันว่าการกด Quick Complete เปิด Edit modal ด้วยสถานะ COMPLETED โดยช่อง select ไม่ถูก disabled
 > 
 > ดำเนินการ commit ใน `fca398c` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 64 tests (100%) และรัน `npm run build` ผ่านสมบูรณ์ 0 errors รบกวนช่วยตรวจทานและ Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
+
+### PR-05: Issue 31: Ticket Workflow Operations, Resolution Gate & Concurrency Protection
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Ready for Review / PR
+- **Scope & Implementation:**
+  - **Resolution Gate Enforcement (BR-09, AC-07, AC-08):** ใน `server/src/routes/staff.ts` (`PATCH /api/staff/tickets/:id/resolve`) ตรวจสอบรายการ Actions Taken ที่เชื่อมโยงกับตั๋ว หากยังมีสถานะเป็น `PENDING` หรือ `IN_PROGRESS` จะปฏิเสธการ Resolve ทันทีด้วย `409 Conflict` พร้อมโค้ด `RESOLUTION_GATE_BLOCKED`, จำนวน `unresolvedCount` และรายชื่อ `blockingActions`
+  - **Optimistic Concurrency Protection (BR-14, AC-12):** รองรับ `expectedUpdatedAt` ใน `PATCH /api/staff/tickets/:id/status` และ `PATCH /api/staff/tickets/:id/resolve` หาก timestamp ไม่ตรงกับ `ticket.updatedAt` ในฐานข้อมูล จะปฏิเสธด้วย `409 Conflict` พร้อมโค้ด `STALE_UPDATE_CONFLICT`
+  - **State Machine Transition Matrix (BR-11, WORKFLOW-01):** บังคับใช้เงื่อนไขการเปลี่ยนสถานะตามตาราง State Transition Matrix 9 สถานะใน `VALID_TRANSITIONS` และบล็อกการเปลี่ยนเป็น `RESOLVED` โดยตรงผ่าน `/status` (ต้องเรียก `/resolve` พร้อม `resolutionSummary` 3–500 ตัวอักษร)
+  - **Resolution Gate Warning Banner (UI-04):** ใน `TicketDetail.tsx` เพิ่มแบนเนอร์แจ้งเตือนสถานะ Resolution Gate สีเหลืองเตือนเจ้าหน้าที่เมื่อมี Action Taken ค้างอยู่ และแสดงข้อความเตือนภายใน Resolve Ticket Modal
+  - **Concurrency Conflict UI Handling:** แสดงแจ้งเตือน `⚠️ Conflict: This ticket has been modified by another user. Please refresh and try again.` เมื่อเกิด Stale update (HTTP 409)
+  - **Automated Tests:**
+    - `server/tests/lab-04/ticket-workflow.api.test.ts` (API-07, API-08, API-09, API-10, API-14, WORKFLOW-01)
+    - `client/src/test/lab-04/TicketWorkflow.test.tsx` (UI-04 4 เคส: Warning banner, banner disappearance on complete, 409 Resolution Gate blocked handling, 409 Stale update conflict handling)
+
 
 
 # Part 2: Records of Student (@titayaaa) Reviewing Partner (@jejaebubu)

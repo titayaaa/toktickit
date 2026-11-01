@@ -322,11 +322,21 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       const res = await fetch(`/api/staff/tickets/${ticketId}/status`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ status: targetStatus }),
+        body: JSON.stringify({
+          status: targetStatus,
+          expectedUpdatedAt: ticket?.updatedAt,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setOperationMessage({ type: 'danger', text: data.error || 'Failed to update status' });
+        if (res.status === 409 && data.code === 'STALE_UPDATE_CONFLICT') {
+          setOperationMessage({
+            type: 'danger',
+            text: '⚠️ Conflict: This ticket has been modified by another user. Please refresh and try again.',
+          });
+        } else {
+          setOperationMessage({ type: 'danger', text: data.error || 'Failed to update status' });
+        }
       } else {
         setOperationMessage({ type: 'success', text: `Status updated to ${targetStatus}` });
         await fetchTicketDetail();
@@ -352,11 +362,28 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       const res = await fetch(`/api/staff/tickets/${ticketId}/resolve`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ resolutionSummary: trimmed }),
+        body: JSON.stringify({
+          resolutionSummary: trimmed,
+          expectedUpdatedAt: ticket?.updatedAt,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setResolveError(data.error || 'Failed to resolve ticket');
+        if (res.status === 409) {
+          if (data.code === 'RESOLUTION_GATE_BLOCKED') {
+            setResolveError(
+              `Resolution Gate Blocked: ${data.error || 'Cannot resolve ticket while unresolved actions exist.'}`
+            );
+          } else if (data.code === 'STALE_UPDATE_CONFLICT') {
+            setResolveError(
+              'Conflict: This ticket has been modified by another user. Please refresh and try again.'
+            );
+          } else {
+            setResolveError(data.error || 'Conflict occurred while resolving ticket.');
+          }
+        } else {
+          setResolveError(data.error || 'Failed to resolve ticket');
+        }
       } else {
         setShowResolveModal(false);
         setOperationMessage({ type: 'success', text: 'Ticket resolved successfully' });
@@ -629,6 +656,11 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
   const isResolved = currentTicketStatus === 'RESOLVED';
   const allowedNextStatuses = getAllowedNextStatuses(currentTicketStatus);
 
+  const activeActionsCount = (ticket.actionsTaken || []).filter(
+    (a) => a.status === 'PENDING' || a.status === 'IN_PROGRESS'
+  ).length;
+  const hasPendingActions = activeActionsCount > 0;
+
   return (
     <div className="ticket-detail-container" data-testid="ticket-detail-view">
       {/* Back Navigation Button */}
@@ -707,6 +739,25 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                 ⚙️ IT Staff Ticket Operations
               </span>
             </div>
+
+            {hasPendingActions && !isTerminal && !isResolved && (
+              <div
+                className="alert alert-warning py-2 px-3 small d-flex align-items-center gap-2 mb-3"
+                data-testid="resolution-gate-warning"
+                role="alert"
+              >
+                <span className="fs-5">⚠️</span>
+                <div>
+                  <strong>Resolution Gate Active:</strong> This ticket has{' '}
+                  <span className="badge bg-warning text-dark">{activeActionsCount}</span> active action(s) in progress ({' '}
+                  {(ticket.actionsTaken || [])
+                    .filter((a) => a.status === 'PENDING' || a.status === 'IN_PROGRESS')
+                    .map((a) => a.status)
+                    .join(', ')}{' '}
+                  ). All actions must be completed or cancelled before resolving.
+                </div>
+              </div>
+            )}
 
             <div className="row g-3 align-items-end">
               {/* Claim Action */}
@@ -1129,8 +1180,21 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                   Please provide a clear, detailed explanation of how this issue was resolved. This resolution summary is mandatory (3–500 characters) and will be visible to the requester.
                 </p>
 
+                {hasPendingActions && (
+                  <div
+                    className="alert alert-warning small py-2 mb-3 d-flex align-items-start gap-2"
+                    data-testid="modal-resolution-gate-warning"
+                    role="alert"
+                  >
+                    <span className="fs-6">⚠️</span>
+                    <div>
+                      <strong>Active Actions Detected:</strong> There are currently {activeActionsCount} unresolved action(s) (PENDING or IN_PROGRESS). You will need to complete or cancel them before the system allows resolving this ticket.
+                    </div>
+                  </div>
+                )}
+
                 {resolveError && (
-                  <div className="alert alert-danger small py-2 mb-3" role="alert">
+                  <div className="alert alert-danger small py-2 mb-3" role="alert" data-testid="resolve-error-alert">
                     {resolveError}
                   </div>
                 )}
