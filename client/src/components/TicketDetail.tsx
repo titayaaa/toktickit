@@ -481,7 +481,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       case 'RESOLVED':
         return ['CLOSED', 'REOPENED'];
       case 'REOPENED':
-        return ['IN_PROGRESS', 'RESOLVED', 'CANCELLED'];
+        return ['IN_PROGRESS', 'PENDING', 'RESOLVED', 'CANCELLED'];
       default:
         return [];
     }

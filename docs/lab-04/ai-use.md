@@ -40,6 +40,9 @@
 ### Prompt 10: Actions Taken Frontend Component, State Sync & Accessible Zen Green UI
 > "Implement the `ActionsTaken` React component for Issue 30 on Ticket Detail following Zen Green aesthetics: render chronologically ordered actions with status badges, assignee pills, follow-up highlights, dynamic result/follow-up validation, and assignee dropdown populated from `/api/users/assignable`. Enforce read-only display for Requesters, provide modal dialogs with Escape key dismissal and touch targets >= 44px, and emit `onActionsChange` callback to synchronize parent state for resolution gate enforcement."
 
+### Prompt 11: Ticket Workflow Operations, Resolution Gate & Optimistic Concurrency Control (Issue 31)
+> "Implement the Ticket Workflow State Machine (`VALID_TRANSITIONS` 9-state matrix), Resolution Gate (BR-09, AC-13) blocking resolution with HTTP 409 Conflict when pending/in-progress actions exist, and Optimistic Concurrency Control (BR-14, AC-09) with 1-second clock skew tolerance on `expectedUpdatedAt` in `server/src/routes/staff.ts`. Update `TicketDetail.tsx` with real-time Resolution Gate warning banners, modal confirmation guards, and 409 Stale Update notifications. Implement end-to-end API and component tests verifying concurrency conflicts, state machine immutability, and advisory indicators."
+
 ---
 
 ## 3. Reflection on AI Agent Pairing (Specification & DB Evolution Phase)
@@ -70,6 +73,9 @@ During Issue 30, pairing with AI ensured high-fidelity UI execution and accessib
 - **Accessibility & Touch Standards (WCAG 2.1 AA):** Modal forms and action buttons maintain touch targets of at least 44×44px, use semantic `role="alert"` for real-time validation feedback, include `aria-hidden="true"` on status icons, and trap or dismiss on the `Escape` key.
 - **Zen Green Token Fidelity:** Status badges strictly adhere to designed token pairings (e.g. `#166534` text on `#f0fdf4` background for COMPLETED, `#991b1b` on `#fef2f2` for CANCELLED), maintaining visual coherence across the TokTickIT design system.
 
-
-
-
+### 3.5 Ticket Workflow, Resolution Gate & Concurrency Control Reflection (Issue 31)
+During Issue 31, pairing with AI guided the architecture and defensive patterns for enterprise ticket operations:
+- **Resolution Gate Backend Enforcement:** Moving validation to `PATCH /api/staff/tickets/:id/resolve` using database queries ensures that business rules (`BR-09`, `BR-15`) cannot be bypassed via direct API calls or stale browser tabs. Returning `unresolvedCount` and detailed `blockingActions` gives clients actionable context to resolve blockers immediately without guesswork.
+- **Optimistic Concurrency & Clock Skew Tolerance:** Implementing `expectedUpdatedAt` comparison with a 1000ms leeway (`Math.abs(expectedTime - actualTime) > 1000` per RFC 7231) prevents false-positive conflicts caused by database millisecond truncations or serialized ISO timestamps, while still reliably preventing Lost Updates from concurrent staff edits.
+- **Preventive UI & Error Recovery:** Coupling warning banners on `TicketDetail.tsx` with live `onActionsChange` synchronization and clear modal dialogs prevents user frustration before submission, while handling 409 Conflict with clear refresh prompts allows seamless recovery when concurrent edits occur.
+- **State Machine Integrity:** Enforcing single-responsibility transitions (`/status` for non-terminal updates, `/resolve` requiring a 3–500 char summary) prevents incomplete resolutions and preserves the strict lifecycle contract.
