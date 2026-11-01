@@ -20,8 +20,8 @@
 | **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-07** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-08** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-09** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -766,7 +766,48 @@
 > 3. **อัปเดต `docs/lab-04/api-spec.md` (หัวข้อ 3.1 และ 3.2):** นำหมายเหตุ *(Planned for Issue 31)* ออก และปรับปรุงตัวอย่าง JSON response ของ HTTP 409 Conflict ให้มีฟิลด์ `code: "STALE_UPDATE_CONFLICT"` และ `code: "RESOLUTION_GATE_BLOCKED"` พร้อม `unresolvedCount` และ `blockingActions` ตรงกับ response จริงจาก Backend
 > 4. **ปรับการส่ง `relatedSystemId` ใน `ticket-workflow.api.test.ts`:** เปลี่ยนจาก `relatedSystem?.id || null` เป็น `relatedSystem.id` ตรง ๆ ทุกจุด ให้สอดคล้องกับ schema type `Int` (Non-nullable)
 > 
-> รันชุดทดสอบ Client ผ่าน 13/13 test files (68/68 tests 100%), Server Typecheck ผ่าน 0 errors, และ Client build (`tsc && vite build`) ผ่านเรียบร้อยค่ะ รบกวนช่วยตรวจทานรอบสุดท้ายและพิจารณา Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
+#### 💬 Round 2 Review by @jejaebubu (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ตรวจสอบการแก้ไขทั้ง 4 จุดใน commit 810bdb3 ครบถ้วนสมบูรณ์แล้วค่ะ:
+> 1. เพิ่มสถานะ PENDING ในเคส REOPENED ของ `TicketDetail.tsx` เรียบร้อย
+> 2. บันทึก AI Pairing Log ใน `ai-use.md` เรียบร้อย
+> 3. ปรับปรุง JSON response ตัวอย่างใน `api-spec.md` ตรงกับโค้ดจริง
+> 4. ปรับ `relatedSystemId` ในชุดทดสอบเป็นค่า non-null เรียบร้อย
+> 
+> รันชุดทดสอบผ่านครบ 100% ขออนุมัติ (Approve) และดำเนินการกด Merge เข้าสู่ `lab4-staging` เรียบร้อยค่ะ 🎉
+
+---
+
+### PR-06: Issue 32: IT Staff Dashboard API & UI
+- **PR URL:** Pending PR creation (Branch: `feature/32-staff-dashboard`)
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Under Review by @jejaebubu
+- **Scope & Implementation:**
+  - **Authoritative Operational Metrics (FR-12, BR-12, API-11):** ใน `server/src/routes/staff.ts` (`GET /api/staff/dashboard`) และ Route alias (`GET /api/dashboard/staff` ใน `server/src/app.ts`) คำนวณสรุปสถิติ 4 ตัวชี้วัดสำคัญของคิวบริการ:
+    - `unassignedTicketsCount`: ตั๋วที่ยังไม่มีผู้รับผิดชอบ (`ownerId: null`) และยังไม่ปิดงาน
+    - `myAssignedTicketsCount`: ตั๋วที่มอบหมายให้เจ้าหน้าที่ไอทีที่ล็อกอิน (`ownerId: currentUserId`)
+    - `urgentTicketsCount`: ตั๋วระดับเร่งด่วนสูงสุด (`itPriority: URGENT`) ที่ยังค้างในระบบ
+    - `myPendingActionsCount`: การดำเนินการที่มอบหมายให้ตนเองและยังไม่เสร็จ (`assigneeId: currentUserId`, `status in [PENDING, IN_PROGRESS]`)
+    - พร้อมส่งรายการ `urgentTickets` (Top 5), `myAssignedActions` (Top 5), และ `recentTickets` (Top 5)
+  - **Access Control & RBAC (FR-12, AC-09, API-13):** บังคับใช้ `authenticate` และ `requireRole(Role.IT_STAFF, Role.ADMINISTRATOR)` ปฏิเสธ Requester ด้วย `403 Forbidden` และ Unauthenticated ด้วย `401 Unauthorized`
+  - **Interactive Frontend UI Component (FR-12, AC-11, UI-05):** พัฒนา `StaffDashboard.tsx` ธีม Zen Green:
+    - การ์ดสถิติ 4 ใบพร้อมตัวเลข authoritative counts และรองรับการคลิก Drill-down ไปยัง `StaffTicketQueue`
+    - แผง Urgent Incident Queue แบบ Responsive (Desktop Table + Mobile Card Stack)
+    - แผง My Assigned Actions แสดงรายการงานที่ต้องปฏิบัติการพร้อมลิงก์เปิดตั๋ว
+    - แผง Operational Quick Actions สำหรับเปิดคิวบริการ กรองเฉพาะงานของฉัน หรือกรองตั๋วที่ยังไม่มีผู้รับผิดชอบ
+  - **Drill-Down Filter Synchronization:** ปรับปรุง `StaffTicketQueue.tsx` รับ prop `initialFilters?: StaffQueueInitialFilters` และเชื่อมโยงใน `App.tsx` สลับแท็บพร้อมตั้งค่าฟิลเตอร์อัตโนมัติ
+  - **Zen Green Tokens & Accessibility (STYLE-01, RESP-01, A11Y):**
+    - ปุ่มและการ์ดแบบคลิกได้ทั้งหมดมี Touch target $\ge 44\text{px}$
+    - โทนสี Zen Green (`#006B3C`, `#EAF6EF`, `#FFFBEB`)
+    - กำหนด `overflowX: hidden` ป้องกันปัญหาหน้าจอเลื่อนแนวนอน
+  - **Automated Test Suites:**
+    - `server/tests/lab-04/staff-dashboard.api.test.ts` (API-11, API-13, PERF-01)
+    - `client/src/test/lab-04/StaffDashboard.test.tsx` (UI-05, STYLE-01, RESP-01)
 
 ---
 

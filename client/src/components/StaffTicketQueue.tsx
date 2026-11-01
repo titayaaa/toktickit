@@ -33,9 +33,18 @@ export interface StaffTicketItem {
   };
 }
 
-interface StaffTicketQueueProps {
+export interface StaffQueueInitialFilters {
+  status?: string;
+  ownerFilter?: 'all' | 'unassigned' | 'me';
+  itPriority?: string;
+  search?: string;
+  category?: string;
+}
+
+export interface StaffTicketQueueProps {
   categories?: Category[];
   onSelectTicket: (ticketId: number) => void;
+  initialFilters?: StaffQueueInitialFilters;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
@@ -58,7 +67,7 @@ const PRIORITY_CONFIG: Record<string, { label: string; bg: string; color: string
   LOW: { label: 'Low', bg: '#E8F5E9', color: '#2E7D32', border: '1px solid #C8E6C9' },
 };
 
-const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], onSelectTicket }) => {
+const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], onSelectTicket, initialFilters }) => {
   const { user } = useAuth();
 
   const [tickets, setTickets] = useState<StaffTicketItem[]>([]);
@@ -66,12 +75,26 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
   const [error, setError] = useState<string | null>(null);
 
   // Search & Filter state
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [activeSearch, setActiveSearch] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
-  const [selectedItPriority, setSelectedItPriority] = useState<string>('');
-  const [ownerFilter, setOwnerFilter] = useState<'all' | 'unassigned' | 'me'>('all');
+  const [searchTerm, setSearchTerm] = useState<string>(initialFilters?.search || '');
+  const [activeSearch, setActiveSearch] = useState<string>(initialFilters?.search || '');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialFilters?.category || '');
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialFilters?.status || '');
+  const [selectedItPriority, setSelectedItPriority] = useState<string>(initialFilters?.itPriority || '');
+  const [ownerFilter, setOwnerFilter] = useState<'all' | 'unassigned' | 'me'>(initialFilters?.ownerFilter || 'all');
+
+  useEffect(() => {
+    if (initialFilters) {
+      if (initialFilters.status !== undefined) setSelectedStatus(initialFilters.status);
+      if (initialFilters.ownerFilter !== undefined) setOwnerFilter(initialFilters.ownerFilter);
+      if (initialFilters.itPriority !== undefined) setSelectedItPriority(initialFilters.itPriority);
+      if (initialFilters.search !== undefined) {
+        setSearchTerm(initialFilters.search);
+        setActiveSearch(initialFilters.search);
+      }
+      if (initialFilters.category !== undefined) setSelectedCategory(initialFilters.category);
+      setPage(1);
+    }
+  }, [initialFilters]);
 
   // Sorting state
   const [sortBy, setSortBy] = useState<string>('createdAt');
