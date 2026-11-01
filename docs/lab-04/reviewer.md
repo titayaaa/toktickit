@@ -16,8 +16,8 @@
 
 | PR # | Feature / Issue Title | GitHub Issue | Feature Branch | Target | Reviewer | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
-| **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-02** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #75](https://github.com/titayaaa/toktickit/pull/75)** | Issue 27: Sprint 4 Engineering Contract & Specification | Issue #63 | `feature/27-lab4-specs` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-03** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-04** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -374,8 +374,115 @@
 > 
 > รบกวนตรวจทานรอบสุดท้ายนะคะ ขอบคุณมากค่ะ!
 
-#### ⏳ Round 4 Re-review by @jejaebubu
-- **Status:** รอผลการตรวจรอบสุดท้ายและการ Approve + Merge จาก `@jejaebubu`
+#### 💬 Round 4 Final Review & Approval by @jejaebubu
+**Review Date:** 2026-11-01  
+**Verdict:** ✅ Approved (Ready to Merge)  
+**Review Comments (Verbatim):**
+
+> ตรวจ commit `f144a1a` แล้วนะคะ ทั้ง 4 จุดที่ขอแก้ผ่านครบแล้ว ได้แก่ WCAG AA, default เป็น `PENDING`, composite index และการแยก 403/404 ตามประเภทของ endpoint นอกจากนี้ `reviewer.md`, `tests.md` และ ownership formula ก็ตรงกับโค้ดจริงแล้วค่ะ
+> 
+> **มี Minor follow-ups อีกเล็กน้อย แต่ไม่บล็อกการ merge ค่ะ**
+> 
+> - `reviewer.md`: PR #105 ควรอัปเดตสถานะเป็น **Approved & Merged**
+> - Issue 29: ควรระบุ `Idempotency-Key` ใน `api-spec` และเพิ่ม test เพื่อทดสอบการทำงานจริง
+> - API-12: ควรเพิ่ม test กรณี ownership fallback ให้ครอบคลุมทั้ง legacy ticket และ ticket ใหม่
+> - BR-13: แนะนำให้เปลี่ยนคำว่า `verified email` เป็น `email match` เพื่อให้ตรงกับการทำงานจริงของโค้ด
+> 
+> โดยรวมเอกสารพร้อม merge เข้า `lab4-staging` ได้แล้วค่ะ ส่วน Minor follow-ups สามารถเก็บไปปรับเพิ่มเติมได้โดยไม่ต้องบล็อกการ merge ค่ะ
+
+#### 🔀 Merge Record
+- **Merged By:** `@jejaebubu`
+- **Merge Date:** 2026-11-01
+- **Merge Commit:** `4a55567`
+- **Target Branch:** `lab4-staging`
+- **Final Status:** ✅ Approved & Merged
+
+---
+
+### PR #76: Issue 28: Database Migration, Schema Evolution & Seed Data for Actions Taken
+- **PR URL:** [titayaaa/toktickit#76](https://github.com/titayaaa/toktickit/pull/76)
+- **Feature Branch:** `feature/28-db-and-seed`
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Peer Review
+
+#### 💬 Round 1 Peer Review by @jejaebubu (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ตรวจ schema, migration, seed, tests และ docs เทียบกับ Issue/BR แล้วนะคะ โดยรวมทำได้ดี แต่ขอ Changes Requested ก่อนค่ะ เพราะมีจุดหนึ่งที่อาจกระทบการสร้าง ActionTaken ใน Issue ถัดไป
+> 
+> 🔴 **Blocking: Seed กำหนด ActionTaken.id เอง ทำให้ sequence ไม่ขยับตาม**
+> 
+> ใน `server/prisma/seed.ts:311-449` มีการใช้ `id: 1..6` ใน `actionTaken.upsert`
+> 
+> ปัญหาที่พบเมื่อเริ่มจาก DB ใหม่ แล้วรัน `db push --force-reset` ตามด้วย `npm run prisma:seed` คือ
+> 
+> `actions_taken_id_seq.last_value = 1`  
+> แต่ `MAX(actions_taken.id) = 6`  
+> พอเรียก `prisma.actionTaken.create()` จะเจอ error P2002 ที่ target id เพราะ sequence สร้าง ID ซ้ำกับข้อมูลที่มีอยู่แล้ว  
+> ถ้าปล่อยไว้ API ที่ใช้สร้าง ActionTaken ใน Issue ถัดไปจะไม่สามารถ insert ข้อมูลได้ค่ะ
+> 
+> **แนวทางแก้ที่แนะนำ**
+> 
+> เอา id ออกจาก seed แล้วใช้ natural key ในการ upsert เช่น `ticketId + actionDateTime + actionDescription`  
+> หรือถ้าต้องการใช้ explicit ID ต่อ ให้เรียก `setval` เพื่อปรับ sequence หลัง seed ให้ตรงกับ ID สูงสุด  
+> และรบกวนเพิ่ม test ที่ลองสร้าง ActionTaken ใหม่ 1 รายการหลัง seed ด้วยนะคะ เพื่อป้องกันปัญหานี้กลับมาอีก
+> 
+> ปัญหา sequence แบบเดียวกันมีอยู่เดิมใน `publicComment` และ `internalNote` ด้วย โดย full suite บน clean seed fail 6 tests ซึ่งเป็นปัญหาที่มีอยู่ใน base อยู่แล้ว แต่ PR นี้เพิ่มความเสี่ยงใหม่ให้ ActionTaken ค่ะ อย่างน้อยขอให้แก้ ActionTaken ก่อน และถ้าจะแก้ seed รอบนี้ แนะนำให้จัดการทั้ง 3 ตารางไปพร้อมกันเลยค่ะ
+> 
+> 🟠 **Should fix: requesterId hardcode**
+> 
+> ใน `server/prisma/seed.ts:360,459,480` มีการกำหนด `requesterId: 1/2/3` ไว้ตรง ๆ
+> 
+> ถ้าเอา seed ไปรันบน DB ที่มี Requester ID ไม่ตรงกับ fresh DB อาจทำให้ ticket ไปผูกกับ requester ผิดคน หรือเกิด FK error ได้ค่ะ
+> 
+> แนะนำให้ lookup `RequesterUser` จาก email ก่อน แล้วนำ `.id` ที่ได้มาใช้แทนการ hardcode ค่ะ
+> 
+> 🟡 **Minor: จุดที่แนะนำให้เก็บเพิ่ม**
+> 
+> - `docs/lab-04/reviewer.md:672` ระบุ `782d54e / db7e326` เป็น commit ที่เกี่ยวข้อง แต่ทั้งสองเป็น fix/docs commit ไม่ใช่ merge commit โดย merge commit ของ PR #106 คือ `23166db`
+> - `server/prisma/seed.ts:350` ประกาศ `staffCharlie` ไว้แต่ไม่ได้ใช้งาน
+> - เพิ่ม negative test อีก 2 กรณี:
+>   - `followUpRequired=false` แล้ว `followUpNote=null`
+>   - เมื่อ `status` เป็น `IN_PROGRESS` แล้ว `result=null`
+> - `server/prisma/seed.ts:290` มี indentation ไม่สม่ำเสมอ เป็นแค่เรื่อง formatting ค่ะ
+> 
+> ✅ **ผลตรวจสอบที่ผ่านแล้ว**
+> 
+> - `npm run build` ผ่าน
+> - Migration SQL สามารถ apply ซ้ำ 2 ครั้งได้
+> - `db-seed.test.ts` ผ่าน 10/10
+> - Full suite ผ่าน 128 tests และ fail 6 tests โดยทั้ง 6 ตัวเป็นปัญหาเดิมที่มีอยู่ใน base ได้แก่ attachment ไม่มีใน seed และ explicit comment/note IDs ไม่ใช่ regression ใหม่จาก PR นี้
+> - `prisma migrate deploy` บน DB ใหม่ยังติดที่ base migration `20260917000000_lab3_users_and_workflow` เพราะ `TicketPriority` missing ซึ่งเป็นปัญหาเดิม ไม่ได้เกิดจาก PR นี้ค่ะ
+> 
+> **สรุป:** โครงสร้าง schema, migration และ tests ทำได้ดี และตรงกับ BR หลักแล้วค่ะ แต่ขอให้แก้เรื่อง ActionTaken sequence ก่อน merge และแนะนำให้แก้ requesterId ที่ hardcode ไว้ด้วย หลังแก้แล้ว ping กลับมาให้ re-review ได้เลยค่ะ
+
+#### 💬 Round 2 Author Response & Code Fixes by @titayaaa
+**Response Date:** 2026-11-01  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับคำแนะนำและการตรวจทานที่ละเอียดรอบคอบมาก ๆ ค่ะ แก้ไขครบถ้วนทุกจุดตามคำแนะนำทั้งระดับ Blocking, Should Fix และ Minor ดังนี้ค่ะ:
+> 
+> 1. **🔴 แก้ปัญหา PostgreSQL Sequence ไม่ขยับตาม Explicit ID:**
+>    - ใน `server/prisma/seed.ts` เพิ่มคำสั่ง `setval` ซิงค์ sequence ของทั้ง 3 ตาราง (`actions_taken`, `public_comments`, `internal_notes`) ให้ตรงกับ `MAX(id)` ของข้อมูลที่ seed ลงไป
+>    - เพิ่มเทสต์ใน `server/tests/lab-04/db-seed.test.ts` ที่ทดลองเรียก `prisma.actionTaken.create()` หลัง seed สำเร็จ เพื่อยืนยันว่า auto-increment ทำงานถูกต้องและได้ id $\ge 7$ โดยไม่เกิด error P2002 duplicate key
+> 2. **🟠 แก้ RequesterId Hardcode:**
+>    - ใน `server/prisma/seed.ts` ทำการ lookup `RequesterUser` จาก verified email (`jennifer.anderson@example.com`, `michael.brown@example.com`, `sarah.johnson@example.com`) ก่อนนำ `.id` มาผูกเข้ากับ `ticket` แทนการ hardcode `1/2/3` เพื่อป้องกัน FK mismatch
+> 3. **🟡 เก็บตกจุดย่อย (Minor Fixes):**
+>    - ใน `docs/lab-04/reviewer.md` แก้ไข Merge commit ของ PR #106 เป็น `23166db` ถูกต้อง
+>    - ลบตัวแปร `staffCharlie` ที่ประกาศค้างไว้ใน `seed.ts` ออก
+>    - เพิ่ม Negative Test อีก 2 กรณีใน `db-seed.test.ts` (รวมเป็น 13 เทสต์):
+>      - ตรวจสอบว่า Action ที่ `isFollowUpRequired === false` จะต้องมี `followUpNote === null` (BR-07)
+>      - ตรวจสอบว่า Action ที่สถานะ `IN_PROGRESS` สามารถมี `result === null` ได้จริง (BR-16)
+>    - ปรับปรุง Indentation ใน `seed.ts` บรรทัดที่ 290 ให้เป็นระเบียบสวยงาม
+> 
+> รบกวนตรวจทานรอบที่ 2 นะคะ ขอบคุณมากค่ะ!
+
+#### ⏳ Round 2 Re-review by @jejaebubu
+- **Status:** ⏳ รอผลการตรวจซ้ำจาก `@jejaebubu`
 
 ---
 
@@ -454,7 +561,7 @@
 - **Author:** `@jejaebubu`
 - **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ✅ Approved (Ready to Merge)
+- **Current Status:** ✅ Approved & Merged
 
 #### 💬 Round 1 Review by @titayaaa (Changes Requested)
 **Review Date:** 2026-11-01  
@@ -574,7 +681,7 @@
 - **Author:** `@jejaebubu`
 - **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ✅ Approved
+- **Current Status:** ✅ Approved & Merged
 
 #### 💬 Round 1 Review by @titayaaa (Approved)
 **Review Date:** 2026-11-01  
@@ -633,3 +740,116 @@
 > 
 > ### 🏁 สรุปผลการประเมิน (Conclusion)
 > โค้ด REST API และชุดทดสอบมีความสมบูรณ์ รัดกุม และมีคุณภาพระดับ Enterprise พร้อมสำหรับการนำไปเชื่อมต่อกับฝั่ง UI ใน Issue #4 ได้ทันทีค่ะ **กด Approve ให้เรียบร้อย สามารถ Merge PR #106 เข้าสู่ `lab4-staging` ได้เลยค่ะ!** 🚀
+
+#### 💬 Author Response & Merge by @jejaebubu
+- **Response URL:** [PR #106](https://github.com/jejaebubu/toktickit/pull/106)
+- **Status:** `@jejaebubu` ดำเนินการกด Merge PR #106 เข้าสู่สาขา `lab4-staging` เรียบร้อยแล้ว (Merge commit `23166db`)
+
+---
+
+### PR #108: feat(ui): Actions Taken UI on Ticket Detail (Issue #4)
+- **PR URL:** [jejaebubu/toktickit#108](https://github.com/jejaebubu/toktickit/pull/108)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved & Merged
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+**Review Date:** 2026-11-01  
+**Verdict:** 🛑 Changes Requested  
+**Review Comments (Verbatim):**
+
+> ### 🌟 ภาพรวมการประเมิน (Executive Summary)
+> PR #108 พัฒนาคอมโพเนนต์ `ActionsTaken.tsx` ได้สวยงาม สะอาดตา และวางโครงสร้างได้ตรงตามข้อกำหนดของ Lab 4 เป็นอย่างดีค่ะ ชื่นชมที่มีการทำ Dynamic Follow-up Toggle, การซ่อนปุ่ม Create/Edit สำหรับ Requester, การจัดการ Loading state ระหว่างบันทึก, การทำ Quick Action Complete/Cancel ได้อย่างรวดเร็ว ตลอดจนเขียนเทสต์ครอบคลุมทั้ง Component UI (4 ข้อ) และ API เพิ่มเติม (2 ข้อ) รันเทสต์ผ่านครบถ้วน 187/187 เทสต์ค่ะ 👍
+> เพื่อให้โค้ดมีความสมบูรณ์แบบระดับ Production และไม่ส่งผลกระทบต่อ Issue #5 (Resolution Gate) ขอฝากปรับปรุง 3 จุดสำคัญ และจุดเก็บตกเล็กน้อยดังนี้ค่ะ:
+> 
+> ---
+> 
+> ### 🛑 จุดที่ต้องแก้ไขก่อน Merge (Required Changes)
+> #### 1. เพิ่มหัวข้อ `### 3.4 PR-04` ใน `docs/lab-04/reviewer.md` (Document Trail)
+> - ใน Master PR Table (Section 2) มีการเพิ่มแถว PR #108 เรียบร้อยแล้ว แต่ใน **Section 3 (Full Review Trail) ยังขาดหัวข้อ `### 3.4 PR-04: Actions Taken UI on Ticket Detail (Issue #4)`** ทำให้ไม่มีบันทึกรายละเอียดการตรวจทานของ PR นี้ค่ะ
+> - รบกวนเพิ่มหัวข้อ 3.4 พร้อมระบุ Branch, Target, วัตถุประสงค์ และเตรียมพื้นที่สำหรับบันทึกผลการรีวิวด้วยนะคะ
+> 
+> #### 2. ส่ง Callback `onActionsChange` ใน `StaffTicketDetail.tsx` และ `TicketDetail.tsx` (State Desynchronization)
+> - ใน `ActionsTaken.tsx` มีการประกาศ prop `onActionsChange?: (actions: ActionTaken[]) => void` และเรียกใช้งานใน `updateItems` ดีแล้ว แต่ในจุดเรียกใช้งานที่ `StaffTicketDetail.tsx` (บรรทัด 429) และ `TicketDetail.tsx` (บรรทัด 178) ใส่เพียง:
+>   ```tsx
+>   <ActionsTaken ticketId={ticket.id} actions={ticket.actionsTaken} />
+>   ```
+>   การไม่ส่ง onActionsChange ทำให้เมื่อเจ้าหน้าที่กด Add, Edit หรือกด Quick Complete Action สำเร็จ ข้อมูลใน ticket.actionsTaken ของหน้าแม่จะไม่อัปเดตตาม ซึ่งจะทำให้เกิดปัญหาใน Issue #5 (Resolution Gate) ทันที เพราะหน้าแม่จะไม่ทราบว่า Action ถูกเคลียร์เสร็จแล้ว จนกว่าจะกด Refresh หน้าจอ
+>   วิธีแก้: รบกวนส่ง callback อัปเดต state แม่:
+>   ```tsx
+>   <ActionsTaken
+>     ticketId={ticket.id}
+>     actions={ticket.actionsTaken}
+>     onActionsChange={(updatedActions) =>
+>       setTicket((prev) => (prev ? { ...prev, actionsTaken: updatedActions } : prev))
+>     }
+>   />
+>   ```
+> 
+> #### 3. ปรับสี Status Badge ของ CANCELLED และ COMPLETED ให้ตรงกับ Zen Green Tokens
+> ใน `docs/lab-04/ui-spec.md` §1 กำหนดว่าสถานะ `CANCELLED` ต้องใช้คู่สี soft red:
+> - `--action-cancelled-bg: #fef2f2`, `--action-cancelled-text: #991b1b`
+> - `--action-completed-bg: #f0fdf4`, `--action-completed-text: #166534`
+> ใน `ACTION_STATUS_META` ของ `ActionsTaken.tsx` ปัจจุบันใช้สีเทา (`#E5E7EB` / `#374151`) สำหรับ Cancelled และ `#C6F6D5` / `#22543D` สำหรับ Completed ฝากปรับให้ตรงกับ Design System Tokens ของแลปด้วยนะคะ
+> 
+> ---
+> 
+> ### 💡 ข้อเสนอแนะเพิ่มเติม (Minor Suggestions)
+> - **Client-side Validation & MaxLength:**
+>   - ในฟังก์ชัน `validate()` แนะนำให้ตรวจ `result` เมื่อสถานะเป็น `COMPLETED` ว่าต้องมีความยาวอย่างน้อย 2 ตัวอักษร (`result.trim().length >= 2`) เพื่อให้ตรงกับ Validation ของ Backend (2–1000 ตัวอักษร) ป้องกันไม่ให้เกิด Error 400 จากเซิร์ฟเวอร์
+>   - เพิ่ม attribute `maxLength={1000}` ให้กับ `action-description` และ `action-result`, และ `maxLength={500}` ให้กับ `action-followup-note` และ `action-attachment-notes`
+> - **Accessibility (A11Y):**
+>   - เพิ่ม `role="alert"` หรือ `aria-live="polite"` ให้กับกล่องข้อความ error ใต้ฟิลด์อินพุต เพื่อให้ Screen Reader แจ้งเตือนผู้ใช้ได้ถูกต้อง
+>   - ครอบ emoji ในป้ายสถานะ (`⏳`, `🔧`, `✅`, `⛔`) ด้วย `<span aria-hidden="true">` เพื่อไม่ให้ Screen Reader อ่านออกเสียง emoji ซ้ำซ้อน
+> - **Safe Error Response ใน `server/src/app.ts`:**
+>   - ใน `GET /api/users/assignable` บล็อก `catch` ไม่ควรส่ง `message: err?.message` ออกไปใน 500 response ตามมาตรฐาน SAFE-01 แนะนำให้ตอบเพียง `{ error: "Failed to fetch assignable staff" }`
+> - **Wording ใน Section 4.1.7 ของ `reviewer.md`:**
+>   - ข้อความเดิมระบุว่า `"Reviewer อนุมัติและผู้เขียน merge PR #75 เข้า lab4-staging เรียบร้อย"` แนะนำปรับเป็น `"Reviewer (@jejaebubu) อนุมัติและเป็นผู้กด Merge PR #75"` เพื่อให้ตรงกับข้อกำหนดวิชาที่ห้าม merge PR ของตนเองค่ะ
+> 
+> ฝากปรับแก้ตามประเด็นด้านบนแล้ว push เข้ามาใหม่นะคะ เดี๋ยวจะรีบมาตรวจซ้ำและกด Approve ให้ทันทีเลยค่ะ ขอบคุณมาก ๆ ค่ะ
+
+#### 💬 Round 1 Author Response by @jejaebubu
+**Response Date:** 2026-11-01  
+**Commit:** `ce25314` (Fix), `3f029b7` (Review trail)  
+**Author Response (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวที่ละเอียดและครบถ้วนมากค่ะ แก้ไขครบทั้ง 3 Required Changes และ Minor Suggestions ทั้งหมดแล้วใน commit ce25314 (และอัปเดตบันทึก SHA ใน 3f029b7) ค่ะ:
+> 1. เพิ่มหัวข้อ ### 3.4 PR-04 ใน docs/lab-04/reviewer.md — เพิ่มบันทึก Branch, Target, วัตถุประสงค์, ข้อความรีวิวรอบที่ 1 และคำตอบของผู้เขียนใน Section 3.4 พร้อมอัปเดตตาราง Master PR Table ใน Section 2
+> 2. ส่ง Callback onActionsChange ใน StaffTicketDetail.tsx และ TicketDetail.tsx — ผูก onActionsChange={(updatedActions) => setTicket((prev) => (prev ? { ...prev, actionsTaken: updatedActions } : prev))} ทั้งสองหน้า เพื่อให้ ticket.actionsTaken บน parent state ซิงก์ทันทีเมื่อเพิ่ม/แก้ไข/เปลี่ยนสถานะ Action เตรียมพร้อมสำหรับ Resolution Gate ใน Issue #5
+> 3. ปรับสี Status Badge ใน ActionsTaken.tsx ให้ตรงกับ Zen Green Tokens (ui-spec.md §1) — ปรับ COMPLETED เป็น backgroundColor: "#f0fdf4", color: "#166534" และ CANCELLED เป็น backgroundColor: "#fef2f2", color: "#991b1b"
+> 4. Client-side Validation & maxLength — ปรับ validate() ให้ตรวจ form.result.trim().length < 2 เมื่อสถานะเป็น COMPLETED และเพิ่ม maxLength={1000} บน action-description, action-result รวมถึง maxLength={500} บน action-followup-note, action-attachment-notes
+> 5. Accessibility (A11Y) — เพิ่ม role="alert" ให้กับข้อความ error ใต้ฟิลด์ทุกจุด (action-date-error, action-assignee-error, action-description-error, action-result-error, action-followup-note-error) และครอบ emoji ในป้ายสถานะ (⏳, 🔧, ✅, ⛔) ด้วย <span aria-hidden="true">
+> 6. Safe Error Response (SAFE-01) — ปรับบล็อก catch ของ GET /api/users/assignable ใน server/src/app.ts ให้ตอบกลับเพียง { error: "Failed to fetch assignable staff" } โดยไม่เปิดเผย err?.message
+> 7. Wording ใน Section 4.1.7 ของ reviewer.md — ปรับเป็น "Reviewer (@jejaebubu) อนุมัติและเป็นผู้กด Merge PR #75 เข้า lab4-staging เรียบร้อย" ตามกติกาห้าม merge PR ของตนเอง
+> 
+> รันเทสต์ตรวจสอบซ้ำผ่านครบ 187/187 เทสต์ (Server 104 + Client 83) รบกวนช่วยตรวจซ้ำและกด Approve/Merge ให้ด้วยนะคะ ขอบคุณมากค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+**Review Date:** 2026-11-01  
+**Verdict:** 🟢 Approved  
+**Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ขอบคุณ @jejaebubu ที่ดำเนินการแก้ไขปรับปรุงครบถ้วนทั้ง 3 ประเด็นหลัก (Required Changes) และข้อเสนอแนะเพิ่มเติม (Minor Suggestions) อย่างรวดเร็วและประณีตมากใน commits `ce25314` และ `3f029b7` ค่ะ:
+> 
+> 1. **Section 3.4 PR-04 ใน `docs/lab-04/reviewer.md`**: บันทึกข้อมูล Branch, Target, วัตถุประสงค์การทดสอบ, ข้อความรีวิวรอบที่ 1 และคำตอบของผู้เขียนครบถ้วน พร้อมอัปเดตสถานะใน Master PR Table เรียบร้อย
+> 2. **State Synchronization (`onActionsChange`)**: ผูก callback `onActionsChange` ใน `StaffTicketDetail.tsx` และ `TicketDetail.tsx` ไปยัง parent `setTicket` ครบถ้วน ทำให้ state ของ `ticket.actionsTaken` บนหน้าแม่ซิงก์แบบ real-time พร้อมสำหรับการตรวจสอบ Resolution Gate ใน Issue #5
+> 3. **Zen Green Tokens Alignment**: สีของ Status Badge ปรับตรงตาม Design System Token (`#f0fdf4`/`#166534` สำหรับ COMPLETED และ `#fef2f2`/`#991b1b` สำหรับ CANCELLED)
+> 4. **Validation & MaxLength**: ปรับ `validate()` ให้ตรวจสอบผลลัพธ์อย่างน้อย 2 ตัวอักษรเมื่อสถานะเป็น COMPLETED และใส่ `maxLength` ครบทุก input/textarea ป้องกัน buffer overflow และ API 400 Bad Request
+> 5. **Accessibility (A11Y)**: เพิ่ม `role="alert"` ให้กับข้อความ error ทุกจุด และครอบ icon emoji ด้วย `<span aria-hidden="true">`
+> 6. **Safe Error Handling (SAFE-01)**: บล็อก catch ของ `GET /api/users/assignable` ตอบกลับเฉพาะ `{ error: "Failed to fetch assignable staff" }` โดยไม่รั่วไหล internal stack trace หรือข้อความ error ดิบ
+> 7. **Documentation Wording**: ปรับปรุงถ้อยคำใน Section 4.1.7 ให้ถูกต้องตามข้อกำหนดการ Merge โดย Reviewer
+> 
+> ผลการทดสอบผ่านครบ 187/187 เทสต์ (Server 104 + Client 83) โค้ดมีความพร้อมระดับ Production สมบูรณ์แบบ ขออนุมัติ (Approve) และดำเนินการกด Merge เข้าสู่ `lab4-staging` ให้ทันทีค่ะ 🎉
+
+#### 💬 Merge Event by Reviewer @titayaaa
+- **Merged PR URL:** [jejaebubu/toktickit#108](https://github.com/jejaebubu/toktickit/pull/108)
+- **Merged by:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `2425b2d1fd224dcbf10e89f97dee9adf9805dd7c`
+- **Merged At:** 2026-11-01 17:42:22 +07:00 (10:42:22 UTC)
+- **Status:** ✅ Merged successfully
+
+

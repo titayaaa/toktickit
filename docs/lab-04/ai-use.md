@@ -31,9 +31,12 @@
 ### Prompt 7: Specification Reconciliation with Active Codebase & Review Feedback
 > "Audit docs/lab-04/ against active route implementations in server/src/routes/staff.ts and tickets.ts. Reconcile the ticket status transition matrix to match exact VALID_TRANSITIONS, align status update endpoints to PATCH /api/staff/tickets/:id/status and PATCH /api/staff/tickets/:id/resolve with HTTP 422 for disallowed transitions, update requester dashboard ownership logic to safe relation/email fallbacks, design paired WCAG 2.1 AA compliant status badge tokens, and specify PostgreSQL PL/pgSQL idempotent enum creation."
 
+### Prompt 8: ActionTaken Database Evolution, Idempotent Migration & Invariant Seed
+> "Implement Prisma schema model `ActionTaken` with integer foreign keys, nullable `result: String?`, default `status: ActionTakenStatus @default(PENDING)`, and composite index `@@index([ticketId, status])`. Create idempotent PostgreSQL migration using PL/pgSQL for `ActionTakenStatus` enum and composite index creation. Update `seed.ts` with multi-staff tickets, active follow-ups, null results for pending work, and verify that zero resolved tickets have open actions."
+
 ---
 
-## 3. Reflection on AI Agent Pairing (Specification Phase)
+## 3. Reflection on AI Agent Pairing (Specification & DB Evolution Phase)
 
 ### 3.1 Specification Agent Reflection
 Pairing with Antigravity as a specification agent before writing implementation code allowed us to identify critical edge cases upfront:
@@ -42,5 +45,11 @@ Pairing with Antigravity as a specification agent before writing implementation 
 - Explicitly enforcing the Resolution Gate at the backend API layer with `409 Conflict` rather than merely hiding client-side buttons guarantees data integrity even against direct API requests or race conditions.
 - Specifying the exact fields and validation rules (e.g. mandatory `followUpNote` when `isFollowUpRequired` is true, and nullable `result` until status is `COMPLETED`) eliminated ambiguity during test planning.
 
-### 3.2 Coding & Hardening Agent Reflection
-*(To be compiled and reflected upon completion of implementation PRs #28 through #36)*
+### 3.2 Database & Seed Evolution Reflection (Issue 28)
+During Issue 28, pairing with AI helped enforce clean migration practices:
+- Designing `result` as nullable (`String?`) at the schema and migration level allows tasks to be planned and worked on (`PENDING`, `IN_PROGRESS`) without premature fake data, while application rules enforce non-empty completion notes.
+- Using PL/pgSQL exception blocks (`DO $$ BEGIN ... EXCEPTION WHEN duplicate_object THEN null; END $$;`) guarantees idempotent enum and constraint creation in PostgreSQL without migration checksum failures.
+- Adding comprehensive data invariant tests in `db-seed.test.ts` verified that all legacy tickets remained completely intact, that multi-staff collaboration is supported, and that no resolved tickets contain dangling open actions.
+- Synchronizing PostgreSQL serial sequences via `setval(pg_get_serial_sequence(...))` after explicit ID seeding avoids P2002 duplicate key collisions on subsequent dynamic inserts. Replacing hardcoded `requesterId` values with dynamic lookups from `RequesterUser` ensures referential integrity across both clean and existing database states.
+
+
