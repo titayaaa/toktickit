@@ -1412,3 +1412,79 @@
 >    - ชุดทดสอบ Frontend `RequesterDashboard.test.tsx` (UI-05a, UI-05b, UI-05c, UI-05d) ครอบคลุมครบถ้วน
 > 
 > งานเรียบร้อยสมบูรณ์แบบมากค่ะ พร้อมสำหรับ Approve และ Merge เข้าสู่ `lab4-staging` ได้เลยค่ะ! 🎉
+
+---
+
+### PR #112: test(e2e): Lab 4 Playwright E2E flows for Actions Taken, Resolution Gate, and Dashboards (Issue #8)
+- **PR URL:** [jejaebubu/toktickit#112](https://github.com/jejaebubu/toktickit/pull/112)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved (Round 2)
+- **Scope & Objectives:**
+  - `e2e/lab-04/actions-taken-flow.spec.ts` (`E2E-01` — `AC-01`, `AC-02`, `AC-03`, `AC-12`, `AC-14`): ทดสอบวงจรชีวิต Actions Taken แบบ End-to-End ตั้งแต่ Requester สร้างตั๋ว -> เจ้าหน้าที่เปิดตั๋ว ตรวจสอบ Follow-Up validation บันทึก Action Taken สถานะ `PENDING` แก้ไขเป็น `IN_PROGRESS` และ Complete พร้อมบังคับกรอก Result (`BR-16 / AC-15`) -> Requester เปิดดูประวัติแบบ Read-only
+  - `e2e/lab-04/ticket-resolution.spec.ts` (`E2E-02` — `AC-07`, `AC-08`, `AC-13`, `BR-08`, `BR-09`, `BR-15`): ทดสอบ Requester Advisory Flag ("My problem is resolved") แสดงแบนเนอร์แจ้งเตือนโดยไม่เปลี่ยนสถานะจริง, เจ้าหน้าที่รับตั๋ว (`New -> Open`), บังคับใช้ Transition Matrix (`Open -> In Progress`), ตรวจจับ Resolution Gate เตือนเมื่อมี Pending Action, ปฏิเสธด้วย `409 Conflict` หากพยายาม Resolve ก่อนงานเสร็จ, และ Resolve สำเร็จหลังเคลียร์ Action ครบ
+  - `e2e/lab-04/dashboards.spec.ts` (`E2E-03` — `AC-04`, `AC-05`, `FR-10`): ทดสอบ Dashboard ทั้ง 2 ฝั่ง (IT Staff Dashboard 5 metric cards + Recent Tickets + Quick Actions นำทาง Drill-down ไปยัง Ticket Queue และ Requester Dashboard 4 metric cards + Quick Actions + Drill-down ไปยัง My Tickets)
+  - Responsive Fix: ปรับแก้ `whiteSpace: "normal"` บน Advisory Badge ใน `TicketDetail.tsx` ป้องกันปัญหาหน้าจอเลื่อนแนวนอนบน Mobile 393px
+  - รองรับการทดสอบครบ 3 viewports: Desktop (1280×800), Tablet (820×1180), Mobile (393×851) รวม 9 E2E test runs
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🛑 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ### PR-08 Review: Changes Requested (ขอฝากเก็บรายละเอียด 2 จุดก่อน Approve ค่ะ)
+> 
+> ขอบคุณ @jejaebubu สำหรับชุดทดสอบ E2E Playwright ทั้ง 3 flows บนทั้ง 3 viewports (Desktop, Tablet, Mobile) ครบ 9 runs และการแก้ปัญหา `whiteSpace: "normal"` บน Advisory Badge ได้อย่างยอดเยี่ยมมากค่ะ
+> 
+> จากการไล่ตรวจโค้ดและเอกสารอย่างละเอียด มีจุดที่อยากรบกวนช่วยปรับแก้อีกนิดหน่อยก่อนกด Approve ดังนี้ค่ะ:
+> 
+> #### 🔴 จุดที่ต้องปรับแก้ (Required Changes):
+> 1. **เติมลิงก์ GitHub PR #112 ใน `docs/lab-04/reviewer.md`**:
+>    - ในตาราง Section 2 แถวของ `PR-08`: รบกวนเพิ่มลิงก์เป็น `**PR-08 ([GitHub #112](https://github.com/jejaebubu/toktickit/pull/112))**` ให้ตรงตามฟอร์แมตเดียวกับ PR-04 ถึง PR-07 ค่ะ
+>    - ในหัวข้อ Section 3.8: รบกวนเพิ่มบรรทัด `- **PR URL:** [jejaebubu/toktickit#112](https://github.com/jejaebubu/toktickit/pull/112)` ค่ะ
+> 
+> #### 💡 ข้อเสนอแนะเพิ่มเติมเพื่อความสมบูรณ์แบบ (Minor Test Polish):
+> 2. **เพิ่ม Negative Validation Test สำหรับ Result Note ตอน Complete Action (`actions-taken-flow.spec.ts`)**:
+>    - ใน Step 7 หลังจากกด `action-complete-` (สถานะเป็น `COMPLETED`) หากลองกด `action-save` ก่อนกรอกข้อความ แล้ว assert ตรวจสอบว่ามี error alert สำหรับช่อง Result แสดงขึ้นมาก่อนกรอกข้อความจริง จะช่วยยืนยันการบังคับใช้กฎ `BR-16` / `AC-15` ในระดับ E2E ได้สมบูรณ์แบบเทียบเท่ากับ Follow-Up Note ใน Step 4 ค่ะ
+> 3. **E2E Quick Action บน Requester Dashboard (`dashboards.spec.ts`)**:
+>    - ปัจจุบันฝั่ง Requester ทดสอบคลิกการ์ด `requester-metric-card-resolved` แล้ว หากมีเวลาอาจเพิ่มการคลิก `requester-quick-action-create-ticket` หรือ `requester-quick-action-view-tickets` เพื่อให้ครบถ้วนเหมือนฝั่ง Staff Dashboard ค่ะ
+> 
+> รบกวนช่วยอัปเดตข้อ 1 เป็นหลักนะคะ แล้วเดี๋ยวจะรีบเข้ามาตรวจซ้ำและกด Approve ให้ทันทีเลยค่ะ ขอบคุณมากค่ะ! ✨
+
+#### 💬 Author Response by @jejaebubu (commit `6ba5ed1`)
+- **Response Date:** 2026-11-02
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวค่ะ แก้ไขครบทุกข้อแล้วใน commit 6ba5ed1 ค่ะ
+> 1. (Required) เพิ่มลิงก์ PR #112 ใน docs/lab-04/reviewer.md ในตาราง Section 2 และเพิ่ม PR URL ใน Section 3.8
+> 2. เพิ่มการทดสอบกรณี Result ยังไม่ได้กรอก (actions-taken-flow.spec.ts) — เพิ่ม Step 7 ให้ลองกดบันทึกทั้งที่ยังไม่ได้กรอก Result แล้วตรวจสอบว่ามีข้อความแจ้งเตือน Result is required ก่อนที่จะกรอกข้อความจริง เพื่อให้ครอบคลุม BR-16 / AC-15 ค่ะ
+> 3. เพิ่มการทดสอบปุ่มลัดของ Requester (dashboards.spec.ts) — เพิ่ม Step 6 เพื่อทดสอบปุ่ม requester-quick-action-create-ticket และ requester-quick-action-view-tickets ค่ะ
+> 4. ผลการทดสอบ: รัน npx playwright test e2e/lab-04 ผ่านครบ 9 tests ทั้ง Desktop, Tablet และ Mobile ค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ขอบคุณ @jejaebubu ที่ดำเนินการแก้ไขปรับปรุงครบถ้วนสมบูรณ์ทั้งประเด็น Required Change และข้อเสนอแนะเพิ่มเติมใน commit `6ba5ed1` อย่างรวดเร็วและประณีตมากค่ะ ตรวจสอบโค้ดและชุดทดสอบซ้ำอย่างละเอียดแล้ว:
+> 
+> 1. **ความสมบูรณ์ของการบันทึกเอกสารและลิงก์ PR (Required 1)**:
+>    - มีการเพิ่มลิงก์ `[GitHub #112](https://github.com/jejaebubu/toktickit/pull/112)` ในตาราง Section 2 แถวของ `PR-08` ครบถ้วนตามมาตรฐานเดียวกันกับ PR ก่อนหน้า
+>    - มีการระบุ `- **PR URL:** [jejaebubu/toktickit#112](https://github.com/jejaebubu/toktickit/pull/112)` ใน Section 3.8 ชัดเจน
+>    - บันทึกการรีวิวรอบที่ 1 และ Author Response ไว้อย่างเป็นระเบียบเรียบร้อย
+> 2. **Negative Validation Test สำหรับ Result ตอน Complete Action (`e2e/lab-04/actions-taken-flow.spec.ts` — Minor 2)**:
+>    - เพิ่ม Step 7 กดปุ่ม `action-save` ในขณะที่ช่อง Result ยังว่างอยู่ พร้อมตรวจสอบว่ามีข้อความแจ้งเตือน `action-result-error` (`/Result is required/i`) แสดงขึ้นมาก่อนกรอกข้อความจริง
+>    - ยืนยันการบังคับใช้กฎ `BR-16` และ `AC-15` ในระดับ End-to-End ได้อย่างรัดกุมและสมบูรณ์แบบมากค่ะ
+> 3. **E2E Quick Actions Test บน Requester Dashboard (`e2e/lab-04/dashboards.spec.ts` — Minor 3)**:
+>    - เพิ่ม Step 6 ทดสอบการคลิกปุ่ม Quick Actions ของฝั่ง Requester ครบทั้ง 2 ปุ่ม:
+>      - `requester-quick-action-create-ticket`: นำทางไปยังฟอร์มสร้างตั๋ว (`submit-ticket-btn`)
+>      - `requester-quick-action-view-tickets`: นำทางไปยังหน้าตั๋วของฉัน (`my-tickets-card`) พร้อมรีเซ็ตตัวกรองสถานะเป็นค่าว่าง
+>    - มีการเรียก `expectNoHorizontalOverflow(page)` ตรวจสอบความถูกต้องของเลย์เอาต์หลังคลิกทุกจุด
+> 4. **ความครอบคลุมของการทดสอบและ Responsive Audit**:
+>    - ชุดทดสอบ Playwright E2E รันผ่านครบทั้ง 9 เทสต์ (3 flow × 3 responsive viewports: Desktop 1280×800, Tablet 820×1180, Mobile 393×851)
+>    - แบ็กเอนด์และคอมโพเนนต์อื่น ๆ ทำงานสอดคล้องกันได้อย่างไร้รอยต่อ
+> 
+> ภาพรวมโค้ดและชุดทดสอบมีคุณภาพสูงมาก ยอดเยี่ยมมากค่ะ ขออนุมัติ (Approve) ให้ทันที และพร้อมให้ดำเนินการ Merge เข้าสู่สาขา `lab4-staging` ได้เลยค่ะ! 🎉🚀
