@@ -20,8 +20,8 @@
 | **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
-| **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #80](https://github.com/titayaaa/toktickit/pull/80)** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-07** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-08** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-09** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -766,7 +766,90 @@
 > 3. **อัปเดต `docs/lab-04/api-spec.md` (หัวข้อ 3.1 และ 3.2):** นำหมายเหตุ *(Planned for Issue 31)* ออก และปรับปรุงตัวอย่าง JSON response ของ HTTP 409 Conflict ให้มีฟิลด์ `code: "STALE_UPDATE_CONFLICT"` และ `code: "RESOLUTION_GATE_BLOCKED"` พร้อม `unresolvedCount` และ `blockingActions` ตรงกับ response จริงจาก Backend
 > 4. **ปรับการส่ง `relatedSystemId` ใน `ticket-workflow.api.test.ts`:** เปลี่ยนจาก `relatedSystem?.id || null` เป็น `relatedSystem.id` ตรง ๆ ทุกจุด ให้สอดคล้องกับ schema type `Int` (Non-nullable)
 > 
-> รันชุดทดสอบ Client ผ่าน 13/13 test files (68/68 tests 100%), Server Typecheck ผ่าน 0 errors, และ Client build (`tsc && vite build`) ผ่านเรียบร้อยค่ะ รบกวนช่วยตรวจทานรอบสุดท้ายและพิจารณา Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
+#### 💬 Round 2 Review by @jejaebubu (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ตรวจสอบการแก้ไขทั้ง 4 จุดใน commit 810bdb3 ครบถ้วนสมบูรณ์แล้วค่ะ:
+> 1. เพิ่มสถานะ PENDING ในเคส REOPENED ของ `TicketDetail.tsx` เรียบร้อย
+> 2. บันทึก AI Pairing Log ใน `ai-use.md` เรียบร้อย
+> 3. ปรับปรุง JSON response ตัวอย่างใน `api-spec.md` ตรงกับโค้ดจริง
+> 4. ปรับ `relatedSystemId` ในชุดทดสอบเป็นค่า non-null เรียบร้อย
+> 
+> รันชุดทดสอบผ่านครบ 100% ขออนุมัติ (Approve) และดำเนินการกด Merge เข้าสู่ `lab4-staging` เรียบร้อยค่ะ 🎉
+
+---
+
+### PR #80: Issue 32: IT Staff Dashboard API & UI
+- **PR URL:** [titayaaa/toktickit#80](https://github.com/titayaaa/toktickit/pull/80)
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Under Review by @jejaebubu
+- **Scope & Implementation:**
+  - **Authoritative Operational Metrics (FR-12, BR-12, API-11):** ใน `server/src/routes/staff.ts` (`GET /api/staff/dashboard`) และ Route alias (`GET /api/dashboard/staff` ใน `server/src/app.ts`) คำนวณสรุปสถิติ 4 ตัวชี้วัดสำคัญของคิวบริการ:
+    - `unassignedTicketsCount`: ตั๋วที่ยังไม่มีผู้รับผิดชอบ (`ownerId: null`) และยังไม่ปิดงาน
+    - `myAssignedTicketsCount`: ตั๋วที่มอบหมายให้เจ้าหน้าที่ไอทีที่ล็อกอิน (`ownerId: currentUserId`)
+    - `urgentTicketsCount`: ตั๋วระดับเร่งด่วนสูงสุด (`itPriority: URGENT`) ที่ยังค้างในระบบ
+    - `myPendingActionsCount`: การดำเนินการที่มอบหมายให้ตนเองและยังไม่เสร็จ (`assigneeId: currentUserId`, `status in [PENDING, IN_PROGRESS]`)
+    - พร้อมส่งรายการ `urgentTickets` (Top 5), `myAssignedActions` (Top 5), และ `recentTickets` (Top 5)
+  - **Access Control & RBAC (FR-12, AC-09, API-13):** บังคับใช้ `authenticate` และ `requireRole(Role.IT_STAFF, Role.ADMINISTRATOR)` ปฏิเสธ Requester ด้วย `403 Forbidden` และ Unauthenticated ด้วย `401 Unauthorized`
+  - **Interactive Frontend UI Component (FR-12, AC-11, UI-05):** พัฒนา `StaffDashboard.tsx` ธีม Zen Green:
+    - การ์ดสถิติ 4 ใบพร้อมตัวเลข authoritative counts และรองรับการคลิก Drill-down ไปยัง `StaffTicketQueue`
+    - แผง Urgent Incident Queue แบบ Responsive (Desktop Table + Mobile Card Stack)
+    - แผง My Assigned Actions แสดงรายการงานที่ต้องปฏิบัติการพร้อมลิงก์เปิดตั๋ว
+    - แผง Operational Quick Actions สำหรับเปิดคิวบริการ กรองเฉพาะงานของฉัน หรือกรองตั๋วที่ยังไม่มีผู้รับผิดชอบ
+  - **Drill-Down Filter Synchronization:** ปรับปรุง `StaffTicketQueue.tsx` รับ prop `initialFilters?: StaffQueueInitialFilters` และเชื่อมโยงใน `App.tsx` สลับแท็บพร้อมตั้งค่าฟิลเตอร์อัตโนมัติ
+  - **Zen Green Tokens & Accessibility (STYLE-01, RESP-01, A11Y):**
+    - ปุ่มและการ์ดแบบคลิกได้ทั้งหมดมี Touch target $\ge 44\text{px}$
+    - โทนสี Zen Green (`#006B3C`, `#EAF6EF`, `#FFFBEB`)
+    - กำหนด `overflowX: hidden` ป้องกันปัญหาหน้าจอเลื่อนแนวนอน
+  - **Automated Test Suites:**
+    - `server/tests/lab-04/staff-dashboard.api.test.ts` (API-11, API-13, PERF-01)
+    - `client/src/test/lab-04/StaffDashboard.test.tsx` (UI-05, STYLE-01, RESP-01)
+
+#### 💬 Round 1 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🛑 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจโค้ด REST API, การคำนวณ Operational Metrics, หน้าจอ UI StaffDashboard.tsx และชุดทดสอบของ PR #80 (Issue 32) เทียบกับ schema.prisma, specification.md, api-spec.md และ ui-spec.md อย่างละเอียดรอบด้านแล้วนะคะ ภาพรวมการจัดเลย์เอาต์ธีม Zen Green, การ์ดสรุปสถิติ 4 ใบ, ตาราง Responsive Urgent Queue และการเชื่อมโยง Drill-down ไปยัง Queue ทำไว้ดีมากเลยค่ะ
+> แต่ขอ Changes Requested ก่อนนะคะ เนื่องจากมีจุดสำคัญเรื่องการยืนยันตัวตน (Authentication) บนหน้าเว็บจริง และ Foreign Key Constraint ในชุดทดสอบที่ต้องรบกวนช่วยปรับแก้ก่อน Merge ค่ะ:
+> 
+> 🔴 **Blocking: ต้องแก้ก่อน Merge**
+> 1. `client/src/components/StaffDashboard.tsx` (บรรทัด 122, 126): ขาด Authorization Header ใน fetchDashboardData ทำให้หน้าเว็บจริงเสี่ยงติด 401 Unauthorized
+>    - **ปัญหา:** ใน fetchDashboardData เรียก `fetch('/api/staff/dashboard')` และ fallback `fetch('/api/dashboard/staff')` โดยไม่ได้ส่ง headers ใด ๆ ในระบบ TokTickIT ผู้ใช้เก็บ JWT token ไว้ใน localStorage ด้วยคีย์ `'toktickit_auth_token'` หากไม่ส่ง headers API จะปฏิเสธด้วย 401 Unauthorized
+>    - **แนวทางแก้:** ดึง token จาก `localStorage.getItem('toktickit_auth_token')` แล้วส่ง headers ในคำสั่ง fetch เช่น `const headers: HeadersInit = token ? { Authorization: \`Bearer \${token}\` } : {};`
+> 2. `server/tests/lab-04/staff-dashboard.api.test.ts` (บรรทัด 75, 98, 115): ผูก `requesterId: requesterUser.id` ข้ามตาราง และไม่ได้ส่ง `userId`
+>    - **ปัญหา:** ใน `beforeAll` ตอนสร้างตั๋วทดสอบ มีการระบุ `requesterId: requesterUser.id` โดยตรง ซึ่ง `requesterUser` มาจากตาราง User ตาม schema.prisma โมเดล Ticket ฟิลด์ `requesterId` ชี้ไปยัง `RequesterUser.id` ส่วน `User.id` จะเชื่อมผ่านฟิลด์ `userId`
+>    - **แนวทางแก้:** ค้นหาหรือสร้าง RequesterUser (`reqJennifer`) ก่อน แล้วส่ง `requesterId: reqJennifer.id` พร้อมทั้งส่ง `userId: requesterUser.id`
+> 
+> 🟠 **Should Fix: ความสอดคล้องของ Filter Drill-Down**
+> 3. `client/src/components/StaffDashboard.tsx` (บรรทัด 334): การคลิกการ์ด "My Pending Actions" ขาดการกรอง `ownerFilter: 'me'`
+>    - **ปัญหา:** ตอนคลิกการ์ด My Pending Actions มีการเรียก `onDrillDown?.({ status: 'IN_PROGRESS' })` เพียงอย่างเดียว ทำให้พอนำทางไปหน้าคิวตั๋ว ระบบจะแสดงตั๋ว In Progress ของทุกคนในระบบ แทนที่จะแสดงเฉพาะงานของตนเอง
+>    - **แนวทางแก้:** ปรับเป็น `onDrillDown?.({ status: 'IN_PROGRESS', ownerFilter: 'me' })`
+> 4. `client/src/components/StaffDashboard.tsx` (บรรทัด 369): Status Casing ใน Hidden Alias
+>    - ในแท็ก `<span data-testid="staff-metric-card-in-progress" onClick={() => onDrillDown?.({ status: 'In Progress' })}>...</span>` ส่งค่า `'In Progress'` (มีช่องว่าง) แต่ใน Dropdown ของ `StaffTicketQueue.tsx` ตัวเลือกใช้ค่า value เป็น `'IN_PROGRESS'` แนะนำให้ปรับเป็น `status: 'IN_PROGRESS'` ให้ตรงกันค่ะ
+
+#### 💬 Author Response by @titayaaa (Changes Addressed)
+- **Response Date:** 2026-11-02
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณ @jejaebubu สำหรับการตรวจทานที่ละเอียดรอบคอบและช่วยจับจุดสำคัญเรื่อง Auth Header และ Foreign Key Constraint ค่ะ ได้ดำเนินการแก้ไขปรับปรุงครบทั้ง 4 ประเด็นเรียบร้อยแล้วค่ะ:
+> 
+> 1. **เพิ่ม Authorization Header ใน `fetchDashboardData` (`StaffDashboard.tsx`)**:
+>    - ดึง JWT token จาก `localStorage.getItem('toktickit_auth_token')` และแนบ `Authorization: Bearer <token>` ไปกับคำขอทั้ง endpoint หลัก `/api/staff/dashboard` และ endpoint สำรอง `/api/dashboard/staff` ทำให้หน้าจอโหลดข้อมูลสถิติได้อย่างถูกต้อง ไม่ติดปัญหา 401 Unauthorized
+> 2. **แก้ไขการผูก Foreign Key ของตั๋วทดสอบใน `staff-dashboard.api.test.ts`**:
+>    - ค้นหาและสร้างข้อมูลในตาราง `RequesterUser` (`reqJennifer`) ให้สอดคล้องกับโครงสร้างของ `schema.prisma`
+>    - ส่ง `requesterId: reqJennifer.id` คู่กับ `userId: requesterUser.id` ในการสร้างตั๋วทดสอบทั้ง 4 ใบ ทำให้ Foreign key constraints และ relation `TicketRequester` ถูกต้องสมบูรณ์ 100%
+> 3. **ปรับการกรอง Drill-Down ของการ์ด My Pending Actions (`StaffDashboard.tsx`)**:
+>    - เพิ่มการส่ง `ownerFilter: 'me'` ควบคู่กับ `status: 'IN_PROGRESS'` เมื่อผู้ใช้คลิกการ์ด "My Pending Actions" ทำให้เมื่อนำทางไปยังหน้าคิวตั๋ว ระบบจะกรองแสดงเฉพาะตั๋วที่เป็นงานของตนเองอย่างถูกต้อง
+>    - เพิ่ม assertion ตรวจสอบใน `StaffDashboard.test.tsx` ครอบคลุมการคลิกการ์ดใบนี้
+> 4. **ปรับ Status Casing ใน Hidden Alias (`StaffDashboard.tsx`)**:
+>    - ปรับแก้ค่าสถานะใน `staff-metric-card-in-progress` จาก `'In Progress'` เป็น `'IN_PROGRESS'` ตรงตามค่า Enum ของ `StaffTicketQueue.tsx`
+> 
+> รันชุดทดสอบ Client ผ่านครบ 19/19 tests (100%), `npm run build` ผ่าน 0 errors, Server typecheck ผ่าน 0 errors และผลการทดสอบ Backend Dashboard API ผ่านเรียบร้อยค่ะ รบกวนช่วยตรวจทานรอบที่ 2 อีกครั้งนะคะ ขอบคุณมากค่ะ! ✨
 
 ---
 
@@ -1371,3 +1454,79 @@
 >    - ชุดทดสอบ Frontend `RequesterDashboard.test.tsx` (UI-05a, UI-05b, UI-05c, UI-05d) ครอบคลุมครบถ้วน
 > 
 > งานเรียบร้อยสมบูรณ์แบบมากค่ะ พร้อมสำหรับ Approve และ Merge เข้าสู่ `lab4-staging` ได้เลยค่ะ! 🎉
+
+---
+
+### PR #112: test(e2e): Lab 4 Playwright E2E flows for Actions Taken, Resolution Gate, and Dashboards (Issue #8)
+- **PR URL:** [jejaebubu/toktickit#112](https://github.com/jejaebubu/toktickit/pull/112)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved (Round 2)
+- **Scope & Objectives:**
+  - `e2e/lab-04/actions-taken-flow.spec.ts` (`E2E-01` — `AC-01`, `AC-02`, `AC-03`, `AC-12`, `AC-14`): ทดสอบวงจรชีวิต Actions Taken แบบ End-to-End ตั้งแต่ Requester สร้างตั๋ว -> เจ้าหน้าที่เปิดตั๋ว ตรวจสอบ Follow-Up validation บันทึก Action Taken สถานะ `PENDING` แก้ไขเป็น `IN_PROGRESS` และ Complete พร้อมบังคับกรอก Result (`BR-16 / AC-15`) -> Requester เปิดดูประวัติแบบ Read-only
+  - `e2e/lab-04/ticket-resolution.spec.ts` (`E2E-02` — `AC-07`, `AC-08`, `AC-13`, `BR-08`, `BR-09`, `BR-15`): ทดสอบ Requester Advisory Flag ("My problem is resolved") แสดงแบนเนอร์แจ้งเตือนโดยไม่เปลี่ยนสถานะจริง, เจ้าหน้าที่รับตั๋ว (`New -> Open`), บังคับใช้ Transition Matrix (`Open -> In Progress`), ตรวจจับ Resolution Gate เตือนเมื่อมี Pending Action, ปฏิเสธด้วย `409 Conflict` หากพยายาม Resolve ก่อนงานเสร็จ, และ Resolve สำเร็จหลังเคลียร์ Action ครบ
+  - `e2e/lab-04/dashboards.spec.ts` (`E2E-03` — `AC-04`, `AC-05`, `FR-10`): ทดสอบ Dashboard ทั้ง 2 ฝั่ง (IT Staff Dashboard 5 metric cards + Recent Tickets + Quick Actions นำทาง Drill-down ไปยัง Ticket Queue และ Requester Dashboard 4 metric cards + Quick Actions + Drill-down ไปยัง My Tickets)
+  - Responsive Fix: ปรับแก้ `whiteSpace: "normal"` บน Advisory Badge ใน `TicketDetail.tsx` ป้องกันปัญหาหน้าจอเลื่อนแนวนอนบน Mobile 393px
+  - รองรับการทดสอบครบ 3 viewports: Desktop (1280×800), Tablet (820×1180), Mobile (393×851) รวม 9 E2E test runs
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🛑 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ### PR-08 Review: Changes Requested (ขอฝากเก็บรายละเอียด 2 จุดก่อน Approve ค่ะ)
+> 
+> ขอบคุณ @jejaebubu สำหรับชุดทดสอบ E2E Playwright ทั้ง 3 flows บนทั้ง 3 viewports (Desktop, Tablet, Mobile) ครบ 9 runs และการแก้ปัญหา `whiteSpace: "normal"` บน Advisory Badge ได้อย่างยอดเยี่ยมมากค่ะ
+> 
+> จากการไล่ตรวจโค้ดและเอกสารอย่างละเอียด มีจุดที่อยากรบกวนช่วยปรับแก้อีกนิดหน่อยก่อนกด Approve ดังนี้ค่ะ:
+> 
+> #### 🔴 จุดที่ต้องปรับแก้ (Required Changes):
+> 1. **เติมลิงก์ GitHub PR #112 ใน `docs/lab-04/reviewer.md`**:
+>    - ในตาราง Section 2 แถวของ `PR-08`: รบกวนเพิ่มลิงก์เป็น `**PR-08 ([GitHub #112](https://github.com/jejaebubu/toktickit/pull/112))**` ให้ตรงตามฟอร์แมตเดียวกับ PR-04 ถึง PR-07 ค่ะ
+>    - ในหัวข้อ Section 3.8: รบกวนเพิ่มบรรทัด `- **PR URL:** [jejaebubu/toktickit#112](https://github.com/jejaebubu/toktickit/pull/112)` ค่ะ
+> 
+> #### 💡 ข้อเสนอแนะเพิ่มเติมเพื่อความสมบูรณ์แบบ (Minor Test Polish):
+> 2. **เพิ่ม Negative Validation Test สำหรับ Result Note ตอน Complete Action (`actions-taken-flow.spec.ts`)**:
+>    - ใน Step 7 หลังจากกด `action-complete-` (สถานะเป็น `COMPLETED`) หากลองกด `action-save` ก่อนกรอกข้อความ แล้ว assert ตรวจสอบว่ามี error alert สำหรับช่อง Result แสดงขึ้นมาก่อนกรอกข้อความจริง จะช่วยยืนยันการบังคับใช้กฎ `BR-16` / `AC-15` ในระดับ E2E ได้สมบูรณ์แบบเทียบเท่ากับ Follow-Up Note ใน Step 4 ค่ะ
+> 3. **E2E Quick Action บน Requester Dashboard (`dashboards.spec.ts`)**:
+>    - ปัจจุบันฝั่ง Requester ทดสอบคลิกการ์ด `requester-metric-card-resolved` แล้ว หากมีเวลาอาจเพิ่มการคลิก `requester-quick-action-create-ticket` หรือ `requester-quick-action-view-tickets` เพื่อให้ครบถ้วนเหมือนฝั่ง Staff Dashboard ค่ะ
+> 
+> รบกวนช่วยอัปเดตข้อ 1 เป็นหลักนะคะ แล้วเดี๋ยวจะรีบเข้ามาตรวจซ้ำและกด Approve ให้ทันทีเลยค่ะ ขอบคุณมากค่ะ! ✨
+
+#### 💬 Author Response by @jejaebubu (commit `6ba5ed1`)
+- **Response Date:** 2026-11-02
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวค่ะ แก้ไขครบทุกข้อแล้วใน commit 6ba5ed1 ค่ะ
+> 1. (Required) เพิ่มลิงก์ PR #112 ใน docs/lab-04/reviewer.md ในตาราง Section 2 และเพิ่ม PR URL ใน Section 3.8
+> 2. เพิ่มการทดสอบกรณี Result ยังไม่ได้กรอก (actions-taken-flow.spec.ts) — เพิ่ม Step 7 ให้ลองกดบันทึกทั้งที่ยังไม่ได้กรอก Result แล้วตรวจสอบว่ามีข้อความแจ้งเตือน Result is required ก่อนที่จะกรอกข้อความจริง เพื่อให้ครอบคลุม BR-16 / AC-15 ค่ะ
+> 3. เพิ่มการทดสอบปุ่มลัดของ Requester (dashboards.spec.ts) — เพิ่ม Step 6 เพื่อทดสอบปุ่ม requester-quick-action-create-ticket และ requester-quick-action-view-tickets ค่ะ
+> 4. ผลการทดสอบ: รัน npx playwright test e2e/lab-04 ผ่านครบ 9 tests ทั้ง Desktop, Tablet และ Mobile ค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ขอบคุณ @jejaebubu ที่ดำเนินการแก้ไขปรับปรุงครบถ้วนสมบูรณ์ทั้งประเด็น Required Change และข้อเสนอแนะเพิ่มเติมใน commit `6ba5ed1` อย่างรวดเร็วและประณีตมากค่ะ ตรวจสอบโค้ดและชุดทดสอบซ้ำอย่างละเอียดแล้ว:
+> 
+> 1. **ความสมบูรณ์ของการบันทึกเอกสารและลิงก์ PR (Required 1)**:
+>    - มีการเพิ่มลิงก์ `[GitHub #112](https://github.com/jejaebubu/toktickit/pull/112)` ในตาราง Section 2 แถวของ `PR-08` ครบถ้วนตามมาตรฐานเดียวกันกับ PR ก่อนหน้า
+>    - มีการระบุ `- **PR URL:** [jejaebubu/toktickit#112](https://github.com/jejaebubu/toktickit/pull/112)` ใน Section 3.8 ชัดเจน
+>    - บันทึกการรีวิวรอบที่ 1 และ Author Response ไว้อย่างเป็นระเบียบเรียบร้อย
+> 2. **Negative Validation Test สำหรับ Result ตอน Complete Action (`e2e/lab-04/actions-taken-flow.spec.ts` — Minor 2)**:
+>    - เพิ่ม Step 7 กดปุ่ม `action-save` ในขณะที่ช่อง Result ยังว่างอยู่ พร้อมตรวจสอบว่ามีข้อความแจ้งเตือน `action-result-error` (`/Result is required/i`) แสดงขึ้นมาก่อนกรอกข้อความจริง
+>    - ยืนยันการบังคับใช้กฎ `BR-16` และ `AC-15` ในระดับ End-to-End ได้อย่างรัดกุมและสมบูรณ์แบบมากค่ะ
+> 3. **E2E Quick Actions Test บน Requester Dashboard (`e2e/lab-04/dashboards.spec.ts` — Minor 3)**:
+>    - เพิ่ม Step 6 ทดสอบการคลิกปุ่ม Quick Actions ของฝั่ง Requester ครบทั้ง 2 ปุ่ม:
+>      - `requester-quick-action-create-ticket`: นำทางไปยังฟอร์มสร้างตั๋ว (`submit-ticket-btn`)
+>      - `requester-quick-action-view-tickets`: นำทางไปยังหน้าตั๋วของฉัน (`my-tickets-card`) พร้อมรีเซ็ตตัวกรองสถานะเป็นค่าว่าง
+>    - มีการเรียก `expectNoHorizontalOverflow(page)` ตรวจสอบความถูกต้องของเลย์เอาต์หลังคลิกทุกจุด
+> 4. **ความครอบคลุมของการทดสอบและ Responsive Audit**:
+>    - ชุดทดสอบ Playwright E2E รันผ่านครบทั้ง 9 เทสต์ (3 flow × 3 responsive viewports: Desktop 1280×800, Tablet 820×1180, Mobile 393×851)
+>    - แบ็กเอนด์และคอมโพเนนต์อื่น ๆ ทำงานสอดคล้องกันได้อย่างไร้รอยต่อ
+> 
+> ภาพรวมโค้ดและชุดทดสอบมีคุณภาพสูงมาก ยอดเยี่ยมมากค่ะ ขออนุมัติ (Approve) ให้ทันที และพร้อมให้ดำเนินการ Merge เข้าสู่สาขา `lab4-staging` ได้เลยค่ะ! 🎉🚀

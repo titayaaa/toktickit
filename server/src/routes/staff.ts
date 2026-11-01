@@ -695,5 +695,178 @@ router.patch('/tickets/:id/resolve', async (req: AuthRequest, res: Response): Pr
   }
 });
 
+/**
+ * GET /api/staff/dashboard
+ * Operational metrics, urgent tickets, assigned actions, and recent tickets for IT Staff & Administrators (Issue 32)
+ */
+router.get('/dashboard', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const currentUserId = req.user!.id;
+
+    const nonTerminalStatus = {
+      notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED, TicketStatus.CANCELLED],
+    };
+
+    const [
+      unassignedTicketsCount,
+      myAssignedTicketsCount,
+      urgentTicketsCount,
+      myPendingActionsCount,
+      openTicketsCount,
+      inProgressTicketsCount,
+      urgentTickets,
+      myAssignedActions,
+      recentTickets,
+    ] = await Promise.all([
+      // Unassigned active tickets
+      prisma.ticket.count({
+        where: {
+          ownerId: null,
+          currentStatus: nonTerminalStatus,
+        },
+      }),
+      // My assigned active tickets
+      prisma.ticket.count({
+        where: {
+          ownerId: currentUserId,
+          currentStatus: nonTerminalStatus,
+        },
+      }),
+      // Urgent active tickets
+      prisma.ticket.count({
+        where: {
+          itPriority: TicketPriority.URGENT,
+          currentStatus: nonTerminalStatus,
+        },
+      }),
+      // My pending or in-progress actions
+      prisma.actionTaken.count({
+        where: {
+          assigneeId: currentUserId,
+          status: { in: ['PENDING', 'IN_PROGRESS'] },
+        },
+      }),
+      // Open / New tickets
+      prisma.ticket.count({
+        where: {
+          currentStatus: { in: [TicketStatus.NEW, TicketStatus.OPEN] },
+        },
+      }),
+      // In progress / waiting tickets
+      prisma.ticket.count({
+        where: {
+          currentStatus: { in: [TicketStatus.IN_PROGRESS, TicketStatus.WAITING_FOR_REQUESTER, TicketStatus.PENDING] },
+        },
+      }),
+      // Top 5 Urgent Tickets
+      prisma.ticket.findMany({
+        where: {
+          itPriority: TicketPriority.URGENT,
+          currentStatus: nonTerminalStatus,
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 5,
+        include: {
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+          owner: { select: { id: true, fullName: true, email: true } },
+          requester: { select: { id: true, fullName: true, email: true } },
+        },
+      }),
+      // Top 5 My Assigned Actions
+      prisma.actionTaken.findMany({
+        where: {
+          assigneeId: currentUserId,
+          status: { in: ['PENDING', 'IN_PROGRESS'] },
+        },
+        orderBy: [{ actionDateTime: 'desc' }, { id: 'desc' }],
+        take: 5,
+        include: {
+          ticket: {
+            select: {
+              id: true,
+              ticketNumber: true,
+              summary: true,
+              currentStatus: true,
+              itPriority: true,
+            },
+          },
+        },
+      }),
+      // Top 5 Recent Tickets
+      prisma.ticket.findMany({
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: 5,
+        include: {
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+          owner: { select: { id: true, fullName: true, email: true } },
+          requester: { select: { id: true, fullName: true, email: true } },
+        },
+      }),
+    ]);
+
+    const formattedUrgent = urgentTickets.map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      summary: t.summary,
+      itPriority: t.itPriority,
+      currentStatus: t.currentStatus,
+      category: t.category,
+      relatedSystem: t.relatedSystem,
+      owner: t.owner,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
+
+    const formattedActions = myAssignedActions.map((a) => ({
+      id: a.id,
+      ticketId: a.ticketId,
+      ticketNumber: a.ticket.ticketNumber,
+      ticketSummary: a.ticket.summary,
+      actionDescription: a.actionDescription,
+      status: a.status,
+      actionDateTime: a.actionDateTime.toISOString(),
+    }));
+
+    const formattedRecent = recentTickets.map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      summary: t.summary,
+      itPriority: t.itPriority,
+      currentStatus: t.currentStatus,
+      category: t.category,
+      relatedSystem: t.relatedSystem,
+      owner: t.owner,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
+
+    res.status(200).json({
+      metrics: {
+        unassignedTicketsCount,
+        myAssignedTicketsCount,
+        urgentTicketsCount,
+        myPendingActionsCount,
+        openTicketsCount,
+        inProgressTicketsCount,
+        unassigned: unassignedTicketsCount,
+        myAssigned: myAssignedTicketsCount,
+        urgent: urgentTicketsCount,
+        myPendingActions: myPendingActionsCount,
+        open: openTicketsCount,
+        inProgress: inProgressTicketsCount,
+      },
+      urgentTickets: formattedUrgent,
+      myAssignedActions: formattedActions,
+      recentTickets: formattedRecent,
+    });
+  } catch (error) {
+    console.error('Error fetching IT Staff dashboard:', error);
+    res.status(500).json({ error: 'Failed to fetch IT Staff dashboard metrics' });
+  }
+});
+
 export default router;
+
 

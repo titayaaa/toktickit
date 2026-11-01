@@ -46,6 +46,12 @@ app.get(
   }
 );
 
+// Sprint 4 (Issue 32) — Route alias for IT Staff Dashboard
+app.use('/api/dashboard/staff', (req, res, next) => {
+  req.url = '/dashboard';
+  staffRouter(req, res, next);
+});
+
 
 // Multer configuration for attachments
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB

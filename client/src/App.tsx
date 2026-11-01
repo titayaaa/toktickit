@@ -7,8 +7,9 @@ import CreateTicketForm from './components/CreateTicketForm';
 import MyTickets from './components/MyTickets';
 import TicketDetail from './components/TicketDetail';
 
-import StaffTicketQueue from './components/StaffTicketQueue';
+import StaffTicketQueue, { StaffQueueInitialFilters } from './components/StaffTicketQueue';
 import AdminUserManagement from './components/AdminUserManagement';
+import StaffDashboard, { StaffDashboardDrillDown } from './components/StaffDashboard';
 
 interface Category {
   id: number;
@@ -20,7 +21,7 @@ interface RelatedSystem {
   name: string;
 }
 
-type TabType = 'create' | 'my-tickets' | 'staff-queue' | 'admin-users';
+type TabType = 'create' | 'my-tickets' | 'staff-dashboard' | 'staff-queue' | 'admin-users';
 
 const ROLE_CONFIG: Record<UserRole, { label: string; bg: string; color: string; border: string }> = {
   REQUESTER: {
@@ -48,13 +49,24 @@ const MainApplication: React.FC = () => {
   const isAdmin = user?.role === 'ADMINISTRATOR';
   const isStaffOrAdmin = user?.role === 'IT_STAFF' || isAdmin;
   const [activeTab, setActiveTab] = useState<TabType>(
-    isAdmin ? 'admin-users' : isStaffOrAdmin ? 'staff-queue' : 'create'
+    isStaffOrAdmin ? 'staff-dashboard' : 'create'
   );
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [staffQueueFilters, setStaffQueueFilters] = useState<StaffQueueInitialFilters | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const handleStaffDrillDown = (drillDown: StaffDashboardDrillDown) => {
+    setSelectedTicketId(null);
+    setStaffQueueFilters({
+      status: drillDown.status,
+      ownerFilter: drillDown.ownerFilter,
+      itPriority: drillDown.itPriority,
+    });
+    setActiveTab('staff-queue');
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,9 +100,9 @@ const MainApplication: React.FC = () => {
   // Set default active tab based on authenticated user role
   useEffect(() => {
     if (user?.role === 'ADMINISTRATOR') {
-      setActiveTab('admin-users');
+      setActiveTab('staff-dashboard');
     } else if (user?.role === 'IT_STAFF') {
-      setActiveTab('staff-queue');
+      setActiveTab('staff-dashboard');
     } else if (user?.role === 'REQUESTER') {
       setActiveTab('create');
     }
@@ -153,6 +165,20 @@ const MainApplication: React.FC = () => {
 
       {/* Navigation Tabs */}
       <div className="d-flex flex-wrap gap-2 mb-4">
+        {isStaffOrAdmin && (
+          <button
+            type="button"
+            className={`zen-nav-tab ${activeTab === 'staff-dashboard' && !selectedTicketId ? 'active' : ''}`}
+            onClick={() => {
+              setSelectedTicketId(null);
+              setActiveTab('staff-dashboard');
+            }}
+            aria-label="Staff Dashboard tab"
+            data-testid="nav-staff-dashboard"
+          >
+            Dashboard
+          </button>
+        )}
         {isAdmin && (
           <button
             type="button"
@@ -217,6 +243,20 @@ const MainApplication: React.FC = () => {
             onBack={() => setSelectedTicketId(null)}
           />
         </div>
+      ) : activeTab === 'staff-dashboard' && isStaffOrAdmin ? (
+        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
+          <StaffDashboard
+            onSelectTicket={(ticketId: number) => {
+              setSelectedTicketId(ticketId);
+            }}
+            onDrillDown={handleStaffDrillDown}
+            onNavigateToQueue={() => {
+              setSelectedTicketId(null);
+              setStaffQueueFilters(undefined);
+              setActiveTab('staff-queue');
+            }}
+          />
+        </div>
       ) : activeTab === 'admin-users' && isAdmin ? (
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <AdminUserManagement />
@@ -225,6 +265,7 @@ const MainApplication: React.FC = () => {
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <StaffTicketQueue
             categories={categories}
+            initialFilters={staffQueueFilters}
             onSelectTicket={(ticketId: number) => {
               setSelectedTicketId(ticketId);
             }}
