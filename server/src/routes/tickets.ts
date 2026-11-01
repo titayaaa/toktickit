@@ -433,8 +433,7 @@ router.get('/:id/actions-taken', authenticate, async (req: AuthRequest, res: Res
     if (currentUser.role === Role.REQUESTER) {
       const isOwner =
         ticket.userId === currentUser.id ||
-        ticket.requesterId === currentUser.id ||
-        (ticket.requester && ticket.requester.id === currentUser.id) ||
+        (ticket.requester && (ticket.requester.id === currentUser.id || ticket.requester.email === currentUser.email)) ||
         (ticket.requesterUser && ticket.requesterUser.email === currentUser.email);
 
       if (!isOwner) {
@@ -453,6 +452,59 @@ router.get('/:id/actions-taken', authenticate, async (req: AuthRequest, res: Res
   } catch (error) {
     console.error('Error fetching actions taken:', error);
     res.status(500).json({ error: 'Failed to fetch actions taken' });
+  }
+});
+
+/**
+ * GET /api/tickets/:id/actions-taken/:actionId
+ * Access: IT_STAFF, ADMINISTRATOR, REQUESTER (owned tickets only)
+ */
+router.get('/:id/actions-taken/:actionId', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const ticketId = parseInt(req.params.id as string, 10);
+    const actionId = parseInt(req.params.actionId as string, 10);
+    if (isNaN(ticketId) || isNaN(actionId) || ticketId <= 0 || actionId <= 0) {
+      res.status(404).json({ error: 'Ticket or Action Taken not found' });
+      return;
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      include: { requester: true, requesterUser: true },
+    });
+
+    if (!ticket) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+
+    const currentUser = req.user!;
+    if (currentUser.role === Role.REQUESTER) {
+      const isOwner =
+        ticket.userId === currentUser.id ||
+        (ticket.requester && (ticket.requester.id === currentUser.id || ticket.requester.email === currentUser.email)) ||
+        (ticket.requesterUser && ticket.requesterUser.email === currentUser.email);
+
+      if (!isOwner) {
+        res.status(404).json({ error: 'Ticket not found' });
+        return;
+      }
+    }
+
+    const action = await prisma.actionTaken.findFirst({
+      where: { id: actionId, ticketId },
+      include: ACTION_INCLUDE,
+    });
+
+    if (!action) {
+      res.status(404).json({ error: 'Action Taken not found' });
+      return;
+    }
+
+    res.status(200).json(action);
+  } catch (error) {
+    console.error('Error fetching action taken by id:', error);
+    res.status(500).json({ error: 'Failed to fetch action taken' });
   }
 });
 
@@ -522,8 +574,13 @@ router.post('/:id/actions-taken', authenticate, async (req: AuthRequest, res: Re
       }
     }
 
+    if (result && result.length > 1000) {
+      res.status(400).json({ error: 'Result summary exceeds maximum length of 1,000 characters' });
+      return;
+    }
+
     if (status === ActionTakenStatus.COMPLETED) {
-      if (!result || result.length < 2 || result.length > 1000) {
+      if (!result || result.length < 2) {
         res.status(400).json({ error: 'Result is required (at least 2 characters) when action status is COMPLETED' });
         return;
       }
@@ -534,8 +591,8 @@ router.post('/:id/actions-taken', authenticate, async (req: AuthRequest, res: Re
     let followUpNote: string | null = null;
     if (isFollowUpRequired) {
       const noteStr = typeof rawFollowUpNote === 'string' ? rawFollowUpNote.trim() : '';
-      if (!noteStr || noteStr.length < 1 || noteStr.length > 500) {
-        res.status(400).json({ error: 'Follow-up note is required when follow-up is requested' });
+      if (!noteStr || noteStr.length < 2 || noteStr.length > 500) {
+        res.status(400).json({ error: 'Follow-up note is required (minimum 2 characters, maximum 500 characters) when follow-up is requested' });
         return;
       }
       followUpNote = noteStr;
@@ -543,17 +600,26 @@ router.post('/:id/actions-taken', authenticate, async (req: AuthRequest, res: Re
 
     // Validate actionDateTime
     let actionDateTime = new Date();
-    if (rawActionDateTime) {
+    if (rawActionDateTime !== undefined && rawActionDateTime !== null) {
       const parsed = new Date(rawActionDateTime);
-      if (!isNaN(parsed.getTime())) {
-        actionDateTime = parsed;
+      if (isNaN(parsed.getTime())) {
+        res.status(400).json({ error: 'Invalid actionDateTime format' });
+        return;
       }
+      actionDateTime = parsed;
     }
 
     // Validate attachmentNotes (optional, max 500 chars)
     let attachmentNotes: string | null = null;
-    if (typeof rawAttachmentNotes === 'string' && rawAttachmentNotes.trim()) {
-      attachmentNotes = rawAttachmentNotes.trim().slice(0, 500);
+    if (rawAttachmentNotes !== undefined && rawAttachmentNotes !== null) {
+      if (typeof rawAttachmentNotes === 'string') {
+        const trimmed = rawAttachmentNotes.trim();
+        if (trimmed.length > 500) {
+          res.status(400).json({ error: 'Attachment notes exceed maximum length of 500 characters' });
+          return;
+        }
+        attachmentNotes = trimmed.length > 0 ? trimmed : null;
+      }
     }
 
     // Performed by authenticated user (anti-spoofing)
@@ -648,8 +714,13 @@ router.patch('/:id/actions-taken/:actionId', authenticate, async (req: AuthReque
       }
     }
 
+    if (finalResult && finalResult.length > 1000) {
+      res.status(400).json({ error: 'Result summary exceeds maximum length of 1,000 characters' });
+      return;
+    }
+
     if (targetStatus === ActionTakenStatus.COMPLETED) {
-      if (!finalResult || finalResult.length < 2 || finalResult.length > 1000) {
+      if (!finalResult || finalResult.length < 2) {
         res.status(400).json({
           error: 'Result is required (at least 2 characters) when action status is COMPLETED',
         });
@@ -677,13 +748,13 @@ router.patch('/:id/actions-taken/:actionId', authenticate, async (req: AuthReque
     if (targetFollowUpRequired) {
       if (targetFollowUpNoteRaw !== undefined) {
         const noteStr = typeof targetFollowUpNoteRaw === 'string' ? targetFollowUpNoteRaw.trim() : '';
-        if (!noteStr || noteStr.length < 1 || noteStr.length > 500) {
-          res.status(400).json({ error: 'Follow-up note is required when follow-up is requested' });
+        if (!noteStr || noteStr.length < 2 || noteStr.length > 500) {
+          res.status(400).json({ error: 'Follow-up note is required (minimum 2 characters, maximum 500 characters) when follow-up is requested' });
           return;
         }
         targetFollowUpNote = noteStr;
-      } else if (!targetFollowUpNote) {
-        res.status(400).json({ error: 'Follow-up note is required when follow-up is requested' });
+      } else if (!targetFollowUpNote || targetFollowUpNote.length < 2) {
+        res.status(400).json({ error: 'Follow-up note is required (minimum 2 characters, maximum 500 characters) when follow-up is requested' });
         return;
       }
     } else {
@@ -704,22 +775,28 @@ router.patch('/:id/actions-taken/:actionId', authenticate, async (req: AuthReque
 
     // Validate attachment notes if updated
     let targetAttachmentNotes = existingAction.attachmentNotes;
-    if (targetAttachRaw !== undefined) {
-      if (targetAttachRaw === null) {
-        targetAttachmentNotes = null;
-      } else if (typeof targetAttachRaw === 'string') {
+    if (targetAttachRaw !== undefined && targetAttachRaw !== null) {
+      if (typeof targetAttachRaw === 'string') {
         const trimmed = targetAttachRaw.trim();
-        targetAttachmentNotes = trimmed.length > 0 ? trimmed.slice(0, 500) : null;
+        if (trimmed.length > 500) {
+          res.status(400).json({ error: 'Attachment notes exceed maximum length of 500 characters' });
+          return;
+        }
+        targetAttachmentNotes = trimmed.length > 0 ? trimmed : null;
       }
+    } else if (targetAttachRaw === null) {
+      targetAttachmentNotes = null;
     }
 
     // Validate date if updated
     let targetActionDateTime = existingAction.actionDateTime;
-    if (targetDateRaw !== undefined) {
+    if (targetDateRaw !== undefined && targetDateRaw !== null) {
       const parsed = new Date(targetDateRaw);
-      if (!isNaN(parsed.getTime())) {
-        targetActionDateTime = parsed;
+      if (isNaN(parsed.getTime())) {
+        res.status(400).json({ error: 'Invalid actionDateTime format' });
+        return;
       }
+      targetActionDateTime = parsed;
     }
 
     const updated = await prisma.actionTaken.update({

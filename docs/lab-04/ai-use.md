@@ -34,6 +34,9 @@
 ### Prompt 8: ActionTaken Database Evolution, Idempotent Migration & Invariant Seed
 > "Implement Prisma schema model `ActionTaken` with integer foreign keys, nullable `result: String?`, default `status: ActionTakenStatus @default(PENDING)`, and composite index `@@index([ticketId, status])`. Create idempotent PostgreSQL migration using PL/pgSQL for `ActionTakenStatus` enum and composite index creation. Update `seed.ts` with multi-staff tickets, active follow-ups, null results for pending work, and verify that zero resolved tickets have open actions."
 
+### Prompt 9: Actions Taken REST API, Authorization & Anti-Spoofing
+> "Implement REST endpoints for Actions Taken: GET/POST `/api/tickets/:id/actions-taken`, GET/PATCH `/api/tickets/:id/actions-taken/:actionId`, and GET `/api/users/assignable`. Enforce JWT-derived `performedById`, validate assignees (rejecting inactive staff or Requesters with HTTP 422), prevent cross-model ID collision between RequesterUser and User on ticket ownership checks, enforce the Action Taken 4-state lifecycle, and implement comprehensive integration tests."
+
 ---
 
 ## 3. Reflection on AI Agent Pairing (Specification & DB Evolution Phase)
@@ -51,5 +54,12 @@ During Issue 28, pairing with AI helped enforce clean migration practices:
 - Using PL/pgSQL exception blocks (`DO $$ BEGIN ... EXCEPTION WHEN duplicate_object THEN null; END $$;`) guarantees idempotent enum and constraint creation in PostgreSQL without migration checksum failures.
 - Adding comprehensive data invariant tests in `db-seed.test.ts` verified that all legacy tickets remained completely intact, that multi-staff collaboration is supported, and that no resolved tickets contain dangling open actions.
 - Synchronizing PostgreSQL serial sequences via `setval(pg_get_serial_sequence(...))` after explicit ID seeding avoids P2002 duplicate key collisions on subsequent dynamic inserts. Replacing hardcoded `requesterId` values with dynamic lookups from `RequesterUser` ensures referential integrity across both clean and existing database states.
+
+### 3.3 Actions Taken Backend REST API & Authorization Reflection (Issue 29)
+During Issue 29, pairing with AI guided the implementation and peer review alignment of the Actions Taken REST API:
+- **Authentication & Performer Integrity:** Extracting `performedById` strictly from the authenticated JWT token prevents identity spoofing, guaranteeing that the actual staff actor is indelibly logged.
+- **Cross-Model Ownership Protection:** Reconciled data isolation in `GET /api/tickets/:id/actions-taken` and `GET /api/tickets/:id/actions-taken/:actionId` to prevent cross-model ID collisions between `RequesterUser.id` and `User.id` by matching email and relational user references rather than raw numeric ID comparisons.
+- **Rigorous Validation & State Machine:** Enforced 422 Unprocessable Entity for inactive staff or Requester assignment, mandatory follow-up notes (min 2 chars) when follow-up is required, mandatory result notes (2–1000 chars) upon `COMPLETED`, date parsing validation (rejecting malformed `actionDateTime` with 400), and terminal status protection preventing illegal jumps out of `COMPLETED` or `CANCELLED`.
+
 
 

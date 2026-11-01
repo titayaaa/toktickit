@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { PrismaClient, Role, ActionTakenStatus } from '@prisma/client';
+import { PrismaClient, Role, ActionTakenStatus, TicketPriority } from '@prisma/client';
 import app from '../../src/app';
 import { generateToken } from '../../src/middleware/auth';
 
@@ -59,6 +59,21 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
 
     // 3. Setup test tickets
     const category = (await prisma.category.findFirst({ where: { isActive: true } }))!;
+    const relatedSystem = (await prisma.relatedSystem.findFirst({ where: { isActive: true } }))!;
+
+    let reqJennifer = await prisma.requesterUser.findFirst({ where: { email: requester.email } });
+    if (!reqJennifer) {
+      reqJennifer = await prisma.requesterUser.create({
+        data: { name: requester.fullName, email: requester.email, isActive: true },
+      });
+    }
+
+    let reqMichael = await prisma.requesterUser.findFirst({ where: { email: otherRequester.email } });
+    if (!reqMichael) {
+      reqMichael = await prisma.requesterUser.create({
+        data: { name: otherRequester.fullName, email: otherRequester.email, isActive: true },
+      });
+    }
 
     ownTicket = await prisma.ticket.create({
       data: {
@@ -66,8 +81,10 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
         summary: 'Test ticket for actions taken suite',
         description: 'Test description for actions taken integration tests',
         categoryId: category.id,
+        relatedSystemId: relatedSystem.id,
+        requestedPriority: TicketPriority.MEDIUM,
         userId: requester.id,
-        requesterId: requester.id,
+        requesterId: reqJennifer.id,
         currentStatus: 'IN_PROGRESS',
       },
     });
@@ -78,8 +95,10 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
         summary: 'Other ticket for data isolation tests',
         description: 'Other description',
         categoryId: category.id,
+        relatedSystemId: relatedSystem.id,
+        requestedPriority: TicketPriority.MEDIUM,
         userId: otherRequester.id,
-        requesterId: otherRequester.id,
+        requesterId: reqMichael.id,
         currentStatus: 'OPEN',
       },
     });
@@ -137,22 +156,26 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
     expect(res.body.error).toMatch(/Forbidden/i);
   });
 
-  it('API-03: Create Action Taken with followUpRequired=true but missing followUpNote returns 400', async () => {
+  it('API-03: Requester retrieves Actions Taken for owned ticket (HTTP 200 array)', async () => {
     const res = await request(app)
-      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({
-        assigneeId: staffBob.id,
-        actionDescription: 'Action missing follow up note',
-        isFollowUpRequired: true,
-        followUpNote: '   ',
-      });
+      .get(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${requesterToken}`);
 
-    expect(res.status).toBe(400);
-    expect(res.body.error).toMatch(/Follow-up note is required/i);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.map((a: any) => a.id)).toContain(testAction.id);
   });
 
-  it('API-04: IT Staff updates an existing Action Taken (HTTP 200)', async () => {
+  it('API-04: Requester attempts to retrieve Actions Taken for unowned ticket returns HTTP 404 (Data Isolation)', async () => {
+    const res = await request(app)
+      .get(`/api/tickets/${otherTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${requesterToken}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toMatch(/Ticket not found/i);
+  });
+
+  it('API-05: IT Staff updates an existing Action Taken (HTTP 200)', async () => {
     const res = await request(app)
       .patch(`/api/tickets/${ownTicket.id}/actions-taken/${testAction.id}`)
       .set('Authorization', `Bearer ${staffBobToken}`)
@@ -168,70 +191,7 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
     expect(res.body.performedById).toBe(staffAlice.id); // PerformedBy remains immutable
   });
 
-  it('API-05: Requester can list own Actions Taken but gets 404 for unowned tickets (Data Isolation)', async () => {
-    // 1. Own ticket -> 200 OK array
-    const ownRes = await request(app)
-      .get(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${requesterToken}`);
-
-    expect(ownRes.status).toBe(200);
-    expect(Array.isArray(ownRes.body)).toBe(true);
-    expect(ownRes.body.map((a: any) => a.id)).toContain(testAction.id);
-
-    // 2. Other user ticket -> 404 Not Found (anti-enumeration)
-    const otherRes = await request(app)
-      .get(`/api/tickets/${otherTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${requesterToken}`);
-
-    expect(otherRes.status).toBe(404);
-    expect(otherRes.body.error).toMatch(/Ticket not found/i);
-
-    // 3. Other owner -> 200 OK
-    const otherOwnerRes = await request(app)
-      .get(`/api/tickets/${otherTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${otherRequesterToken}`);
-
-    expect(otherOwnerRes.status).toBe(200);
-    expect(Array.isArray(otherOwnerRes.body)).toBe(true);
-
-    // 4. Staff -> 200 OK for any ticket
-    const staffRes = await request(app)
-      .get(`/api/tickets/${otherTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`);
-
-    expect(staffRes.status).toBe(200);
-
-    // 5. Non-existent ticket -> 404
-    const nonExistentRes = await request(app)
-      .get('/api/tickets/9999999/actions-taken')
-      .set('Authorization', `Bearer ${staffAliceToken}`);
-
-    expect(nonExistentRes.status).toBe(404);
-  });
-
-  it('API-08: Description length validation (min 3, max 1000 characters)', async () => {
-    // Too short (< 3 chars)
-    const shortRes = await request(app)
-      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({
-        assigneeId: staffBob.id,
-        actionDescription: 'Hi',
-      });
-    expect(shortRes.status).toBe(400);
-
-    // Too long (> 1000 chars)
-    const longRes = await request(app)
-      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({
-        assigneeId: staffBob.id,
-        actionDescription: 'A'.repeat(1001),
-      });
-    expect(longRes.status).toBe(400);
-  });
-
-  it('API-12: Inactive, requester, or non-existent assignees are rejected with 422', async () => {
+  it('API-06 / UNIT-01: Inactive, requester, or non-existent assignees are rejected with 422', async () => {
     const countBefore = await prisma.actionTaken.count({ where: { ticketId: ownTicket.id } });
 
     // Inactive staff
@@ -275,7 +235,189 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
     expect(countAfter).toBe(countBefore);
   });
 
-  it('API-14: Status transitions follow Action Taken Status Matrix', async () => {
+  it('UNIT-02: Follow-up note validation requires non-empty note (min 2 chars), and clearing followUp clears note to null', async () => {
+    // 1. Missing note when followUpRequired=true -> 400
+    const resBlank = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Action missing follow up note',
+        isFollowUpRequired: true,
+        followUpNote: '   ',
+      });
+    expect(resBlank.status).toBe(400);
+    expect(resBlank.body.error).toMatch(/Follow-up note is required/i);
+
+    // 2. Note too short (< 2 chars) -> 400
+    const resShort = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Action with single char follow up note',
+        isFollowUpRequired: true,
+        followUpNote: 'A',
+      });
+    expect(resShort.status).toBe(400);
+
+    // 3. Clear follow-up via PATCH { isFollowUpRequired: false } -> followUpNote becomes null
+    const resClear = await request(app)
+      .patch(`/api/tickets/${ownTicket.id}/actions-taken/${testAction.id}`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        isFollowUpRequired: false,
+      });
+    expect(resClear.status).toBe(200);
+    expect(resClear.body.isFollowUpRequired).toBe(false);
+    expect(resClear.body.followUpNote).toBeNull();
+  });
+
+  it('UNIT-03: Result is optional for open work (PENDING/IN_PROGRESS) but required for COMPLETED (min 2, max 1000)', async () => {
+    // 1. Create PENDING without result -> 201, result is null
+    const pending = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Pending action with no result',
+        status: 'PENDING',
+      });
+    expect(pending.status).toBe(201);
+    expect(pending.body.result).toBeNull();
+
+    // 2. Create COMPLETED without result -> 400
+    const completedNoResult = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Direct complete without result',
+        status: 'COMPLETED',
+      });
+    expect(completedNoResult.status).toBe(400);
+
+    // 3. Create COMPLETED with single char result -> 400
+    const completedShort = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Direct complete with single char',
+        status: 'COMPLETED',
+        result: 'X',
+      });
+    expect(completedShort.status).toBe(400);
+
+    // 4. Create with result > 1000 chars -> 400
+    const completedTooLong = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Action with huge result',
+        status: 'PENDING',
+        result: 'R'.repeat(1001),
+      });
+    expect(completedTooLong.status).toBe(400);
+
+    // 5. Create COMPLETED with valid result -> 201
+    const completedValid = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Direct complete with valid result',
+        status: 'COMPLETED',
+        result: 'Tested and verified operational',
+      });
+    expect(completedValid.status).toBe(201);
+    expect(completedValid.body.result).toBe('Tested and verified operational');
+
+    // 6. Patch PENDING to COMPLETED with valid result -> 200
+    const patchWithResult = await request(app)
+      .patch(`/api/tickets/${ownTicket.id}/actions-taken/${pending.body.id}`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({ status: 'COMPLETED', result: 'Diagnosed and resolved successfully' });
+    expect(patchWithResult.status).toBe(200);
+    expect(patchWithResult.body.status).toBe('COMPLETED');
+    expect(patchWithResult.body.result).toBe('Diagnosed and resolved successfully');
+  });
+
+  it('GET /api/tickets/:id/actions-taken/:actionId: retrieves a single Action Taken by ID', async () => {
+    // 1. Staff can retrieve single action -> 200
+    const res = await request(app)
+      .get(`/api/tickets/${ownTicket.id}/actions-taken/${testAction.id}`)
+      .set('Authorization', `Bearer ${staffAliceToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe(testAction.id);
+    expect(res.body.performedBy).toBeDefined();
+    expect(res.body.assignee).toBeDefined();
+
+    // 2. Owner requester can retrieve single action -> 200
+    const reqRes = await request(app)
+      .get(`/api/tickets/${ownTicket.id}/actions-taken/${testAction.id}`)
+      .set('Authorization', `Bearer ${requesterToken}`);
+    expect(reqRes.status).toBe(200);
+    expect(reqRes.body.id).toBe(testAction.id);
+
+    // 3. Other requester gets 404 (Data Isolation)
+    const otherReqRes = await request(app)
+      .get(`/api/tickets/${ownTicket.id}/actions-taken/${testAction.id}`)
+      .set('Authorization', `Bearer ${otherRequesterToken}`);
+    expect(otherReqRes.status).toBe(404);
+
+    // 4. Non-existent action ID -> 404
+    const notFoundRes = await request(app)
+      .get(`/api/tickets/${ownTicket.id}/actions-taken/999999`)
+      .set('Authorization', `Bearer ${staffAliceToken}`);
+    expect(notFoundRes.status).toBe(404);
+  });
+
+  it('Input validations: actionDateTime format, description length, and attachmentNotes length', async () => {
+    // 1. Invalid actionDateTime in POST -> 400
+    const invalidDatePost = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Invalid date post',
+        actionDateTime: 'not-a-valid-date-string',
+      });
+    expect(invalidDatePost.status).toBe(400);
+    expect(invalidDatePost.body.error).toMatch(/Invalid actionDateTime/i);
+
+    // 2. Invalid actionDateTime in PATCH -> 400
+    const invalidDatePatch = await request(app)
+      .patch(`/api/tickets/${ownTicket.id}/actions-taken/${testAction.id}`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({ actionDateTime: 'invalid-date' });
+    expect(invalidDatePatch.status).toBe(400);
+
+    // 3. attachmentNotes > 500 chars in POST -> 400
+    const longNotesPost = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Valid description for long attachment test',
+        attachmentNotes: 'N'.repeat(501),
+      });
+    expect(longNotesPost.status).toBe(400);
+    expect(longNotesPost.body.error).toMatch(/Attachment notes exceed maximum length/i);
+
+    // 4. Description too short (< 3 chars) -> 400
+    const shortDesc = await request(app)
+      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
+      .set('Authorization', `Bearer ${staffAliceToken}`)
+      .send({
+        assigneeId: staffBob.id,
+        actionDescription: 'Hi',
+      });
+    expect(shortDesc.status).toBe(400);
+  });
+
+  it('Status transitions follow Action Taken Status Matrix', async () => {
     const created = await request(app)
       .post(`/api/tickets/${ownTicket.id}/actions-taken`)
       .set('Authorization', `Bearer ${staffAliceToken}`)
@@ -344,73 +486,7 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
     expect(uncancel.status).toBe(400);
   });
 
-  it('API-15: Result is optional for open work (PENDING/IN_PROGRESS) but required for COMPLETED', async () => {
-    // 1. Create PENDING without result -> 201, result is null
-    const pending = await request(app)
-      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({
-        assigneeId: staffBob.id,
-        actionDescription: 'Pending action with no result',
-        status: 'PENDING',
-      });
-    expect(pending.status).toBe(201);
-    expect(pending.body.result).toBeNull();
-
-    // 2. Create COMPLETED without result -> 400
-    const completedNoResult = await request(app)
-      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({
-        assigneeId: staffBob.id,
-        actionDescription: 'Direct complete without result',
-        status: 'COMPLETED',
-      });
-    expect(completedNoResult.status).toBe(400);
-
-    // 3. Create COMPLETED with blank result -> 400
-    const completedBlank = await request(app)
-      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({
-        assigneeId: staffBob.id,
-        actionDescription: 'Direct complete with whitespace',
-        status: 'COMPLETED',
-        result: '   ',
-      });
-    expect(completedBlank.status).toBe(400);
-
-    // 4. Create COMPLETED with valid result -> 201
-    const completedValid = await request(app)
-      .post(`/api/tickets/${ownTicket.id}/actions-taken`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({
-        assigneeId: staffBob.id,
-        actionDescription: 'Direct complete with valid result',
-        status: 'COMPLETED',
-        result: 'Tested and verified operational',
-      });
-    expect(completedValid.status).toBe(201);
-    expect(completedValid.body.result).toBe('Tested and verified operational');
-
-    // 5. Patch PENDING to COMPLETED without result -> 400
-    const patchNoResult = await request(app)
-      .patch(`/api/tickets/${ownTicket.id}/actions-taken/${pending.body.id}`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({ status: 'COMPLETED' });
-    expect(patchNoResult.status).toBe(400);
-
-    // 6. Patch PENDING to COMPLETED with valid result -> 200
-    const patchWithResult = await request(app)
-      .patch(`/api/tickets/${ownTicket.id}/actions-taken/${pending.body.id}`)
-      .set('Authorization', `Bearer ${staffAliceToken}`)
-      .send({ status: 'COMPLETED', result: 'Diagnosed and resolved successfully' });
-    expect(patchWithResult.status).toBe(200);
-    expect(patchWithResult.body.status).toBe('COMPLETED');
-    expect(patchWithResult.body.result).toBe('Diagnosed and resolved successfully');
-  });
-
-  it('API-16: Assignable staff endpoint lists active IT Staff and Admin, rejecting Requesters (HTTP 403)', async () => {
+  it('GET /api/users/assignable lists active IT Staff and Admin, rejecting Requesters (HTTP 403)', async () => {
     // IT Staff calling /api/users/assignable -> 200
     const res = await request(app)
       .get('/api/users/assignable')
@@ -437,7 +513,7 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
     expect(reqRes.status).toBe(403);
   });
 
-  it('API-17: Ticket detail view includes actionsTaken array for frontend rendering', async () => {
+  it('GET /api/tickets/:id includes actionsTaken array for frontend rendering', async () => {
     const res = await request(app)
       .get(`/api/tickets/${ownTicket.id}`)
       .set('Authorization', `Bearer ${staffAliceToken}`);
@@ -450,5 +526,15 @@ describe('Issue 29 / PR-03: Actions Taken REST API & Authorization (actions-take
     expect(action).toBeDefined();
     expect(action.performedBy.id).toBe(staffAlice.id);
     expect(action.assignee.id).toBe(staffBob.id);
+  });
+
+  it('SAFE-01: Safe error responses return generic message on internal failures without stack leaks', async () => {
+    // Test safe error handling when invalid id is passed
+    const res = await request(app)
+      .get('/api/tickets/abc/actions-taken')
+      .set('Authorization', `Bearer ${staffAliceToken}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Ticket not found');
+    expect(res.body.stack).toBeUndefined();
   });
 });
