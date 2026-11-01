@@ -1146,7 +1146,7 @@
 - **Author:** `@jejaebubu`
 - **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ⏳ Changes Requested (Round 1)
+- **Current Status:** ✅ Approved (Round 2)
 - **Scope & Objectives:**
   - `GET /api/dashboard/staff`: REST API สำหรับ IT Staff และ Admin ในการดึง metrics เชิงปฏิบัติการแบบ real-time (`new`, `open`, `inProgress`, `waitingForRequester`, `myAssigned`), ปฏิเสธ Requester ด้วย `403 Forbidden`, และส่งคืน `recentTickets` 5 รายการล่าสุด
   - พารามิเตอร์ `ownerId=me` บน `GET /api/tickets`
@@ -1192,3 +1192,35 @@
 > ---
 > 
 > ฝากแก้ไขจุดที่ 1 เรื่องเมนูของ Requester และจุดที่ 2 เรื่อง wording ของหัวข้อแผงตั๋ว จากนั้น push commit ขึ้นมาใหม่นะคะ เดี๋ยวจะรีบเข้ามาตรวจซ้ำและกด Approve / Merge ให้ทันทีเลยค่ะ ขอบคุณมาก ๆ ค่ะ! 🚀
+
+#### 💬 Round 1 Author Response by @jejaebubu
+- **Response Date:** 2026-11-02
+- **Commits:** `1419b97`, `512cbab`
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณสำหรับรีวิวที่ละเอียดและช่วยตรวจพบจุด Regression ของเมนู Requester ค่ะ @titayaaa ดำเนินการแก้ไขครบทั้ง 3 ประเด็นใน commits 1419b97 และ 512cbab เรียบร้อยแล้วค่ะ:
+> 1. นำเมนู Dashboard ออกจาก REQUESTER ใน Header.tsx (Required 1.1): ปรับ NAV_BY_ROLE.REQUESTER ให้คงเฉพาะ My Tickets และ Create Ticket (เปิด Dashboard เฉพาะ IT_STAFF และ ADMINISTRATOR ใน PR นี้) เพื่อป้องกันปัญหาหน้าว่างก่อนพัฒนา Issue #7 (Requester Dashboard)
+> 2. ปรับหัวข้อแผงตั๋วล่าสุดใน StaffDashboard.tsx เป็น "Recent Queue Tickets" (Should Fix 2.1): เปลี่ยนจาก "My Recent Tickets" เป็น "Recent Queue Tickets" ให้ตรงกับขอบเขตข้อมูลจริงที่ดึงตั๋วอัปเดตล่าสุด 5 รายการของคิวบริการทั้งหมด พร้อมเพิ่ม assertion ยืนยันใน StaffDashboard.test.tsx
+> 3. อัปเดตลิงก์ PR #110 และบันทึกการรีวิวใน docs/lab-04/reviewer.md (Minor Doc Polish 3.1): เพิ่มลิงก์ [GitHub #110](https://github.com/jejaebubu/toktickit/pull/110) ในตาราง Master PR Table (Section 2) และในหัวข้อ Section 3.6 PR-06 พร้อมบันทึกผลการรีวิวรอบที่ 1 และการแก้ไขครบถ้วนค่ะ
+> 
+> รันชุดทดสอบผ่านครบ 201/201 เทสต์ (Server 110 + Client 91) รบกวนช่วยตรวจทานซ้ำอีกครั้งนะคะ ขอบคุณมากค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ขอบคุณ @jejaebubu ที่ดำเนินการแก้ไขปรับปรุงครบถ้วนสมบูรณ์ทั้งประเด็น Blocking, Should Fix และ Minor Suggestions ใน commits `1419b97` และ `512cbab` อย่างรวดเร็วและประณีตมากค่ะ ตรวจสอบโค้ดและชุดทดสอบซ้ำอย่างละเอียดแล้ว:
+> 
+> 1. **ขจัด Regression หน้าจอว่างเปล่าของ Requester สำเร็จ (Required 1.1)**:
+>    - นำ `{ id: "dashboard", label: "Dashboard" }` ออกจากเมนูของ `REQUESTER` ใน `Header.tsx` เรียบร้อย ทำให้คงเหลือเฉพาะเมนูที่รองรับจริงในปัจจุบัน (`My Tickets` และ `Create Ticket`) เมนูจะไม่นำทางไปสู่หน้าว่างเปล่าอีกต่อไป
+> 2. **ความสอดคล้องของหัวข้อแผงตั๋วกับ Query ข้อมูลจริง (Should Fix 2.1)**:
+>    - ปรับเปลี่ยนหัวข้อแผงใน `StaffDashboard.tsx` เป็น `"Recent Queue Tickets"` ถูกต้องตรงกับขอบเขตข้อมูลจริงที่ query ดึงตั๋ว 5 รายการล่าสุดของคิวบริการทั้งหมด
+>    - อัปเดต assertion ใน `StaffDashboard.test.tsx` ตรวจสอบข้อความใหม่ได้อย่างถูกต้อง
+> 3. **ความสมบูรณ์ของเอกสารบันทึกการรีวิว (Minor 3.1)**:
+>    - มีการใส่ลิงก์ `[GitHub #110](https://github.com/jejaebubu/toktickit/pull/110)` ใน Master PR Table (Section 2) และใน Section 3.6 ครบถ้วน
+>    - บันทึกประวัติการรีวิวรอบที่ 1 และผลการแก้ไขครบถ้วนสมบูรณ์ตามเกณฑ์ของ Lab 4
+> 
+> ผลการรันชุดทดสอบผ่านครบ 201/201 เทสต์ (Server 110 + Client 91) โค้ดมีคุณภาพสูงมากและพร้อมสำหรับการใช้งานจริง ขออนุมัติ (Approve) และยินดีดำเนินการกด Merge เข้าสู่ `lab4-staging` ให้ทันทีค่ะ 🎉
