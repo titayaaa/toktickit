@@ -126,7 +126,7 @@ describe('Issue 25: AdminUserManagement Component Unit Tests', () => {
     renderAdminView();
 
     await waitFor(() => {
-      expect(screen.getByTestId('admin-user-management')).toBeInTheDocument();
+      expect(screen.getByTestId('admin-users-table')).toBeInTheDocument();
     });
 
     // Check header and primary action

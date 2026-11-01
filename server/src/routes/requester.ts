@@ -144,8 +144,8 @@ router.get('/dashboard', async (req: AuthRequest, res: Response): Promise<void> 
       categoryName: t.category?.name || '',
       category: t.category ? { id: t.category.id, name: t.category.name } : null,
       relatedSystem: t.relatedSystem ? { id: t.relatedSystem.id, name: t.relatedSystem.name } : null,
-      createdAt: t.createdAt.toISOString(),
-      updatedAt: t.updatedAt.toISOString(),
+      createdAt: t.createdAt instanceof Date ? t.createdAt.toISOString() : (t.createdAt ? new Date(t.createdAt).toISOString() : new Date().toISOString()),
+      updatedAt: t.updatedAt instanceof Date ? t.updatedAt.toISOString() : (t.updatedAt ? new Date(t.updatedAt).toISOString() : new Date().toISOString()),
     });
 
     const actionRequiredTickets = actionRequiredTicketsRaw.map(formatTicket);

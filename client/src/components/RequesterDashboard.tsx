@@ -87,7 +87,7 @@ const RequesterDashboard: React.FC<RequesterDashboardProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('toktickit_auth_token');
+      const token = localStorage.getItem('toktickit_auth_token') || localStorage.getItem('token');
       const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
 
       let res = await fetch('/api/requester/dashboard', { headers });

@@ -279,7 +279,7 @@ const MainApplication: React.FC = () => {
             }}
           />
         </div>
-      ) : activeTab === 'requester-dashboard' && !isStaffOrAdmin ? (
+      ) : activeTab === 'requester-dashboard' ? (
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <RequesterDashboard
             onSelectTicket={(ticketId: number) => {
