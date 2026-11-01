@@ -639,6 +639,7 @@
 > 🟡 **Minor: จุดเก็บตกเล็กน้อย**
 > 1. ปรับโทนสี Status Badge ให้สอดคล้องกับ Zen Green tokens ใน `ui-spec.md` (`PENDING`: `#FFFBEB`/`#92400E`, `IN_PROGRESS`: `#EFF6FF`/`#1E40AF`)
 > 2. ปรับชื่อ Test ID ใน `client/src/test/lab-04/ActionsTaken.test.tsx` เพื่อป้องกันการซ้ำซ้อนกับ `UI-06` ของ Dashboard
+> 3. ฟิลด์ `actionDateTime` (`type="datetime-local"`): เพิ่มฟิลด์ระบุวันเวลาในการปฏิบัติการในฟอร์มสร้างและแก้ไข Action Taken พร้อมตั้งค่าเริ่มต้นเป็นวันเวลาปัจจุบัน ให้สอดคล้องกับ API schema และ `ui-spec.md` §3.1
 > 
 > ฝากปรับแก้จุดด้านบนแล้ว ping มาตรวจซ้ำนะคะ ขอบคุณมากค่ะ!
 
@@ -652,7 +653,7 @@
 > 1. **Auth Token Retrieval (`ActionsTaken.tsx`)**: เพิ่ม helper `getAuthToken()` ดึงค่าจาก `localStorage.getItem('toktickit_auth_token') || localStorage.getItem('token')` ทำให้รองรับ token ทั้งสองรูปแบบทั้งในสภาพแวดล้อมจริงและชุดทดสอบอย่างสมบูรณ์
 > 2. **คืนค่า `actionsTaken` ใน `GET /api/tickets/:id` (`server/src/app.ts`)**: แนบ `actionsTaken: ticket.actionsTaken` ใน `res.status(200).json({ ... })` เรียบร้อยแล้ว ทำให้หน้า Ticket Detail ได้รับข้อมูลเริ่มต้นครบถ้วน
 > 3. **Error Message Extraction (`ActionsTaken.tsx`)**: ปรับปรุงการดึงข้อความผิดพลาดเป็น `data.error || data.message || ...` ครอบคลุมทั้งกรณีที่เซิร์ฟเวอร์ส่ง `error` หรือ `message`
-> 4. **Item Ordering (`ActionsTaken.tsx`)**: ปรับการอัปเดต state หลังสร้าง Action สำเร็จเป็น `const nextItems = [...items, created];` เพื่อรักษาลำดับแบบเรียงตามเวลาจากอดีตไปปัจจุบัน (chronological order)
+> 4. **Item Ordering (`ActionsTaken.tsx`)**: ปรับการอัปเดต stateหลังสร้าง Action สำเร็จเป็น `const nextItems = [...items, created];` เพื่อรักษาลำดับแบบเรียงตามเวลาจากอดีตไปปัจจุบัน (chronological order)
 > 5. **Validation & Field Length Limits**:
 >    - ตรวจสอบ `followUpNote.trim().length < 2` เมื่อเปิดสวิตช์ Follow-up พร้อมกำหนด `maxLength={500}` บน textarea
 >    - กำหนด `maxLength={1000}` บน `action-description` และ `action-result` ป้องกันข้อความยาวเกินขนาดฟิลด์
@@ -666,7 +667,59 @@
 >    - ปรับรหัสเทสต์ใน `ActionsTaken.test.tsx` จาก `UI-06` เป็น `UI-02` เพื่อไม่ให้ชนกับรหัสของ Staff Dashboard
 > 9. **Action Date/Time Field (`ActionsTaken.tsx`)**: เพิ่มฟิลด์ระบุวันเวลา `actionDateTime` (`type="datetime-local"`) ในฟอร์มสร้างและแก้ไข พร้อมตั้งค่าเริ่มต้นเป็นวันเวลาปัจจุบัน (`new Date().toISOString()`) ครบถ้วนตาม Handout และ `ui-spec.md` §3.1
 > 
-> ดำเนินการ commit ใน `2d6f47e` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 63 tests และ build production bundle ผ่านฉลุย 100% ค่ะ รบกวนช่วยตรวจทานซ้ำอีกครั้งนะคะ ขอบคุณมากค่ะ! ✨
+> ดำเนินการ commit ใน `5ecac1a` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 63 tests และ build production bundle ผ่านฉลุย 100% ค่ะ รบกวนช่วยตรวจทานซ้ำอีกครั้งนะคะ ขอบคุณมากค่ะ! ✨
+
+#### 💬 Round 2 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจ commit 5ecac1a รอบที่ 2 อย่างละเอียดแล้วนะคะ ขอบคุณที่ตามเก็บทั้ง 9 ข้อให้ค่ะ แต่จากการไล่เช็กโค้ดและไฟล์ reviewer.md พบจุดที่ต้องรบกวนช่วยปรับแก้อีก 4 จุดก่อนกด Approve & Merge นะคะ:
+> 
+> 1. **เวลาในช่อง actionDateTime (datetime-local) เลื่อนถอยหลัง 7 ชั่วโมงทุกครั้งที่เปิดฟอร์ม/กดบันทึก (ActionsTaken.tsx บรรทัด 120, 136–138)**
+>    - **ปัญหา:** `<input type="datetime-local" />` ใช้เวลาแบบ Local Time (YYYY-MM-DDTHH:mm) แต่ใน openCreateForm และ openEditForm ใช้ `.toISOString().slice(0, 16)` ซึ่งเป็นเวลา UTC พอเปิดในโซนเวลาไทย (UTC+7) เวลาจะถอยหลังไป 7 ชั่วโมง และทุกครั้งที่กด Edit แล้วกด Save (`new Date(actionDateTime).toISOString()`) เวลาของรายการนั้นจะถูกเลื่อนถอยหลังไปเรื่อย ๆ ครั้งละ 7 ชั่วโมงค่ะ
+>    - **แนวทางแก้:** สร้าง helper แปลง Date เป็น Local YYYY-MM-DDTHH:mm สำหรับใส่ใน state actionDateTime แทนการใช้ `.toISOString().slice(0, 16)` ค่ะ เช่น:
+>      `const toLocalDateTimeInput = (iso?: string) => { const d = iso ? new Date(iso) : new Date(); const pad = (n: number) => String(n).padStart(2, '0'); return \`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}\`; };`
+> 
+> 2. **การกดปุ่มลัด Complete บนการ์ดทำให้ editingAction.status กลายเป็น COMPLETED แล้วล็อกช่อง Status (ActionsTaken.tsx บรรทัด 133, 267, 495)**
+>    - **ปัญหา:** ใน handleQuickStatusChange (บรรทัด 267) เรียก `openEditForm({ ...action, status: 'COMPLETED' })` ซึ่งทำให้ `editingAction.status` ถูกทับเป็น 'COMPLETED' ส่งผลให้ `<select id="action-status">` (บรรทัด 495–501) เข้าใจผิดว่า Action นี้อยู่ในสถานะ Terminal (COMPLETED) ไปแล้วและสั่ง disabled ล็อกช่องเลือกสถานะทันที ทั้งที่สถานะจริงใน DB ยังเป็น PENDING หรือ IN_PROGRESS
+>    - **แนวทางแก้:** ปรับ `openEditForm(action: ActionTakenItem, initialStatus?: string)` ให้เก็บ `setEditingAction(action)` ตามสถานะจริงใน DB เหมือนเดิม แล้วเซ็ต `setStatus(initialStatus ?? action.status)` แทนค่ะ (และตอนกดปุ่ม Complete ให้เรียก `openEditForm(action, 'COMPLETED')`)
+> 
+> 3. **ความถูกต้องของบันทึกใน docs/lab-04/reviewer.md (บรรทัด 623–669)**
+>    - ในหัวข้อ Round 1 Review by @jejaebubu (Changes Requested) (บรรทัด 623–643) บันทึกไว้แค่ 8 ข้อ (ในหมวด Minor มีแค่ 2 ข้อ ขาดข้อ ฟิลด์ actionDateTime ซึ่งไปโผล่เป็นข้อ 9 ในฝั่ง Author Response แทน) รบกวนปรับข้อความใน Review Comments (Verbatim) ให้ครบทั้ง 9 ข้อตรงกับคอมเมนต์จริงบน GitHub ด้วยนะคะ
+>    - ในหัวข้อ Round 1 Author Response by @titayaaa (บรรทัด 669) ระบุว่า ดำเนินการ commit ใน 2d6f47e แต่ commit จริงบน PR คือ 5ecac1a รบกวนอัปเดตเลข commit ให้ตรงกันด้วยค่ะ
+> 
+> 4. **เพิ่มเคสทดสอบใน client/src/test/lab-04/ActionsTaken.test.tsx**
+>    - รบกวนเพิ่ม test ยืนยันการเปิด Edit Modal (ตรวจว่าการกรองตัวเลือก Status ตาม State Machine ทำงานถูกต้อง และใช้คีย์ toktickit_auth_token ได้จริง) อีกสัก 1 เคสนะคะ
+> 
+> แก้ 4 จุดนี้เสร็จแล้วทักมาได้เลยนะคะ เดี๋ยวรีบตรวจและกด Approve & Merge ให้ทันทีค่ะ ขอบคุณมากค่ะ!
+
+#### 💬 Round 2 Author Response by @titayaaa
+- **Response Date:** 2026-11-02
+- **Status:** 🔄 Changes Addressed
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณ @jejaebubu สำหรับการตรวจทานรอบที่ 2 อย่างละเอียดถี่ถ้วนมากค่ะ ได้ดำเนินการปรับปรุงและแก้ไขครบถ้วนทั้ง 4 จุดเรียบร้อยแล้วค่ะ:
+> 
+> 1. **แก้ไขปัญหา Timezone Shift ในช่อง `actionDateTime` (`ActionsTaken.tsx`)**:
+>    - เพิ่ม helper `toLocalDateTimeInput(iso?: string)` สำหรับแปลงเวลาให้เป็น Local Time string ในฟอร์แมต `YYYY-MM-DDTHH:mm`
+>    - ปรับปรุง `openCreateForm` และ `openEditForm` ให้เรียกใช้ helper ดังกล่าวแทนการใช้ `.toISOString().slice(0, 16)` ซึ่งเป็น UTC ทำให้เวลาไม่ถอยหลัง 7 ชั่วโมงเมื่อเปิดฟอร์มหรือบันทึกข้อมูลในเขตเวลาไทย (UTC+7)
+> 2. **แก้ไขการล็อกช่อง Status เมื่อกดปุ่ม Quick Complete (`ActionsTaken.tsx`)**:
+>    - ปรับ signature ของฟังก์ชันเป็น `openEditForm(action: ActionTakenItem, initialStatus?: string)`
+>    - ให้ `setEditingAction(action)` เก็บข้อมูลสถานะจริงจากฐานข้อมูลเหมือนเดิม เพื่อให้ State Machine Guard ประเมินสถานะก่อนหน้าได้อย่างถูกต้อง และกำหนด `setStatus(initialStatus ?? action.status)` เป็นค่าเริ่มต้นของฟอร์ม
+>    - เมื่อกดปุ่ม Complete ด่วน จะเรียก `openEditForm(action, 'COMPLETED')` ทำให้ modal เปิดขึ้นพร้อมเลือกสถานะ COMPLETED ให้ทันทีโดยที่ Dropdown ไม่ถูก disabled ล็อกค้าง
+> 3. **ปรับปรุงความถูกต้องของเอกสาร `docs/lab-04/reviewer.md`**:
+>    - ปรับข้อความ Round 1 Review by @jejaebubu ให้มีครบทั้ง 9 ข้อโดยเพิ่มข้อ 3 ในหมวด Minor เรื่องฟิลด์ `actionDateTime` ตรงกับคอมเมนต์จริง
+>    - อัปเดตเลขอ้างอิง commit ใน Round 1 Author Response จาก `2d6f47e` เป็น `5ecac1a` ให้ตรงกับประวัติคอมมิตจริงบน GitHub
+>    - บันทึกบทสนทนาการรีวิว Round 2 ทั้งข้อเสนอแนะและคำตอบรับอย่างครบถ้วน
+> 4. **เพิ่มเคสทดสอบ Edit Modal และ State Machine ใน `ActionsTaken.test.tsx`**:
+>    - เพิ่มเคสทดสอบ `UI-02: verifies Edit modal filters Status by State Machine and uses toktickit_auth_token`
+>    - ทดสอบยืนยันว่าการเปิด Edit Modal ดึง `toktickit_auth_token` ส่งไปยัง header `Authorization: Bearer ...` สำเร็จ
+>    - ทดสอบยืนยันว่า State Machine กรองสถานะสำหรับ Action ที่เป็น `IN_PROGRESS` ให้เหลือเฉพาะ `IN_PROGRESS`, `COMPLETED`, และ `CANCELLED` (ไม่มี `PENDING`)
+>    - ทดสอบยืนยันว่าการกด Quick Complete เปิด Edit modal ด้วยสถานะ COMPLETED โดยช่อง select ไม่ถูก disabled
+> 
+> ดำเนินการ commit ใน `fca398c` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 64 tests (100%) และรัน `npm run build` ผ่านสมบูรณ์ 0 errors รบกวนช่วยตรวจทานและ Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
+
 
 # Part 2: Records of Student (@titayaaa) Reviewing Partner (@jejaebubu)
 

@@ -389,4 +389,60 @@ describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, DUP-01, A11Y-01)', () => 
       ]));
     });
   });
+
+  it('UI-02: verifies Edit modal filters Status by State Machine and uses toktickit_auth_token', async () => {
+    localStorage.clear();
+    localStorage.setItem('toktickit_auth_token', 'custom_jwt_staff_token');
+
+    let capturedAuthHeader = '';
+    (globalThis as any).fetch = vi.fn().mockImplementation((url: string, opts: any) => {
+      if (String(url).includes('/api/users/assignable')) {
+        capturedAuthHeader = opts?.headers?.Authorization || '';
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => mockAssignableStaff,
+        } as Response);
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) } as Response);
+    });
+
+    render(
+      <ActionsTaken
+        ticketId={1}
+        actions={[mockActions[0]]}
+        currentUserRole="IT_STAFF"
+        currentUserId={2}
+      />
+    );
+
+    await waitFor(() => {
+      expect(capturedAuthHeader).toBe('Bearer custom_jwt_staff_token');
+    });
+
+    // Open Edit modal for IN_PROGRESS action
+    const editBtn = screen.getByTestId('action-edit-101');
+    fireEvent.click(editBtn);
+
+    expect(screen.getByTestId('action-taken-form')).toBeInTheDocument();
+
+    // Verify State Machine filtering: IN_PROGRESS can transition to IN_PROGRESS, COMPLETED, CANCELLED, but NOT PENDING
+    const statusSelect = screen.getByTestId('action-status-select') as HTMLSelectElement;
+    expect(statusSelect).not.toBeDisabled();
+    const options = Array.from(statusSelect.options).map((opt) => opt.value);
+    expect(options).not.toContain('PENDING');
+    expect(options).toEqual(['IN_PROGRESS', 'COMPLETED', 'CANCELLED']);
+
+    // Cancel modal
+    fireEvent.click(screen.getByTestId('action-form-cancel'));
+
+    // Trigger quick complete on action without result -> opens modal preset to COMPLETED without locking select
+    const completeBtn = screen.getByTestId('action-complete-101');
+    fireEvent.click(completeBtn);
+
+    expect(screen.getByTestId('action-taken-form')).toBeInTheDocument();
+    const statusSelectAfterQuick = screen.getByTestId('action-status-select') as HTMLSelectElement;
+    expect(statusSelectAfterQuick.value).toBe('COMPLETED');
+    expect(statusSelectAfterQuick).not.toBeDisabled();
+  });
 });

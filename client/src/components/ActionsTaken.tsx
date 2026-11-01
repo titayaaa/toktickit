@@ -87,6 +87,13 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
   // Helper for resilient auth token retrieval
   const getAuthToken = () => localStorage.getItem('toktickit_auth_token') || localStorage.getItem('token');
 
+  // Convert Date to Local YYYY-MM-DDTHH:mm string for datetime-local input
+  const toLocalDateTimeInput = (iso?: string) => {
+    const d = iso ? new Date(iso) : new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   // Load assignable staff when form opens or component mounts for staff
   const loadAssignableStaff = useCallback(async () => {
     if (!canManage) return;
@@ -117,7 +124,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
 
   const openCreateForm = () => {
     setEditingAction(null);
-    setActionDateTime(new Date().toISOString().slice(0, 16));
+    setActionDateTime(toLocalDateTimeInput());
     setAssigneeId(currentUserId || (assignableStaff[0]?.id ?? ''));
     setStatus('PENDING');
     setActionDescription('');
@@ -130,15 +137,11 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
     setIsFormOpen(true);
   };
 
-  const openEditForm = (action: ActionTakenItem) => {
+  const openEditForm = (action: ActionTakenItem, initialStatus?: string) => {
     setEditingAction(action);
-    setActionDateTime(
-      action.actionDateTime
-        ? new Date(action.actionDateTime).toISOString().slice(0, 16)
-        : new Date().toISOString().slice(0, 16)
-    );
+    setActionDateTime(toLocalDateTimeInput(action.actionDateTime));
     setAssigneeId(action.assigneeId);
-    setStatus(action.status);
+    setStatus(initialStatus ?? action.status);
     setActionDescription(action.actionDescription);
     setResult(action.result || '');
     setIsFollowUpRequired(action.isFollowUpRequired);
@@ -264,7 +267,7 @@ export const ActionsTaken: React.FC<ActionsTakenProps> = ({
     if (busyActionId !== null) return;
 
     if (nextStatus === 'COMPLETED' && (!action.result || action.result.trim().length < 2)) {
-      openEditForm({ ...action, status: 'COMPLETED' });
+      openEditForm(action, 'COMPLETED');
       return;
     }
 
