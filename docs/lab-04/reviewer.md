@@ -20,7 +20,7 @@
 | **[PR #76](https://github.com/titayaaa/toktickit/pull/76)** | Issue 28: Database Migration, Schema Evolution & Seed Data | Issue #64 | `feature/28-db-and-seed` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #77](https://github.com/titayaaa/toktickit/pull/77)** | Issue 29: Actions Taken Backend REST API & Authorization | Issue #65 | `feature/29-actions-taken-api` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **PR-05** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ⏳ Ready for PR |
+| **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ⏳ Under Review |
 | **PR-06** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-07** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-08** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
@@ -720,11 +720,12 @@
 > 
 > ดำเนินการ commit ใน `fca398c` ผลการรันเทสต์ฝั่ง Client ผ่านครบ 12 test files / 64 tests (100%) และรัน `npm run build` ผ่านสมบูรณ์ 0 errors รบกวนช่วยตรวจทานและ Approve & Merge ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
 
-### PR-05: Issue 31: Ticket Workflow Operations, Resolution Gate & Concurrency Protection
+### PR #79: Issue 31: Ticket Workflow Operations, Resolution Gate & Concurrency Protection
+- **PR URL:** [titayaaa/toktickit#79](https://github.com/titayaaa/toktickit/pull/79)
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ⏳ Ready for Review / PR
+- **Current Status:** ⏳ Under Review by @jejaebubu
 - **Scope & Implementation:**
   - **Resolution Gate Enforcement (BR-09, AC-07, AC-08):** ใน `server/src/routes/staff.ts` (`PATCH /api/staff/tickets/:id/resolve`) ตรวจสอบรายการ Actions Taken ที่เชื่อมโยงกับตั๋ว หากยังมีสถานะเป็น `PENDING` หรือ `IN_PROGRESS` จะปฏิเสธการ Resolve ทันทีด้วย `409 Conflict` พร้อมโค้ด `RESOLUTION_GATE_BLOCKED`, จำนวน `unresolvedCount` และรายชื่อ `blockingActions`
   - **Optimistic Concurrency Protection (BR-14, AC-12):** รองรับ `expectedUpdatedAt` ใน `PATCH /api/staff/tickets/:id/status` และ `PATCH /api/staff/tickets/:id/resolve` หาก timestamp ไม่ตรงกับ `ticket.updatedAt` ในฐานข้อมูล จะปฏิเสธด้วย `409 Conflict` พร้อมโค้ด `STALE_UPDATE_CONFLICT`
@@ -1293,3 +1294,48 @@
 >    - บันทึกประวัติการรีวิวรอบที่ 1 และผลการแก้ไขครบถ้วนสมบูรณ์ตามเกณฑ์ของ Lab 4
 > 
 > ผลการรันชุดทดสอบผ่านครบ 201/201 เทสต์ (Server 110 + Client 91) โค้ดมีคุณภาพสูงมากและพร้อมสำหรับการใช้งานจริง ขออนุมัติ (Approve) และยินดีดำเนินการกด Merge เข้าสู่ `lab4-staging` ให้ทันทีค่ะ 🎉
+
+---
+
+### PR #111: feat(dashboard): Requester Dashboard API, owned ticket metrics, and UI screen (Issue #7)
+- **PR URL:** [jejaebubu/toktickit#111](https://github.com/jejaebubu/toktickit/pull/111)
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ✅ Approved (Round 1)
+- **Scope & Objectives:**
+  - `GET /api/dashboard/requester`: API แสดงภาพรวมสำหรับ Requester พร้อมการกักกันข้อมูล (Data Isolation) ให้เห็นเฉพาะตั๋วที่ตนเองสร้างอย่างเคร่งครัด (`AC-05`, `FR-09`, `BR-11`)
+  - คำนวณสรุปสถิติตัวชี้วัด 4 หมวด: `myOpen`, `inProgress`, `resolved`, `closed`
+  - ส่งคืนรายการ `recentTickets` 5 รายการล่าสุดเรียงตาม `updatedAt: desc` พร้อม Quick Actions (`create-ticket`, `view-tickets`)
+  - พัฒนาคอมโพเนนต์ `RequesterDashboard.tsx` ธีม Zen Green พร้อมการ์ดตัวชี้วัดที่รองรับการคลิก Drill-down ไปยัง `MyTicketsList` ตามสถานะ (`FR-10`)
+  - อัปเดต `Header.tsx` นำแท็บเมนู `Dashboard` กลับมาสำหรับบทบาท `REQUESTER`
+  - ชุดทดสอบ API (`requester-dashboard.api.test.ts`) และ UI (`RequesterDashboard.test.tsx`) ครอบคลุม 6 เคสใหม่ รวมเป็น 207 เทสต์ (Server 112 / Client 95)
+
+#### 💬 Round 1 Review by @titayaaa (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### PR-07 Review & Verification: APPROVED (LGTM! 🚀)
+> 
+> ตรวจทานความถูกต้องของ PR #111 (Issue #7: Requester Dashboard API and UI) อย่างละเอียดครบถ้วนทุกมิติแล้วค่ะ:
+> 
+> 1. **Strict Data Isolation & Zero Data Leakage (`AC-05`, `FR-09`, `BR-11`)**:
+>    - `GET /api/dashboard/requester` ผูก `where: { requesterId: req.user.id }` ทั้งใน `prisma.ticket.count` ทั้ง 4 หมวดและ `prisma.ticket.findMany` (จำกัด 5 รายการล่าสุดตาม `updatedAt: desc`) 
+>    - ทดสอบยืนยันแล้วว่าตั๋วของ Requester ท่านอื่นไม่รั่วไหลเข้ามาในผลลัพธ์อย่างเด็ดขาด
+> 2. **Access Control & RBAC (`AC-06`)**:
+>    - ตรวจสอบ JWT ผ่าน `authenticateToken` (คืน `401 Unauthorized` หากไม่ล็อกอิน) และจำกัดบทบาทเฉพาะ `REQUESTER` (คืน `403 Forbidden` สำหรับ Staff และ Admin)
+> 3. **UI/UX & Zen Green Design System Compliance (`STYLE-01`)**:
+>    - คอมโพเนนต์ `RequesterDashboard.tsx` ใช้งานชุดสี Zen Green (`#006B3C`, `#EAF6EF`) ชัดเจน สวยงาม
+>    - รองรับ Responsive สมบูรณ์แบบ (Desktop Table + Mobile Card Stack)
+>    - Touch Target ของปุ่มและการ์ดทุกลูกได้ขนาด `>= 44px` ตามมาตรฐาน WCAG Accessibility
+>    - มี Empty State พร้อมปุ่ม CTA `"Submit a new request"` เมื่อยังไม่มีประวัติตั๋ว
+> 4. **Interactive Drill-Down & Navigation Flow (`FR-10`)**:
+>    - การคลิกการ์ด Metrics นำทางไปยัง `MyTicketsList` พร้อมส่งฟิลเตอร์สถานะที่เกี่ยวข้องได้อย่างแม่นยำ
+>    - อัปเดต `STATUS_OPTIONS` ใน `MyTicketsList.tsx` ครอบคลุมสถานะตั๋วทั้งหมด
+>    - ปลดล็อกเมนู `Dashboard` สำหรับ Requester ใน `Header.tsx` เรียบร้อย
+> 5. **Test Coverage**:
+>    - ชุดทดสอบ Backend `requester-dashboard.api.test.ts` (API-11, API-11b) ผ่าน 100%
+>    - ชุดทดสอบ Frontend `RequesterDashboard.test.tsx` (UI-05a, UI-05b, UI-05c, UI-05d) ครอบคลุมครบถ้วน
+> 
+> งานเรียบร้อยสมบูรณ์แบบมากค่ะ พร้อมสำหรับ Approve และ Merge เข้าสู่ `lab4-staging` ได้เลยค่ะ! 🎉
