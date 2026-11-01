@@ -66,7 +66,7 @@ describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01)',
     localStorage.setItem('token', 'mock_token_staff');
 
     // Default fetch mock for assignable staff
-    global.fetch = vi.fn().mockImplementation((url: string) => {
+    (globalThis as any).fetch = vi.fn().mockImplementation((url: string) => {
       if (String(url).includes('/api/users/assignable')) {
         return Promise.resolve({
           ok: true,
@@ -178,7 +178,7 @@ describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01)',
       assignee: mockPerformer,
     };
 
-    (global.fetch as any).mockImplementation((url: string, opts: any) => {
+    ((globalThis as any).fetch as any).mockImplementation((url: string, opts: any) => {
       if (String(url).includes('/api/users/assignable')) {
         return Promise.resolve({
           ok: true,
@@ -240,7 +240,7 @@ describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01)',
       resolvePost = resolve;
     });
 
-    (global.fetch as any).mockImplementation((url: string, opts: any) => {
+    ((globalThis as any).fetch as any).mockImplementation((url: string, opts: any) => {
       if (String(url).includes('/api/users/assignable')) {
         return Promise.resolve({
           ok: true,
@@ -360,7 +360,7 @@ describe('Actions Taken UI Suite (UI-01, UI-02, UI-03, UI-06, DUP-01, A11Y-01)',
         }),
       } as Response);
     });
-    global.fetch = patchMock;
+    (globalThis as any).fetch = patchMock;
 
     render(
       <ActionsTaken
