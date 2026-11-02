@@ -143,7 +143,7 @@ const MainApplication: React.FC = () => {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm border">
         <div>
           <h1 className="h4 font-weight-bold text-success mb-1">TokTickIT IT Service Desk</h1>
-          <div className="d-flex align-items-center gap-2 small mt-1">
+          <div className="d-flex align-items-center gap-2 small mt-1" data-testid="header-user-menu">
             <span className="text-muted">Signed in as:</span>
             <span className="fw-bold text-dark">{user.fullName || user.name}</span>
             <span
@@ -166,6 +166,7 @@ const MainApplication: React.FC = () => {
           className="btn btn-sm btn-outline-danger mt-2 mt-sm-0"
           onClick={() => logout()}
           aria-label="Sign Out"
+          data-testid="header-logout"
         >
           Sign Out
         </button>
@@ -182,7 +183,7 @@ const MainApplication: React.FC = () => {
               setActiveTab('staff-dashboard');
             }}
             aria-label="Staff Dashboard tab"
-            data-testid="nav-staff-dashboard"
+            data-testid="header-nav-dashboard"
           >
             Dashboard
           </button>
@@ -195,7 +196,7 @@ const MainApplication: React.FC = () => {
               setActiveTab('requester-dashboard');
             }}
             aria-label="Requester Dashboard tab"
-            data-testid="nav-requester-dashboard"
+            data-testid="header-nav-dashboard"
           >
             Dashboard
           </button>
@@ -209,6 +210,7 @@ const MainApplication: React.FC = () => {
               setActiveTab('admin-users');
             }}
             aria-label="User Management tab"
+            data-testid="header-nav-admin-users"
           >
             User Management
           </button>
@@ -222,6 +224,7 @@ const MainApplication: React.FC = () => {
               setActiveTab('staff-queue');
             }}
             aria-label="Staff Queue tab"
+            data-testid="header-nav-staff-queue"
           >
             Ticket Queue
           </button>
@@ -234,6 +237,7 @@ const MainApplication: React.FC = () => {
             setActiveTab('create');
           }}
           aria-label="Create Ticket tab"
+          data-testid="header-nav-create-ticket"
         >
           Create Ticket
         </button>
@@ -246,6 +250,7 @@ const MainApplication: React.FC = () => {
             setActiveTab('my-tickets');
           }}
           aria-label="My Tickets tab"
+          data-testid="header-nav-my-tickets"
         >
           My Tickets
         </button>

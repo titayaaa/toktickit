@@ -214,7 +214,7 @@ const RequesterDashboard: React.FC<RequesterDashboardProps> = ({
       {/* Dashboard Top Greeting & Refresh */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm border">
         <div>
-          <h2 className="h4 fw-bold text-success mb-1">
+          <h2 className="h4 fw-bold text-success mb-1" data-testid="requester-dashboard-greeting">
             Welcome back, {user?.fullName || user?.name || 'Requester'}!
           </h2>
           <p className="text-muted small mb-0">
@@ -320,14 +320,6 @@ const RequesterDashboard: React.FC<RequesterDashboardProps> = ({
                 {updatedCount}
               </h3>
             </div>
-            {/* Hidden alias for tests checking in-progress card */}
-            <span
-              style={{ display: 'none' }}
-              data-testid="requester-metric-card-in-progress"
-              onClick={() => handleCardClick('IN_PROGRESS')}
-            >
-              In Progress
-            </span>
             <div className="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
               <span className="text-muted" style={{ fontSize: '12px' }}>Past 7 days activity</span>
               <span className="fw-semibold text-primary" style={{ fontSize: '13px' }}>View list →</span>
