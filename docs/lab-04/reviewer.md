@@ -22,8 +22,8 @@
 | **[PR #78](https://github.com/titayaaa/toktickit/pull/78)** | Issue 30: Actions Taken Frontend Component on Ticket Detail | Issue #66 | `feature/30-actions-taken-ui` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #80](https://github.com/titayaaa/toktickit/pull/80)** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #81](https://github.com/titayaaa/toktickit/pull/81)** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | ⏳ Pending Review |
-| **PR-08** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #81](https://github.com/titayaaa/toktickit/pull/81)** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #82](https://github.com/titayaaa/toktickit/pull/82)** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | ⏳ Pending Review |
 | **PR-09** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
 | **PR-10** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `feature/36-release-and-report`| `lab4-staging` | `@jejaebubu` | 📋 Planned |
 
@@ -882,7 +882,7 @@
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ⏳ Pending Peer Review
+- **Current Status:** ✅ Approved & Merged
 - **Scope & Objectives:**
   - **Backend REST API (`server/src/routes/requester.ts`, `server/src/app.ts`):**
     - `GET /api/requester/dashboard` (พร้อม alias `GET /api/dashboard/requester`)
@@ -905,6 +905,55 @@
     - `client/src/test/lab-04/RequesterDashboard.test.tsx` (UI-06, FR-13, AC-10) ผ่าน 6/6
     - `npm --prefix client test` ผ่านครบ 15/15 files (81/81 tests)
     - `npm --prefix client run build` ผ่าน 0 errors
+
+#### 💬 Round 1 Review by @jejaebubu (Approved)
+- **Review Date:** 2026-11-02 10:55 UTC+7
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ตรวจโค้ด REST API, Data Isolation, หน้าจอ UI `RequesterDashboard.tsx`, ชุดทดสอบ และเอกสารประกอบของ PR #81 (Issue 33) เทียบกับ `specification.md`, `api-spec.md`, `ui-spec.md` และ `tests.md` อย่างละเอียดรอบด้านแล้วนะคะ ภาพรวมทำออกมาได้อย่างยอดเยี่ยมและประณีตมากค่ะ 
+> 
+> ### จุดเด่นที่ทำได้ดีมาก
+> 1. **Strict Data Isolation & Multi-Version Ownership (BR-13, AC-10, API-12):** ใน `server/src/routes/requester.ts` ออกแบบเงื่อนไข `ownershipWhere` ตรวจสอบทั้ง `userId` และอีเมลของทั้งสองโมเดล (`requesterUser.email` และ `requester.email`) ทำให้แยกข้อมูลของ Requester แต่ละคนได้อย่างสมบูรณ์แบบ ไม่เกิดปัญหา ID ชนกันข้ามโมเดล และรองรับตั๋วแบบ Legacy ได้อย่างไร้รอยต่อ
+> 2. **Action Required Notification Banner (UI-06, FR-13):** แถบเตือนสีม่วง/Amber (`#EDE7F6` / `#512DA8`) แสดงตั๋วสถานะ `WAITING_FOR_REQUESTER` ได้เด่นชัด พร้อมปุ่มกด "Inspect & Respond →" ช่วยให้ผู้ใช้ทราบทันทีว่ามีตั๋วที่รอข้อมูลเพิ่มเติม
+> 3. **Seamless Drill-Down to MyTickets:** การส่ง `initialStatus` ไปยัง `MyTickets.tsx` พร้อมทั้งขยายตัวเลือกสถานะใน Dropdown ครบทั้ง 9 สถานะ ช่วยให้การคลิกการ์ดสถิติแล้วเปิดดูรายการตั๋วที่เกี่ยวข้องทำงานได้อย่างถูกต้อง
+> 4. **Responsive Layout & Accessibility (STYLE-01, RESP-01, WCAG AA):** จัดเลย์เอาต์สลับระหว่าง Desktop Table และ Mobile Card Stack ได้อย่างลงตัว ปุ่มและการ์ดมี Touch target $\ge 44\text{px}$ กำหนด `overflowX: 'hidden'` ป้องกันหน้าจอเลื่อนแนวนอน และมี Empty State พร้อมปุ่ม CTA ชัดเจน
+> 5. **Defensive Token & Date Handling:** มีการแนบ Header `Authorization: Bearer` พร้อมรองรับ Token fallback และแปลงวันเวลาแบบ Safe Date Serialization ป้องกันปัญหา Runtime Exception
+> 6. **Test Coverage & Build Verification:** ชุดทดสอบ Client ผ่านครบ 81/81 tests (100%), Production build ผ่าน 0 errors และบันทึก `ai-use.md` (Prompt 13 & Reflection 3.7) ครบถ้วนตามเกณฑ์ส่งงาน
+> 
+> คุณภาพของฟีเจอร์และชุดทดสอบสมบูรณ์แบบตามเกณฑ์ทุกข้อ ขอ **Approve** ให้ Merge เข้า `lab4-staging` ได้เลยค่ะ
+
+#### 💬 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#81](https://github.com/titayaaa/toktickit/pull/81)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `ce5a56682345553159b02a052dcc53b5efc4bbc5`
+- **Merged At:** 2026-11-02 10:55:14 +07:00 (03:55:14 UTC)
+- **Status:** ✅ Merged successfully — **Closes #69**
+
+---
+
+### PR #82: Issue 34: Final Regression & System Hardening
+- **PR URL:** [titayaaa/toktickit#82](https://github.com/titayaaa/toktickit/pull/82)
+- **Feature Branch:** `feature/34-final-hardening`
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Peer Review
+- **Scope & Objectives:**
+  - **Full Regression Verification (REG-01, REG-02, AC-14, FR-15):**
+    - ตรวจสอบความเข้ากันได้ย้อนหลัง 100% (Zero Regression) ของโมดูลเดิมทั้งหมดตั้งแต่ Lab 1, 2, และ 3 ร่วมกับโมดูลใหม่ของ Lab 4
+    - Client Vitest Suite: 15 test files / 81 passed (100% Pass)
+    - Production Build Verification: `tsc && vite build` ผ่านสมบูรณ์ 0 errors
+    - Server Build Verification: `tsc` ผ่านสมบูรณ์ 0 errors
+  - **System Hardening Across TokTickIT:**
+    - Hardened Token Extraction: รองรับทั้ง `toktickit_auth_token` และ fallback `token` ทุกคอมโพเนนต์
+    - Safe Date Serialization: ป้องกัน TypeError เมื่อ timestamp ถูก parse ในรูปแบบต่างกัน
+    - Status Enum Alignment: ขยายตัวเลือกสถานะใน `MyTickets.tsx` ให้ครบทั้ง 9 สถานะ (`WAITING_FOR_REQUESTER`, `REOPENED`, `CANCELLED`)
+    - Async Flakiness Elimination: ปรับปรุง `waitFor` ใน `AdminUserManagement.test.tsx` รอ `admin-users-table` ป้องกัน race condition
+  - **Documentation & Traceability Synchronization:**
+    - อัปเดต `docs/lab-04/tests.md` ปรับสถานะ `REG-01` และ `REG-02` เป็น `Pass`
+    - อัปเดต `docs/lab-04/ai-use.md` บันทึก Prompt 14 และ Reflection 3.8
 
 ---
 
