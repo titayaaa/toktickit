@@ -26,9 +26,10 @@ interface MyTicketsProps {
   categories: Category[];
   onNavigateToCreate: () => void;
   onSelectTicket?: (ticketId: number) => void;
+  initialStatus?: string;
 }
 
-const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, onSelectTicket }) => {
+const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, onSelectTicket, initialStatus }) => {
   const { selectedRequester } = useRequester();
 
   const [tickets, setTickets] = useState<TicketItem[]>([]);
@@ -39,8 +40,15 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeSearch, setActiveSearch] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatus || '');
   const [selectedPriority, setSelectedPriority] = useState<string>('');
+
+  useEffect(() => {
+    if (initialStatus !== undefined) {
+      setSelectedStatus(initialStatus);
+      setPage(1);
+    }
+  }, [initialStatus]);
   
   // Sort states (default: createdAt desc)
   const [sortOption, setSortOption] = useState<string>('createdAt_desc');
@@ -293,9 +301,12 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
                 <option value="NEW">New</option>
                 <option value="OPEN">Open</option>
                 <option value="IN_PROGRESS">In Progress</option>
+                <option value="WAITING_FOR_REQUESTER">Waiting for Requester</option>
                 <option value="PENDING">Pending</option>
                 <option value="RESOLVED">Resolved</option>
                 <option value="CLOSED">Closed</option>
+                <option value="REOPENED">Reopened</option>
+                <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
 

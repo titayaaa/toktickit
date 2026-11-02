@@ -30,7 +30,7 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **API-09** | API | BR-09, AC-08 | Resolve Ticket when all Actions Taken are `COMPLETED` or `CANCELLED` | 200 OK and ticket status becomes `RESOLVED` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
 | **API-10** | API | BR-09, BR-15 | Resolve Ticket when zero Actions Taken exist | 200 OK and ticket status becomes `RESOLVED` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
 | **API-11** | API | FR-12, BR-12 | IT Staff Dashboard metrics retrieval | 200 OK with accurate operational counts | `server/tests/lab-04/staff-dashboard.api.test.ts` | Pass |
-| **API-12** | API | FR-13, BR-13 | Requester Dashboard metrics retrieval | 200 OK with authenticated user's ticket counts | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
+| **API-12** | API | FR-13, BR-13 | Requester Dashboard metrics retrieval | 200 OK with authenticated user's ticket counts | `server/tests/lab-04/requester-dashboard.api.test.ts` | Pass |
 | **API-13** | API | FR-12, AC-09 | Requester attempts to access IT Staff Dashboard endpoint | 403 Forbidden | `server/tests/lab-04/staff-dashboard.api.test.ts` | Pass |
 | **API-14** | API | BR-14, AC-12 | Concurrency check: Stale update rejected on ticket status update | 409 Conflict when expectedUpdatedAt does not match | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
 | **WORKFLOW-01** | API | BR-11 | Validate 9-state Ticket Transition Matrix (including PENDING) across roles | Rejects disallowed transitions with 422 Unprocessable Entity | `server/tests/lab-04/ticket-workflow.api.test.ts` | Pass |
@@ -41,7 +41,7 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **UI-03** | Component | FR-07, AC-04 | Requester role hides Action Taken create/edit buttons | Action items are read-only | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **UI-04** | Component | BR-09, AC-07 | Resolution warning banner displayed if pending actions exist | "Resolve" option warns user of open actions | `client/src/test/lab-04/TicketWorkflow.test.tsx` | Pass |
 | **UI-05** | Component | FR-12, AC-11 | IT Staff Dashboard renders metric cards and urgent tickets | Interactive drill-down filters work | `client/src/test/lab-04/StaffDashboard.test.tsx` | Pass |
-| **UI-06** | Component | FR-13, AC-11 | Requester Dashboard renders cards and attention list | Interactive navigation to Ticket Detail | `client/src/test/lab-04/RequesterDashboard.test.tsx` | Planned |
+| **UI-06** | Component | FR-13, AC-11 | Requester Dashboard renders cards and attention list | Interactive navigation to Ticket Detail | `client/src/test/lab-04/RequesterDashboard.test.tsx` | Pass |
 | **STYLE-01** | Style | ui-spec §1 | Zen Green token compliance (colors, typography, badges) | All components consume CSS variables | `client/src/test/lab-04/StaffDashboard.test.tsx` | Pass |
 | **DUP-01** | UI | BR-16 | Prevent double submission on Action Taken create button | Button disabled during in-flight submission | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **A11Y-01** | A11Y | ui-spec §6 | Keyboard focus, ARIA labels, and touch target size | Touch targets >= 44px, visible focus ring | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
