@@ -23,8 +23,8 @@
 | **[PR #79](https://github.com/titayaaa/toktickit/pull/79)** | Issue 31: Ticket Workflow Operations & Resolution Gate | Issue #67 | `feature/31-ticket-workflow` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #80](https://github.com/titayaaa/toktickit/pull/80)** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #81](https://github.com/titayaaa/toktickit/pull/81)** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #82](https://github.com/titayaaa/toktickit/pull/82)** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | ⏳ Pending Review |
-| **PR-09** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #82](https://github.com/titayaaa/toktickit/pull/82)** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
+| **[PR #83](https://github.com/titayaaa/toktickit/pull/83)** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | ⏳ Pending Review |
 | **PR-10** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `feature/36-release-and-report`| `lab4-staging` | `@jejaebubu` | 📋 Planned |
 
 ---
@@ -38,8 +38,8 @@
 | **3. Resolution Gate Rule** | Backend blocks resolution (409 Conflict) if pending actions exist | ✅ Verified | Backend บล็อก 409 Conflict เมื่อมี pending action และแจ้งเตือนบน UI ผ่านการ Merge ใน PR #79 |
 | **4. Operational Dashboards**| Metrics calculation for IT Staff and Requester dashboards | ✅ Verified | Staff Dashboard (PR #80) และ Requester Dashboard (PR #81) รองรับ metrics และ drill-down สำเร็จ |
 | **5. RBAC & Security** | Requester read-only mode, inactive assignee rejection (422) | ✅ Verified | Data isolation 404, สิทธิ์ 403 Forbidden และ inactive assignee 422 ได้รับการตรวจสอบและ Merge เรียบร้อย |
-| **6. Test Traceability** | Unit, API, UI, and E2E tests mapped 1-to-1 to Acceptance Criteria | ⏳ Pending | ตรวจสอบตาราง traceability matrix ใน tests.md (Planned) |
-| **7. Zen Green Polish** | Design tokens, responsive behavior, accessibility guidelines | ⏳ Pending | ตรวจสอบความสอดคล้องกับธีม Zen Green และ WCAG AA |
+| **6. Test Traceability** | Unit, API, UI, and E2E tests mapped 1-to-1 to Acceptance Criteria | ✅ Verified | Unit, API, UI, และ Playwright E2E suites (E2E-01, E2E-02, E2E-03) ครบ 1-to-1 ตาม AC ใน tests.md |
+| **7. Zen Green Polish** | Design tokens, responsive behavior, accessibility guidelines | ✅ Verified | ตรวจสอบหลักฐานภาพถ่ายหน้าจอ 24 ภาพบน 3 viewports (Desktop, Tablet, Mobile) ปราศจาก horizontal overflow |
 
 ---
 
@@ -939,7 +939,7 @@
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ⏳ Pending Re-review (Round 2 Changes Addressed)
+- **Current Status:** ✅ Approved & Merged
 - **Scope & Objectives:**
   - **Full Regression Verification (REG-01, REG-02, AC-14, FR-15):**
     - ตรวจสอบความเข้ากันได้ย้อนหลัง 100% (Zero Regression) ของโมดูลเดิมทั้งหมดตั้งแต่ Lab 1, 2, และ 3 ร่วมกับโมดูลใหม่ของ Lab 4
@@ -998,6 +998,59 @@
 >    - ปรับสถานะรายการข้อ 1 ถึง 5 (Spec Completeness, Actions Taken Model, Resolution Gate Rule, Operational Dashboards, RBAC & Security) จาก `⏳ Pending` เป็น `✅ Verified` พร้อมระบุหมายเหตุการผ่านการตรวจสอบและการ Merge เข้าสู่ `lab4-staging` เรียบร้อยแล้ว
 > 
 > รบกวน @jejaebubu ช่วยตรวจสอบอีกครั้งนะคะ ขอบคุณมากค่ะ!
+
+#### 💬 Round 2 Review by @jejaebubu (Approved)
+- **Review Date:** 2026-11-02 16:08 UTC+7
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ตรวจสอบ commit `2c5d703` ซ้ำอย่างละเอียดรอบด้านแล้วนะคะ ดำเนินการปรับปรุงแก้ไขเอกสารและบันทึกประวัติการรีวิวได้ครบถ้วนสมบูรณ์ทั้ง 4 จุดอย่างยอดเยี่ยมมากค่ะ:
+> 
+> 1. **บันทึกประวัติ PR #113 ครบถ้วนสมบูรณ์**: เพิ่มบันทึกการรีวิวของ PR #113 ลงใน Part 2 ของ `docs/lab-04/reviewer.md` พร้อมรายละเอียดผลการตรวจทั้งสองรอบและ Merge commit `5158f3a` ครบถ้วนตามมาตรฐาน
+> 2. **ความครอบคลุมของ Regression Matrix**: อัปเดตพาธชุดทดสอบฝั่ง Client (`client/src/test/lab-02/*.test.tsx` และ `client/src/test/lab-03/*.test.tsx`) ใน `docs/lab-04/tests.md` ครบทั้ง Full-stack
+> 3. **ตัวเลขสรุปผลการทดสอบแม่นยำ**: ระบุผลการทดสอบทั้ง Server Vitest (19 files / 112 passed) และ Client Vitest (15 files / 81 passed) รวม 34 files / 193 passed (Zero Regression) ไว้อย่างชัดเจน
+> 4. **Checklist Section 2 พร้อมส่งมอบ**: ปรับสถานะ Checklist รายการ 1–5 ใน Section 2 เป็น `✅ Verified` เรียบร้อยแล้ว
+> 
+> ผลการ Build ฝั่ง Client (`tsc && vite build`) และ Server ทำได้เรียบร้อยปราศจากข้อผิดพลาด เอกสารมีความสอดคล้องและมีคุณภาพระดับโปรดักชัน
+> 
+> ขอ **Approve** และพร้อมให้ Merge เข้าสู่สาขา `lab4-staging` ได้เลยค่ะ
+
+#### 💬 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#82](https://github.com/titayaaa/toktickit/pull/82)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `858d2ec0749aa5e2a65d283077bcd875c48a2742`
+- **Merged At:** 2026-11-02 16:09:15 +07:00 (09:09:15 UTC)
+- **Status:** ✅ Merged successfully — **Closes #70**
+
+---
+
+### PR #83: Issue 35: E2E Testing, Visual Inspection & Responsive Audits
+- **PR URL:** [titayaaa/toktickit#83](https://github.com/titayaaa/toktickit/pull/83)
+- **Feature Branch:** `feature/35-e2e-and-visual`
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `lab4-staging`
+- **Current Status:** ⏳ Pending Peer Review
+- **Scope & Objectives:**
+  - **Playwright End-to-End Test Automation (`e2e/lab-04/*.spec.ts`):**
+    - `e2e/lab-04/actions-taken-flow.spec.ts` (`E2E-01`): วงจรชีวิต Actions Taken แบบครบวงจร (Requester สร้างตั๋ว -> เจ้าหน้าที่เปิดตั๋ว ตรวจสอบ Follow-up validation บันทึกสถานะ `PENDING`, ขยับเป็น `IN_PROGRESS`, และบันทึก `COMPLETED` พร้อมบังคับกรอก Result ตาม `BR-16` / `AC-15` -> Requester เปิดดูแบบ Read-only ซ่อนปุ่ม Action ทั้งหมด)
+    - `e2e/lab-04/ticket-resolution.spec.ts` (`E2E-02`): ตรวจสอบ Requester Advisory Flag ("My problem is resolved") แสดงแบนเนอร์แจ้งเตือนโดยไม่เปลี่ยนสถานะจริง, ตรวจจับ Resolution Gate เตือนเมื่อมี Pending Action, ปฏิเสธด้วย `409 Conflict` หากพยายาม Resolve ก่อนงานเสร็จ, และ Resolve สำเร็จหลังเคลียร์ Action ครบ
+    - `e2e/lab-04/dashboards.spec.ts` (`E2E-03`): ตรวจสอบ Dashboard ทั้ง 2 ฝั่ง (IT Staff Dashboard 5 metric cards + Recent Tickets + Quick Actions นำทาง Drill-down ไปยัง Ticket Queue และ Requester Dashboard 4 metric cards + Quick Actions + Drill-down ไปยัง My Tickets)
+  - **Multi-Viewport Responsive Audits & Visual Evidence (24 Screenshots):**
+    - ครอบคลุม 3 ขนาดหน้าจอมาตรฐาน: Desktop (1280×800), Tablet (820×1180), Mobile (393×851)
+    - บันทึกภาพหน้าจอหลักฐาน 24 ภาพจัดเก็บใน `artifacts/lab-04/screenshots/`:
+      - `actions-taken/`: 9 ภาพ (staff-action-created, staff-action-completed, requester-readonly)
+      - `dashboards/`: 6 ภาพ (staff-dashboard, requester-dashboard)
+      - `workflow/`: 9 ภาพ (requester-indicated-resolved, resolution-gate-modal, ticket-resolved)
+    - ตรวจสอบ `expectNoHorizontalOverflow(page)` ทุกหน้าจอ ไม่พบปัญหาการเลื่อนแนวนอน (Zero Horizontal Overflow) และผ่านเกณฑ์ Touch Target $\ge 44\text{px}$ ตามมาตรฐาน WCAG 2.1 AA
+  - **Traceability Matrix & Documentation:**
+    - อัปเดต `docs/lab-04/tests.md` ปรับสถานะ `E2E-01`, `E2E-02`, `E2E-03` เป็น `Pass`
+    - อัปเดต `docs/lab-04/ai-use.md` บันทึก Prompt 15 และ Reflection 3.9
+    - อัปเดต Section 2 Checklist ข้อ 6 (Test Traceability) และ 7 (Zen Green Polish) เป็น `✅ Verified`
+
 
 ---
 

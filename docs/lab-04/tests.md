@@ -46,9 +46,9 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **DUP-01** | UI | BR-16 | Prevent double submission on Action Taken create button | Button disabled during in-flight submission | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **A11Y-01** | A11Y | ui-spec §6 | Keyboard focus, ARIA labels, and touch target size | Touch targets >= 44px, visible focus ring | `client/src/test/lab-04/ActionsTaken.test.tsx` | Pass |
 | **RESP-01** | Responsive | AC-13 | Visual audit of Dashboards on Mobile, Tablet, Desktop | Zero horizontal overflow; cards stack neatly | `client/src/test/lab-04/StaffDashboard.test.tsx` | Pass |
-| **E2E-01** | E2E | FR-01, FR-04 | IT Staff creates and updates Action Taken through full UI | Action appears on timeline with correct badge | `e2e/lab-04/actions-taken-flow.spec.ts` | Planned |
-| **E2E-02** | E2E | BR-09, AC-07 | End-to-end resolution gate enforcement workflow | Blocks resolution until action completed | `e2e/lab-04/ticket-resolution.spec.ts` | Planned |
-| **E2E-03** | E2E | FR-12, FR-13 | IT Staff & Requester dashboard navigation and drill-down | User clicks metric card and views filtered list | `e2e/lab-04/dashboards.spec.ts` | Planned |
+| **E2E-01** | E2E | FR-01, FR-04 | IT Staff creates and updates Action Taken through full UI | Action appears on timeline with correct badge | `e2e/lab-04/actions-taken-flow.spec.ts` | Pass |
+| **E2E-02** | E2E | BR-09, AC-07 | End-to-end resolution gate enforcement workflow | Blocks resolution until action completed | `e2e/lab-04/ticket-resolution.spec.ts` | Pass |
+| **E2E-03** | E2E | FR-12, FR-13 | IT Staff & Requester dashboard navigation and drill-down | User clicks metric card and views filtered list | `e2e/lab-04/dashboards.spec.ts` | Pass |
 | **REG-01** | Regression | FR-15, AC-14 | Lab 1 & 2 Auth, Ticket Creation, Attachments regression | All previous test suites pass without regression | `server/tests/lab-02/*.test.ts`, `client/src/test/lab-02/*.test.tsx` | Pass |
 | **REG-02** | Regression | FR-15, AC-14 | Lab 3 Queue, Notes, Comments, Admin user management | All Lab 3 test suites pass without regression | `server/tests/lab-03/*.test.ts`, `client/src/test/lab-03/*.test.tsx` | Pass |
 
