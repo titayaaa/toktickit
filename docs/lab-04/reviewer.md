@@ -24,8 +24,8 @@
 | **[PR #80](https://github.com/titayaaa/toktickit/pull/80)** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #81](https://github.com/titayaaa/toktickit/pull/81)** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #82](https://github.com/titayaaa/toktickit/pull/82)** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #83](https://github.com/titayaaa/toktickit/pull/83)** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | 🔄 Changes Requested / Responded |
-| **PR-10** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `feature/36-release-and-report`| `lab4-staging` | `@jejaebubu` | 📋 Planned |
+| **[PR #83](https://github.com/titayaaa/toktickit/pull/83)** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | ✅ Merged (`b4dee7e`) |
+| **[PR #84](https://github.com/titayaaa/toktickit/pull/84)** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `release/lab04-staging-to-main`| `main` | `@jejaebubu` | ⏳ Pending Review |
 
 ---
 
@@ -1033,7 +1033,7 @@
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
 - **Target Branch:** `lab4-staging`
-- **Current Status:** 🔄 Changes Requested / Responded (Awaiting Re-review)
+- **Current Status:** ✅ Approved & Merged (`b4dee7e`)
 - **Scope & Objectives:**
   - **Playwright End-to-End Test Automation (`e2e/lab-04/*.spec.ts`):**
     - `e2e/lab-04/actions-taken-flow.spec.ts` (`E2E-01`): วงจรชีวิต Actions Taken แบบครบวงจร (Requester สร้างตั๋ว -> เจ้าหน้าที่เปิดตั๋ว ตรวจสอบ Follow-up validation บันทึกสถานะ `PENDING`, ขยับเป็น `IN_PROGRESS`, และบันทึก `COMPLETED` พร้อมบังคับกรอก Result ตาม `BR-16` / `AC-15` -> Requester เปิดดูแบบ Read-only ซ่อนปุ่ม Action ทั้งหมด)
@@ -1109,6 +1109,61 @@
 > - Server Build (`tsc`): ผ่านสมบูรณ์ (Code 0)
 > 
 > รบกวนคุณเจเจตรวจสอบอีกครั้งนะคะ หากเรียบร้อยแล้วสามารถกด Approve และ Merge เข้าสู่ branch หลักได้เลยค่ะ ขอบคุณมากๆ เลยค่ะ! 🙏✨
+
+#### 💬 Round 2 Review by @jejaebubu (Approved)
+- **Review Date:** 2026-11-03 17:00 UTC+7
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ตรวจสอบ Commit `7af52d9` และ `25fa6b6` อย่างละเอียดรอบด้านแล้วนะคะ ดำเนินการปรับปรุงแก้ไขทั้งตัวคอมโพเนนต์และชุดทดสอบ Playwright E2E ได้อย่างยอดเยี่ยม รวดเร็ว และประณีตมากค่ะ:
+> 
+> 1. **Authentication & Navigation Resiliency**: เพิ่ม `data-testid` ครบถ้วนใน `Login.tsx` และ `App.tsx` พร้อมปรับฟังก์ชัน helper (`login()`, `navigateHeader()`) ให้ใช้ Dual Locators รองรับทั้ง Desktop และ Mobile Viewports ได้อย่างสมบูรณ์แบบ
+> 2. **Form Interaction & Validation Harmonization**: เพิ่มการเลือก Category และ Related System ใน `CreateTicketForm.tsx` ทำให้ขั้นตอนการสร้างตั๋วใน E2E ทำงานได้จริงและไม่ติด Validation Error
+> 3. **Complete Workflow Verification**: เชื่อมโยงตัวเลือกใน `TicketDetail.tsx` และ `StaffTicketQueue.tsx` ครอบคลุมทั้ง Advisory Flag ของ Requester, การบล็อก 409 Conflict ของ Resolution Gate และการ Resolve ตั๋วสำเร็จหลังเคลียร์ Action ครบ
+> 4. **Dashboard Metric Alignment**: ปรับจูน Selector ใน `RequesterDashboard.tsx` และ `dashboards.spec.ts` ให้ตรงกัน 100%
+> 5. **Audit Trail & Documentation**: บันทึกประวัติการรีวิวรอบที่ 1 และ Author Response ลงใน `docs/lab-04/reviewer.md` ครบถ้วนตามมาตรฐานวิศวกรรมซอฟต์แวร์
+> 
+> ผลการ Build (`tsc && vite build`) และ Client Vitest (15 files / 81 passed) ผ่านสมบูรณ์ 0 errors
+> 
+> ขอ **Approve** และพร้อมให้ดำเนินการ Merge เข้าสู่สาขา `lab4-staging` ได้เลยค่ะ
+
+#### 💬 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#83](https://github.com/titayaaa/toktickit/pull/83)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `b4dee7ea4a87f48ef2fafa15b53f34a4c01abb67`
+- **Merged At:** 2026-11-03 17:05:47 UTC+7
+- **Status:** ✅ Merged successfully — **Closes #71**
+
+---
+
+### PR #84: Issue 36: Release Integration, Staging-to-Main PR & 9-Part Report
+- **PR URL:** [titayaaa/toktickit#84](https://github.com/titayaaa/toktickit/pull/84)
+- **Feature Branch:** `release/lab04-staging-to-main`
+- **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
+- **Target Branch:** `main`
+- **Current Status:** ⏳ Pending Review
+- **Scope & Objectives:**
+  - Release Integration for Sprint 4 (Lab 4): Promote fully verified and peer-reviewed code from `lab4-staging` into `main`.
+  - Integrates all 9 Sprint 4 feature increments:
+    - Issue 27 (PR #75): Sprint 4 Engineering Contract & Specification (docs/lab-04)
+    - Issue 28 (PR #76): Database Migration, Schema Evolution & Seed Data for Actions Taken
+    - Issue 29 (PR #77): Actions Taken Backend REST API & Authorization Middleware
+    - Issue 30 (PR #78): Actions Taken Frontend Component on Ticket Detail
+    - Issue 31 (PR #79): Ticket Workflow Operations & Resolution Gate Enforcement
+    - Issue 32 (PR #80): IT Staff Dashboard API & UI
+    - Issue 33 (PR #81): Requester Dashboard API & UI
+    - Issue 34 (PR #82): Final Regression & System Hardening
+    - Issue 35 (PR #83): E2E Testing, Visual Inspection & Responsive Audits
+  - Full Regression & Release Verification:
+    - Server API tests: 112 / 112 passed across 19 test files (100%)
+    - Client Component tests: 81 / 81 passed across 15 test files (100%)
+    - Playwright E2E suites: 3 suites across 3 responsive viewports (Desktop, Tablet, Mobile) = 9 runs passed (100%)
+    - Production builds (`tsc` for server, `tsc && vite build` for client) compile with 0 errors
+  - Sprint 4 Documentation finalized: `README.md`, `docs/lab-04/ai-use.md`, `docs/lab-04/reviewer.md`, `docs/lab-04/tests.md`, and 9-part report artifacts.
 
 ---
 
@@ -1909,3 +1964,118 @@
 - **Merge Commit SHA:** `5158f3a`
 - **Merged At:** 2026-11-02
 - **Status:** ✅ Merged successfully — **Closes #9 / #101**
+
+---
+
+### PR #114: PR-10: Zen Green UI polish, accessibility, responsive viewports, and screenshots (Issue #10)
+- **PR URL:** [jejaebubu/toktickit#114](https://github.com/jejaebubu/toktickit/pull/114)
+- **Branch:** `feature/lab04-issue10-ui-polish` → `lab4-staging`
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Current Status:** ✅ Approved & Merged
+- **Scope & Objectives:**
+  - `A11Y-01` (`AC-13`): Zen Green UI polish และการทดสอบ Accessibility ตามมาตรฐาน WCAG 2.1 AA (Touch target $\ge 44\text{px}$, visible focus ring, และ dynamic `aria-required="true"` เมื่อสถานะเป็น `COMPLETED`)
+  - `RESP-01` (`AC-13`): ตรวจสอบ Responsive Viewports ครอบคลุม Desktop (1280×800), Tablet (820×1180), และ Mobile (393×851) ปราศจาก Horizontal Overflow
+  - บันทึกภาพ Full Page Screenshots ครบทั้ง 24 ภาพจัดเก็บใน `artifacts/lab-04/screenshots/`
+  - อัปเดตตารางสรุปผลการทดสอบใน `docs/lab-04/tests.md` และบันทึกประวัติการรีวิวใน `docs/lab-04/reviewer.md`
+
+#### 💬 Round 1 Review by @titayaaa (Changes Requested)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🛑 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ### PR-10 Review: Changes Requested (ขอฝากเก็บรายละเอียดเอกสารและลิงก์ PR นิดเดียวค่ะ ✨)
+> 
+> ขอบคุณ @jejaebubu สำหรับการปรับปรุง Zen Green UI, Accessibility ตามมาตรฐาน WCAG 2.1 AA, ชุดทดสอบ `A11Y-01`, และการบันทึกภาพ Full Page Screenshots ครบทั้ง 24 ภาพบน 3 Viewports (Desktop, Tablet, Mobile) ได้อย่างประณีตและสวยงามมากค่ะ
+> 
+> ภาพรวมด้านโค้ดและดีไซน์ทำไว้ดีมากแล้วค่ะ แต่ขอฝากปรับแก้ความสมบูรณ์ของเอกสารและลิงก์ PR อีก 3 จุดเล็ก ๆ เพื่อให้ตรงตามมาตรฐานเดียวกันกับ PR ก่อนหน้าค่ะ:
+> 
+> ---
+> 
+> #### 🔴 จุดที่ต้องปรับแก้ (Required Changes):
+> 1. **เติมลิงก์ GitHub PR #114 ในตาราง Master Review (docs/lab-04/reviewer.md)**:
+>    - ในตาราง Section 2 แถวของ `PR-10`: รบกวนปรับจาก `**PR-10**` เป็น `**PR-10 ([GitHub #114](https://github.com/jejaebubu/toktickit/pull/114))**` ให้มีลิงก์เหมือนกับแถว PR-04 ถึง PR-09 ค่ะ
+> 2. **เพิ่ม PR URL ใน Section 3.10 (docs/lab-04/reviewer.md)**:
+>    - ในหัวข้อ Section 3.10 รบกวนเพิ่มบรรทัด `- **PR URL:** [jejaebubu/toktickit#114](https://github.com/jejaebubu/toktickit/pull/114)` ใต้บรรทัด `- **Branch:**` ค่ะ
+> 3. **ระบุเลข PR ในตารางสรุปผลทดสอบ (docs/lab-04/tests.md)**:
+>    - ในแถว `PR-10` ของตารางสรุปผลการรัน แนะนำให้ปรับเป็น `**Pass** (PR #114, review pending)` เพื่อให้สอดคล้องกับแถวอื่น ๆ ค่ะ
+> 
+> ---
+> 
+> #### 💡 ข้อเสนอแนะเพิ่มเติมเพื่อความสมบูรณ์แบบ (Minor Test Polish):
+> 4. **เพิ่มการทดสอบ Dynamic `aria-required="true"` บน `action-result` (`ActionsTaken.test.tsx`)**:
+>    - ในเคส `A11Y-01` ปัจจุบันตรวจสอบ `expect(resultInput).toHaveAttribute("aria-required", "false")` ตอนฟอร์มเปิดเริ่มต้น หากลองเพิ่มสเต็ปเลือกสถานะ `COMPLETED` ใน `action-status` แล้ว assert ตรวจสอบว่า `resultInput` เปลี่ยนเป็น `aria-required="true"` จะช่วยยืนยัน dynamic behavior ตามที่ระบุไว้ใน PR description ได้สมบูรณ์แบบ 100% เลยค่ะ:
+>      ```tsx
+>      await user.selectOptions(screen.getByTestId("action-status"), "COMPLETED");
+>      expect(screen.getByTestId("action-result")).toHaveAttribute("aria-required", "true");
+>      ```
+> 5. **เตรียมอัปเดต `docs/lab-04/ai-use.md` และ `README.md` ใน PR-11**:
+>    - ตามที่ระบุไว้ใน Issue #102 ฝากเตรียมอัปเดตบันทึก Coding-Agent reflection ใน `ai-use.md` และคำแนะนำการ Setup/Test ใน `README.md` ในขั้นตอน PR-11 (Sprint 4 Documentation and Release) ด้วยนะคะ
+> 
+> ---
+> 
+> รบกวนช่วยอัปเดต 3 ข้อแรกเป็นหลักนะคะ แล้ว push commit ขึ้นมา ping เรียกได้เลย เดี๋ยวจะรีบเข้ามาตรวจและกด **Approve** ให้ทันทีเลยค่ะ ขอบคุณมากค่ะ
+
+#### 💬 Author Response by @jejaebubu (commit `2182896`)
+- **Response Date:** 2026-11-02
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณ @titayaaa มากค่ะ สำหรับการตรวจทานและข้อเสนอแนะ แก้ไขครบทั้ง 4 จุดแล้วใน commit `2182896` ค่ะ
+> 
+> 1. **เพิ่มลิงก์ GitHub PR #114 ใน Master Review Table (`docs/lab-04/reviewer.md`)**
+>    - อัปเดตแถว `PR-10` ใน Section 2 ให้มีลิงก์ PR #114 เรียบร้อยแล้วค่ะ
+> 2. **เพิ่ม PR URL ใน Section 3.10 (`docs/lab-04/reviewer.md`)**
+>    - เพิ่มลิงก์ PR #114 พร้อมบันทึก Review Log รอบที่ 1 และ Author Response ให้ครบถ้วนแล้วค่ะ
+> 3. **เพิ่มเลข PR ในตารางสรุปผลการทดสอบ (`docs/lab-04/tests.md`)**
+>    - อัปเดตสถานะของ `PR-10` เป็น `Pass (PR #114, review pending)` เพื่อให้เห็นชัดเจนว่าแก้ไขและทดสอบผ่านแล้ว แต่ยังรอการ Review อยู่ค่ะ
+> 4. **เพิ่มการทดสอบ Dynamic `aria-required` ของช่อง Result (`ActionsTaken.test.tsx`)**
+>    - เพิ่มขั้นตอนเลือกสถานะ `COMPLETED` ในเคส `A11Y-01` แล้วตรวจสอบว่าช่อง `action-result` เปลี่ยนเป็น `aria-required="true"` ตาม BR-16 เรียบร้อยแล้วค่ะ โดย Unit Tests ผ่านครบทุกเคส
+> 5. **เตรียมงานสำหรับ PR-11**
+>    - รับทราบเรื่องการอัปเดต `ai-use.md` และ `README.md` ใน PR-11 (Sprint 4 Documentation and Release) แล้วค่ะ
+> 
+> รบกวน @titayaaa ช่วยตรวจสอบการแก้ไขรอบที่ 2 อีกครั้งนะคะ ขอบคุณมากค่ะ
+
+#### 💬 Round 2 Review by @titayaaa (Approved)
+- **Review Date:** 2026-11-02
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ขอบคุณ @jejaebubu ที่ดำเนินการแก้ไขปรับปรุงครบถ้วนสมบูรณ์ทั้งประเด็นเอกสาร ลิงก์ PR และการเพิ่มเคสทดสอบ dynamic validation ใน commit `2182896` อย่างรวดเร็วและประณีตมากค่ะ ตรวจสอบโค้ดและเอกสารซ้ำอย่างละเอียดแล้ว:
+> 
+> 1. **ความสมบูรณ์ของเอกสารและลิงก์ PR (Required 1 & 2)**:
+>    - เพิ่มลิงก์ `[GitHub #114](https://github.com/jejaebubu/toktickit/pull/114)` ในตาราง Section 2 และระบุ `- **PR URL:**` ใน Section 3.10 ของ `docs/lab-04/reviewer.md` ครบถ้วนตามมาตรฐานเดียวกันกับทุก PR ก่อนหน้า
+>    - บันทึก Review Log รอบที่ 1 และ Author Response ไว้อย่างเป็นระเบียบและโปร่งใส
+> 2. **ความสอดคล้องของตารางสรุปผลการทดสอบ (Required 3)**:
+>    - อัปเดตตารางสรุปใน `docs/lab-04/tests.md` แถว `PR-10` เป็น `**Pass** (PR #114, review pending)` ถูกต้องเรียบร้อย
+> 3. **Dynamic `aria-required="true"` Verification (`ActionsTaken.test.tsx` — Minor 4)**:
+>    - เพิ่มขั้นตอนการเลือกสถานะ `COMPLETED` ใน `action-status` แล้ว assert ตรวจสอบว่าช่อง `action-result` เปลี่ยนเป็น `aria-required="true"` ในเคส `A11Y-01` ได้อย่างรัดกุมและสมบูรณ์แบบ 100%
+> 4. **ความสมบูรณ์ของ Artifacts & Viewports**:
+>    - ภาพ Full Page Screenshots ครบทั้ง 24 ภาพใน `artifacts/lab-04/screenshots/` ครอบคลุมทั้ง 3 Viewports (Desktop, Tablet, Mobile)
+>    - ปราศจากปัญหา Horizontal Overflow และเป็นไปตามมาตรฐานการออกแบบ Zen Green และ WCAG 2.1 AA
+> 
+> ภาพรวมของโค้ด ชุดทดสอบ และเอกสารมีคุณภาพสูงมาก ยอดเยี่ยมมากค่ะ ขออนุมัติ (**Approve**) ให้ทันที และพร้อมให้ดำเนินการ Merge เข้าสู่สาขา `lab4-staging` ได้เลยค่ะ!
+
+#### 💬 Merge Event by Reviewer @titayaaa
+- **Merged PR URL:** [jejaebubu/toktickit#114](https://github.com/jejaebubu/toktickit/pull/114)
+- **Merged by:** `@titayaaa` (Peer Reviewer)
+- **Target Branch:** `lab4-staging`
+- **Merge Commit SHA:** `d785a4c1d15da60c1e4aaec80f5077b030e3fe0c`
+- **Merged At:** 2026-11-02 15:46 UTC+7
+- **Status:** ✅ Merged successfully — **Closes #10 / #102**
+
+---
+
+### PR #115: PR-11: Sprint 4 Documentation and Release Integration to Main (Issue #11)
+- **PR URL:** [jejaebubu/toktickit#115](https://github.com/jejaebubu/toktickit/pull/115)
+- **Branch:** `release/lab04-staging-to-main` → `main`
+- **Author:** `@jejaebubu`
+- **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
+- **Target Branch:** `main`
+- **Current Status:** ⏳ Pending Review
+- **Scope & Objectives:**
+  - Release Integration for Sprint 4 (Lab 4) to promote `release/lab04-staging-to-main` into `main` after all 10 feature PRs (PR-01 through PR-10) are merged.
+  - Complete verification (235/235 tests passed - Server 112, Client 96, Playwright 27 runs across Desktop, Tablet, Mobile).
+  - Sprint 4 Documentation finalized: `README.md`, `docs/lab-04/ai-use.md`, `docs/lab-04/reviewer.md`, `docs/lab-04/tests.md`.
+

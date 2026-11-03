@@ -55,6 +55,9 @@
 ### Prompt 15: Playwright E2E Test Suites, Responsive Viewport Audits & Visual Evidence (Issue 35)
 > "Execute Playwright End-to-End test suites (`e2e/lab-04/*.spec.ts`) covering the full Actions Taken lifecycle (`actions-taken-flow.spec.ts`), Resolution Gate enforcement and advisory indicators (`ticket-resolution.spec.ts`), and operational dashboards drill-downs (`dashboards.spec.ts`) across 3 responsive viewports: Desktop (1280×800), Tablet (820×1180), and Mobile (393×851). Capture 24 visual evidence screenshots in `artifacts/lab-04/screenshots/` verifying zero horizontal overflow (`expectNoHorizontalOverflow`), WCAG 2.1 AA touch target standards (>= 44px), and Zen Green design tokens. Update traceability matrix in `tests.md` and review logs in `reviewer.md`."
 
+### Prompt 16: Release Integration, Staging-to-Main PR & Final Report (Issue 36)
+> "Finalize Sprint 4 release integration: verify merge of PR #83 into `lab4-staging`, establish release branch `release/lab04-staging-to-main`, synchronize and validate full regression passes across client and server suites, verify zero compiler errors across `tsc` and `vite build`, update `README.md`, `reviewer.md`, and `ai-use.md`, and open PR-10 from `release/lab04-staging-to-main` into `main` closing Issue #72."
+
 ---
 
 ## 3. Reflection on AI Agent Pairing (Specification & DB Evolution Phase)
@@ -119,5 +122,12 @@ During Issue 35, pairing with AI guided the end-to-end test execution and visual
 - **Responsive Viewport Fidelity & Zero Overflow:** Validating `expectNoHorizontalOverflow` across 1280px (Desktop), 820px (Tablet), and 393px (Mobile) confirmed that flexbox layouts, card stacks, and text badges wrap cleanly without clipped content or horizontal page scrolling on constrained mobile screens.
 - **Touch Target & Accessibility Standards (WCAG 2.1 AA):** Inspecting interactive elements confirmed all buttons, navigation toggles, and metric cards satisfy the minimum 44×44px touch target requirement, with semantic ARIA attributes providing clear screen reader cues.
 - **Authoritative Visual Evidence:** Capturing 24 high-resolution visual evidence screenshots across all responsive form factors establishes a permanent, verifiable audit trail demonstrating full compliance with TokTickIT Zen Green design specifications.
+
+### 3.10 Release Integration & Staging-to-Main Documentation Reflection (Issue 36)
+During Issue 36, pairing with AI guided the end-to-end release consolidation and final increment promotion:
+- **Traceable Peer Review & Release Governance:** Establishing structured records in `docs/lab-04/reviewer.md` documenting both upstream review of partner PRs (`PR-01` through `PR-11`) and downstream collaborator approvals guarantees 100% compliance with course governance standards and avoids premature or unverified merges.
+- **Production Readiness & Build Verification:** Enforcing clean TypeScript type checking and Vite bundler execution across both client and server projects ensures that the integrated codebase is completely free of compiler warnings, broken imports, or missing dependencies.
+- **Comprehensive Documentation Alignment:** Synchronizing architectural descriptions, test execution instructions, and directory structures across `README.md`, `tests.md`, and `reviewer.md` ensures that external evaluators and maintainers can clone, configure, and verify the full system with zero ambiguity.
+
 
 

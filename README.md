@@ -43,24 +43,27 @@ TokTickIT is a full-stack IT service desk web application built with **React (Ty
 toktickit/
 ├── artifacts/
 │   ├── lab-02/screenshots/     # Lab 2 visual regression screenshots
-│   └── lab-03/screenshots/     # Lab 3 responsive visual inspection evidence
+│   ├── lab-03/screenshots/     # Lab 3 responsive visual inspection evidence
+│   └── lab-04/screenshots/     # Lab 4 multi-viewport responsive evidence (24 screenshots)
 ├── client/                     # React + Vite + Bootstrap frontend
 │   ├── src/
-│   │   ├── components/         # UI Components (Login, Queue, Operations, Admin, etc.)
+│   │   ├── components/         # UI Components (Login, Queue, ActionsTaken, Dashboards, Admin, etc.)
 │   │   ├── contexts/           # AuthContext & RequesterContext
-│   │   └── test/               # Vitest UI unit/integration tests (lab-02 & lab-03)
+│   │   └── test/               # Vitest UI unit/integration tests (lab-02, lab-03 & lab-04)
 │   └── vite.config.ts
 ├── server/                     # Express + Prisma backend
 │   ├── prisma/                 # Schema, migrations, and idempotent seed script
-│   ├── src/                    # API endpoints and logic (auth, staff, tickets, admin)
-│   └── tests/                  # Supertest API tests (lab-01, lab-02 & lab-03)
+│   ├── src/                    # API endpoints and logic (auth, staff, tickets, actions, dashboards, admin)
+│   └── tests/                  # Supertest API tests (lab-01, lab-02, lab-03 & lab-04)
 ├── e2e/                        # Playwright E2E test suites & visual snapshots
 │   ├── lab-02/                 # Full requester ticket journey & visual regression
-│   └── lab-03/                 # Auth, Staff Queue, User Admin & Visual audit specs
+│   ├── lab-03/                 # Auth, Staff Queue, User Admin & Visual audit specs
+│   └── lab-04/                 # Actions Taken lifecycle, Resolution Gate, and Dashboard E2E flows
 ├── docs/                       # Specifications, test plans, AI reflection, and peer reviews
 │   ├── lab-01/
 │   ├── lab-02/
-│   └── lab-03/
+│   ├── lab-03/
+│   └── lab-04/
 ├── docker-compose.yml          # PostgreSQL container definition
 └── playwright.config.ts        # Playwright multi-viewport configuration
 ```
@@ -137,6 +140,28 @@ npm run dev
 
 ---
 
+## 🚀 Lab 4 Features Overview
+
+- **Actions Taken Sub-system**:
+  - Complete lifecycle tracking with `ActionTaken` model, status enum (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`).
+  - Strict input validation: mandatory result when marked `COMPLETED` (BR-16), mandatory follow-up notes when follow-up is required (BR-07).
+  - Multi-staff collaborative execution on a single ticket with immutable creator audit trail (`performedById`).
+  - Read-only data isolation for requesters (FR-07, AC-04) with strict 404 Not Found on unowned tickets.
+- **Workflow State Machine & Resolution Gate**:
+  - Strict 9-state transition matrix enforcing valid lifecycle steps.
+  - **Resolution Gate (BR-09)**: Prevents resolving tickets if any active `PENDING` or `IN_PROGRESS` actions exist, rejecting via HTTP `409 Conflict`.
+  - Non-blocking Requester Advisory Flag ("My problem is resolved") indicating user satisfaction without prematurely modifying ticket status.
+  - Optimistic concurrency protection (`expectedUpdatedAt`) preventing race conditions during concurrent updates.
+- **Operational Dashboards**:
+  - **IT Staff Dashboard**: 5 operational metric cards (Open, Urgent/High, Breached/At Risk SLA, Unassigned, Pending Actions), recent ticket activity table, and interactive quick-filter drill-downs into Ticket Queue.
+  - **Requester Dashboard**: 4 personal metric cards (My Open, Awaiting Staff Action, Recent Updates, Resolved), attention-needed table, and direct actions to submit new requests.
+- **Accessibility & Zen Green Design System**:
+  - Mobile, tablet, and desktop responsive layouts with zero horizontal page overflow.
+  - WCAG 2.1 AA accessibility compliance: minimum 44×44px touch targets, visible focus outlines, and dynamic ARIA attributes.
+  - 24 comprehensive multi-viewport visual evidence screenshots captured in `artifacts/lab-04/screenshots/`.
+
+---
+
 ## 🧪 Running Tests
 
 ### Client UI Tests (Vitest)
@@ -144,21 +169,21 @@ npm run dev
 cd client
 npm test
 ```
-*Runs all 56 client unit and component tests (100% pass rate).*
+*Runs all 81 client unit and component tests (100% pass rate).*
 
 ### Server API Tests (Supertest / Vitest)
 ```bash
 cd server
 npm test
 ```
-*Runs all 124 server API and integration tests (100% pass rate).*
+*Runs all 112 server API and integration tests (100% pass rate).*
 
 ### End-to-End Tests & Visual Inspection (Playwright)
 ```bash
-# Run all Lab 3 End-to-End test suites
-npx playwright test e2e/lab-03
+# Run all Lab 4 End-to-End test suites
+npx playwright test e2e/lab-04
 
-# Run standalone visual evidence and style audit
-npx playwright test e2e/lab-03/visual-evidence.spec.ts
+# Run all regression E2E test suites (Lab 2, 3, and 4)
+npx playwright test
 ```
-*Executes tests across Desktop, Tablet, and Mobile viewports and saves visual evidence screenshots to `artifacts/lab-03/screenshots/`.*
+*Executes suites across Desktop (1280×800), Tablet (820×1180), and Mobile (393×851) viewports and saves visual evidence screenshots to `artifacts/lab-04/screenshots/`.*
