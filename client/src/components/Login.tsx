@@ -44,6 +44,7 @@ export const Login: React.FC = () => {
       }}
     >
       <div
+        data-testid="login-card"
         style={{
           width: '100%',
           maxWidth: '420px',
@@ -118,6 +119,7 @@ export const Login: React.FC = () => {
             </label>
             <input
               id="email"
+              data-testid="login-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -149,6 +151,7 @@ export const Login: React.FC = () => {
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input
                 id="password"
+                data-testid="login-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -191,6 +194,7 @@ export const Login: React.FC = () => {
 
           <button
             type="submit"
+            data-testid="login-submit"
             disabled={isSubmitting}
             style={{
               marginTop: '8px',

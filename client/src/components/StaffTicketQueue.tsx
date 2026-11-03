@@ -33,9 +33,18 @@ export interface StaffTicketItem {
   };
 }
 
-interface StaffTicketQueueProps {
+export interface StaffQueueInitialFilters {
+  status?: string;
+  ownerFilter?: 'all' | 'unassigned' | 'me';
+  itPriority?: string;
+  search?: string;
+  category?: string;
+}
+
+export interface StaffTicketQueueProps {
   categories?: Category[];
   onSelectTicket: (ticketId: number) => void;
+  initialFilters?: StaffQueueInitialFilters;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
@@ -58,7 +67,7 @@ const PRIORITY_CONFIG: Record<string, { label: string; bg: string; color: string
   LOW: { label: 'Low', bg: '#E8F5E9', color: '#2E7D32', border: '1px solid #C8E6C9' },
 };
 
-const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], onSelectTicket }) => {
+const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], onSelectTicket, initialFilters }) => {
   const { user } = useAuth();
 
   const [tickets, setTickets] = useState<StaffTicketItem[]>([]);
@@ -66,12 +75,26 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
   const [error, setError] = useState<string | null>(null);
 
   // Search & Filter state
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [activeSearch, setActiveSearch] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
-  const [selectedItPriority, setSelectedItPriority] = useState<string>('');
-  const [ownerFilter, setOwnerFilter] = useState<'all' | 'unassigned' | 'me'>('all');
+  const [searchTerm, setSearchTerm] = useState<string>(initialFilters?.search || '');
+  const [activeSearch, setActiveSearch] = useState<string>(initialFilters?.search || '');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialFilters?.category || '');
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialFilters?.status || '');
+  const [selectedItPriority, setSelectedItPriority] = useState<string>(initialFilters?.itPriority || '');
+  const [ownerFilter, setOwnerFilter] = useState<'all' | 'unassigned' | 'me'>(initialFilters?.ownerFilter || 'all');
+
+  useEffect(() => {
+    if (initialFilters) {
+      if (initialFilters.status !== undefined) setSelectedStatus(initialFilters.status);
+      if (initialFilters.ownerFilter !== undefined) setOwnerFilter(initialFilters.ownerFilter);
+      if (initialFilters.itPriority !== undefined) setSelectedItPriority(initialFilters.itPriority);
+      if (initialFilters.search !== undefined) {
+        setSearchTerm(initialFilters.search);
+        setActiveSearch(initialFilters.search);
+      }
+      if (initialFilters.category !== undefined) setSelectedCategory(initialFilters.category);
+      setPage(1);
+    }
+  }, [initialFilters]);
 
   // Sorting state
   const [sortBy, setSortBy] = useState<string>('createdAt');
@@ -233,8 +256,14 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: '240px', borderColor: '#DCE3DE' }}
             aria-label="Search tickets"
+            data-testid="queue-search"
           />
-          <button type="submit" className="btn btn-sm btn-success" style={{ backgroundColor: '#006B3C' }}>
+          <button
+            type="submit"
+            className="btn btn-sm btn-success"
+            style={{ backgroundColor: '#006B3C' }}
+            data-testid="queue-search-btn"
+          >
             Search
           </button>
         </form>
@@ -258,6 +287,7 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
                   setPage(1);
                 }}
                 aria-label="Filter by status"
+                data-testid="queue-filter-status"
               >
                 <option value="">All Statuses</option>
                 <option value="NEW">New</option>
@@ -498,6 +528,7 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
                         key={t.id}
                         style={{ cursor: 'pointer', transition: 'background-color 0.15s' }}
                         onClick={() => onSelectTicket(t.id)}
+                        data-testid={`queue-row-${t.id}`}
                       >
                         <td className="fw-bold font-monospace" style={{ color: '#006B3C' }}>
                           <button
@@ -631,6 +662,7 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
                   className="card p-3 shadow-sm border"
                   style={{ borderColor: '#DCE3DE', cursor: 'pointer' }}
                   onClick={() => onSelectTicket(t.id)}
+                  data-testid={`queue-card-${t.id}`}
                 >
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <span className="fw-bold font-monospace" style={{ color: '#006B3C' }}>

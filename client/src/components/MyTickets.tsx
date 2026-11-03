@@ -26,9 +26,10 @@ interface MyTicketsProps {
   categories: Category[];
   onNavigateToCreate: () => void;
   onSelectTicket?: (ticketId: number) => void;
+  initialStatus?: string;
 }
 
-const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, onSelectTicket }) => {
+const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, onSelectTicket, initialStatus }) => {
   const { selectedRequester } = useRequester();
 
   const [tickets, setTickets] = useState<TicketItem[]>([]);
@@ -39,8 +40,15 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeSearch, setActiveSearch] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatus || '');
   const [selectedPriority, setSelectedPriority] = useState<string>('');
+
+  useEffect(() => {
+    if (initialStatus !== undefined) {
+      setSelectedStatus(initialStatus);
+      setPage(1);
+    }
+  }, [initialStatus]);
   
   // Sort states (default: createdAt desc)
   const [sortOption, setSortOption] = useState<string>('createdAt_desc');
@@ -201,7 +209,7 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
   };
 
   return (
-    <div className="card shadow-sm border-0 mt-4">
+    <div className="card shadow-sm border-0 mt-4" data-testid="my-tickets-card">
       <div className="card-body p-4">
         {/* Header with Title and Create Button */}
         <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
@@ -233,11 +241,13 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   aria-label="Search tickets"
+                  data-testid="my-tickets-search"
                 />
                 <button
                   className="btn btn-outline-secondary"
                   type="submit"
                   aria-label="Submit search"
+                  data-testid="my-tickets-search-btn"
                 >
                   Search
                 </button>
@@ -288,14 +298,18 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
                   setPage(1);
                 }}
                 aria-label="Filter by Status"
+                data-testid="my-tickets-filter-status"
               >
                 <option value="">All Statuses</option>
                 <option value="NEW">New</option>
                 <option value="OPEN">Open</option>
                 <option value="IN_PROGRESS">In Progress</option>
+                <option value="WAITING_FOR_REQUESTER">Waiting for Requester</option>
                 <option value="PENDING">Pending</option>
                 <option value="RESOLVED">Resolved</option>
                 <option value="CLOSED">Closed</option>
+                <option value="REOPENED">Reopened</option>
+                <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
 
@@ -444,6 +458,7 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
                           key={ticket.id}
                           className={onSelectTicket ? 'clickable-row' : ''}
                           onClick={() => onSelectTicket?.(ticket.id)}
+                          data-testid={`my-tickets-row-${ticket.id}`}
                           tabIndex={onSelectTicket ? 0 : undefined}
                           role={onSelectTicket ? 'button' : undefined}
                           aria-label={onSelectTicket ? `View details for ticket ${ticket.ticketNumber}` : undefined}
@@ -505,6 +520,7 @@ const MyTickets: React.FC<MyTicketsProps> = ({ categories, onNavigateToCreate, o
                       key={ticket.id}
                       className={`ticket-mobile-card p-3 mb-3 ${onSelectTicket ? 'clickable-card' : ''}`}
                       onClick={() => onSelectTicket?.(ticket.id)}
+                      data-testid={`my-tickets-card-${ticket.id}`}
                       tabIndex={onSelectTicket ? 0 : undefined}
                       role={onSelectTicket ? 'button' : undefined}
                       aria-label={onSelectTicket ? `View details for ticket ${ticket.ticketNumber}` : undefined}

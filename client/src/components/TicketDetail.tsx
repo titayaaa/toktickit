@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRequester } from '../contexts/RequesterContext';
 import { useAuth } from '../contexts/AuthContext';
 import { AttachmentSection, AttachmentItem } from './AttachmentSection';
+import { ActionsTaken, ActionTakenItem } from './ActionsTaken';
 
 export interface PublicCommentItem {
   id: number;
@@ -60,6 +61,8 @@ export interface TicketDetailData {
   relatedSystem?: { id: number; name: string } | null;
   attachments: AttachmentItem[];
   publicComments?: PublicCommentItem[];
+  actionsTaken?: ActionTakenItem[];
+  requesterIndicatedResolved?: boolean;
 }
 
 interface TicketDetailProps {
@@ -320,11 +323,21 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       const res = await fetch(`/api/staff/tickets/${ticketId}/status`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ status: targetStatus }),
+        body: JSON.stringify({
+          status: targetStatus,
+          expectedUpdatedAt: ticket?.updatedAt,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setOperationMessage({ type: 'danger', text: data.error || 'Failed to update status' });
+        if (res.status === 409 && data.code === 'STALE_UPDATE_CONFLICT') {
+          setOperationMessage({
+            type: 'danger',
+            text: '⚠️ Conflict: This ticket has been modified by another user. Please refresh and try again.',
+          });
+        } else {
+          setOperationMessage({ type: 'danger', text: data.error || 'Failed to update status' });
+        }
       } else {
         setOperationMessage({ type: 'success', text: `Status updated to ${targetStatus}` });
         await fetchTicketDetail();
@@ -350,11 +363,28 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       const res = await fetch(`/api/staff/tickets/${ticketId}/resolve`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ resolutionSummary: trimmed }),
+        body: JSON.stringify({
+          resolutionSummary: trimmed,
+          expectedUpdatedAt: ticket?.updatedAt,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setResolveError(data.error || 'Failed to resolve ticket');
+        if (res.status === 409) {
+          if (data.code === 'RESOLUTION_GATE_BLOCKED') {
+            setResolveError(
+              `Resolution Gate Blocked: ${data.error || 'Cannot resolve ticket while unresolved actions exist.'}`
+            );
+          } else if (data.code === 'STALE_UPDATE_CONFLICT') {
+            setResolveError(
+              'Conflict: This ticket has been modified by another user. Please refresh and try again.'
+            );
+          } else {
+            setResolveError(data.error || 'Conflict occurred while resolving ticket.');
+          }
+        } else {
+          setResolveError(data.error || 'Failed to resolve ticket');
+        }
       } else {
         setShowResolveModal(false);
         setOperationMessage({ type: 'success', text: 'Ticket resolved successfully' });
@@ -452,7 +482,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       case 'RESOLVED':
         return ['CLOSED', 'REOPENED'];
       case 'REOPENED':
-        return ['IN_PROGRESS', 'RESOLVED', 'CANCELLED'];
+        return ['IN_PROGRESS', 'PENDING', 'RESOLVED', 'CANCELLED'];
       default:
         return [];
     }
@@ -627,8 +657,13 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
   const isResolved = currentTicketStatus === 'RESOLVED';
   const allowedNextStatuses = getAllowedNextStatuses(currentTicketStatus);
 
+  const activeActionsCount = (ticket.actionsTaken || []).filter(
+    (a) => a.status === 'PENDING' || a.status === 'IN_PROGRESS'
+  ).length;
+  const hasPendingActions = activeActionsCount > 0;
+
   return (
-    <div className="ticket-detail-container" data-testid="ticket-detail-view">
+    <div className="ticket-detail-container" data-testid="ticket-detail-view" id="ticket-detail">
       {/* Back Navigation Button */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button
@@ -652,6 +687,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
         <div
           className={`alert alert-${operationMessage.type} alert-dismissible fade show mb-4`}
           role="alert"
+          data-testid="detail-notice"
         >
           {operationMessage.text}
           <button
@@ -664,7 +700,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       )}
 
       {/* Main Ticket Card */}
-      <div className="zen-card p-4 mb-4">
+      <div className="zen-card p-4 mb-4" data-testid="staff-detail-card">
         {/* Header Bar */}
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 border-bottom pb-3 mb-4">
           <div>
@@ -680,7 +716,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
               )}`}
               data-testid="ticket-status-badge"
             >
-              Status: {currentTicketStatus}
+              Status: <span data-testid="detail-status">{currentTicketStatus}</span>
             </span>
             <span
               className={`badge px-3 py-2 rounded-pill fs-6 ${getPriorityBadgeClass(
@@ -706,6 +742,25 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
               </span>
             </div>
 
+            {hasPendingActions && !isTerminal && !isResolved && (
+              <div
+                className="alert alert-warning py-2 px-3 small d-flex align-items-center gap-2 mb-3"
+                data-testid="resolution-gate-warning"
+                role="alert"
+              >
+                <span className="fs-5">⚠️</span>
+                <div>
+                  <strong>Resolution Gate Active:</strong> This ticket has{' '}
+                  <span className="badge bg-warning text-dark">{activeActionsCount}</span> active action(s) in progress ({' '}
+                  {(ticket.actionsTaken || [])
+                    .filter((a) => a.status === 'PENDING' || a.status === 'IN_PROGRESS')
+                    .map((a) => a.status)
+                    .join(', ')}{' '}
+                  ). All actions must be completed or cancelled before resolving.
+                </div>
+              </div>
+            )}
+
             <div className="row g-3 align-items-end">
               {/* Claim Action */}
               <div className="col-12 col-sm-6 col-md-3">
@@ -716,6 +771,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     className="btn btn-outline-success btn-sm w-100 fw-semibold"
                     onClick={handleClaim}
                     disabled={isPerformingOp || ticket.ownerId === user?.id}
+                    data-testid="detail-claim"
                     title={
                       ticket.ownerId === user?.id
                         ? 'You already own this ticket'
@@ -741,6 +797,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     handleAssign(val ? parseInt(val, 10) : null);
                   }}
                   disabled={isPerformingOp}
+                  data-testid="assign-owner-select"
                 >
                   <option value="">-- Unassigned --</option>
                   {staffUsers.map((su) => (
@@ -762,6 +819,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                   value={ticket.itPriority || ticket.requestedPriority}
                   onChange={(e) => handlePriorityChange(e.target.value)}
                   disabled={isPerformingOp || isTerminal}
+                  data-testid="it-priority-select"
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
@@ -776,7 +834,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                 <label htmlFor="status-transition-select" className="form-label small text-muted mb-1">
                   Change Status
                 </label>
-                <div className="d-flex gap-1">
+                <div className="d-flex gap-1 flex-wrap">
                   <select
                     id="status-transition-select"
                     className="form-select form-select-sm"
@@ -788,6 +846,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                       }
                     }}
                     disabled={isPerformingOp || isTerminal || allowedNextStatuses.length === 0}
+                    data-testid="status-transition-select"
                   >
                     <option value="" disabled>
                       {allowedNextStatuses.length === 0 ? 'Terminal (No Changes)' : 'Transition to...'}
@@ -798,6 +857,18 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                       </option>
                     ))}
                   </select>
+
+                  {/* Dedicated In Progress Transition Button for E2E Flow */}
+                  {allowedNextStatuses.includes('IN_PROGRESS') && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm text-nowrap fw-semibold px-2"
+                      onClick={() => handleStatusChange('IN_PROGRESS')}
+                      data-testid="workflow-transition-in-progress"
+                    >
+                      In Progress
+                    </button>
+                  )}
 
                   {/* Quick Resolve Button */}
                   {allowedNextStatuses.includes('RESOLVED') && (
@@ -810,6 +881,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                         setShowResolveModal(true);
                       }}
                       title="Resolve Ticket"
+                      data-testid="workflow-resolve-btn"
                     >
                       Resolve
                     </button>
@@ -896,7 +968,10 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
 
         {/* Requester "Problem Appears Resolved" Section (For Requesters on active tickets) */}
         {!isStaffOrAdmin && !isTerminal && !isResolved && (
-          <div className="p-3 mb-4 rounded border bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div
+            className="p-3 mb-4 rounded border bg-light d-flex flex-wrap justify-content-between align-items-center gap-2"
+            data-testid="requester-resolution-gate"
+          >
             <div>
               <div className="fw-bold text-dark small mb-1">Does the problem appear resolved?</div>
               <div className="text-muted small">
@@ -909,6 +984,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                 className="btn btn-outline-success btn-sm fw-semibold"
                 onClick={handleResolveIndication}
                 disabled={isSubmittingIndication || hasIndicatedResolved}
+                data-testid="requester-indicate-resolved-btn"
               >
                 {hasIndicatedResolved
                   ? '✓ Indicated as Resolved'
@@ -917,6 +993,37 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
             </div>
           </div>
         )}
+
+        {/* Requester Indicated Advisory Banner */}
+        {hasIndicatedResolved && (
+          <div className="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3" data-testid="requester-resolved-advisory">
+            <span data-testid="requester-resolved-advisory-badge">
+              Requester indicated problem resolved - Pending Staff Review
+            </span>
+          </div>
+        )}
+
+        {/* Staff-Side Requester Resolved Intent Advisory Banner */}
+        {isStaffOrAdmin && (hasIndicatedResolved || ticket.requesterIndicatedResolved) && (
+          <div className="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3" data-testid="detail-resolved-intent">
+            <span data-testid="staff-resolved-advisory-badge">
+              Requester indicated problem resolved - Pending Staff Review
+            </span>
+          </div>
+        )}
+
+        {/* Actions Taken Section */}
+        <div className="border-top pt-4 mb-4">
+          <ActionsTaken
+            ticketId={ticket.id}
+            actions={ticket.actionsTaken || []}
+            currentUserRole={user?.role}
+            currentUserId={user?.id}
+            onActionsChange={(updatedActions) => {
+              setTicket((prev) => (prev ? { ...prev, actionsTaken: updatedActions } : prev));
+            }}
+          />
+        </div>
 
         {/* Attachments Section */}
         <div className="border-top pt-4 mb-4">
@@ -1098,7 +1205,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
           aria-modal="true"
         >
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow">
+            <div className="modal-content border-0 shadow" data-testid="resolution-gate-modal">
               <div className="modal-header bg-pale-green text-primary-green">
                 <h5 className="modal-title fw-bold">Resolve Ticket {ticket.ticketNumber}</h5>
                 <button
@@ -1114,8 +1221,21 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                   Please provide a clear, detailed explanation of how this issue was resolved. This resolution summary is mandatory (3–500 characters) and will be visible to the requester.
                 </p>
 
+                {hasPendingActions && (
+                  <div
+                    className="alert alert-warning small py-2 mb-3 d-flex align-items-start gap-2"
+                    data-testid="modal-resolution-gate-warning"
+                    role="alert"
+                  >
+                    <span className="fs-6">⚠️</span>
+                    <div data-testid="resolution-gate-modal-message">
+                      <strong>Active Actions Detected:</strong> This ticket still has {activeActionsCount} unresolved action(s). Complete or cancel them before resolving the ticket.
+                    </div>
+                  </div>
+                )}
+
                 {resolveError && (
-                  <div className="alert alert-danger small py-2 mb-3" role="alert">
+                  <div className="alert alert-danger small py-2 mb-3" role="alert" data-testid="resolve-error-alert">
                     {resolveError}
                   </div>
                 )}
@@ -1166,6 +1286,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     resolutionInput.trim().length < 3 ||
                     resolutionInput.trim().length > 500
                   }
+                  data-testid="resolution-gate-confirm"
                 >
                   {isResolving ? 'Resolving...' : 'Confirm Resolution'}
                 </button>

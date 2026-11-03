@@ -1,4 +1,4 @@
-import { PrismaClient, Role, TicketPriority, TicketStatus } from '@prisma/client';
+import { ActionTakenStatus, PrismaClient, Role, TicketPriority, TicketStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -232,13 +232,17 @@ async function main() {
   const staffAlice = await prisma.user.findUnique({ where: { email: 'staff.alice@toktickit.com' } });
   const staffBob = await prisma.user.findUnique({ where: { email: 'staff.bob@toktickit.com' } });
 
+  const reqJennifer = await prisma.requesterUser.findUnique({ where: { email: 'jennifer.anderson@example.com' } });
+  const reqMichael = await prisma.requesterUser.findUnique({ where: { email: 'michael.brown@example.com' } });
+  const reqSarah = await prisma.requesterUser.findUnique({ where: { email: 'sarah.johnson@example.com' } });
+
   if (jennifer && staffAlice && catNetwork && sysVpn) {
     const ticket1 = await prisma.ticket.upsert({
       where: { ticketNumber: 'TKT-2026-000101' },
       update: {},
       create: {
         ticketNumber: 'TKT-2026-000101',
-        requesterId: 1,
+        requesterId: reqJennifer?.id ?? 1,
         userId: jennifer.id,
         categoryId: catNetwork.id,
         relatedSystemId: sysVpn.id,
@@ -288,12 +292,12 @@ async function main() {
   }
 
   if (michael && staffBob && catHardware && sysLaptop) {
-    await prisma.ticket.upsert({
+    const ticket2 = await prisma.ticket.upsert({
       where: { ticketNumber: 'TKT-2026-000102' },
       update: {},
       create: {
         ticketNumber: 'TKT-2026-000102',
-        requesterId: 2,
+        requesterId: reqMichael?.id ?? 2,
         userId: michael.id,
         categoryId: catHardware.id,
         relatedSystemId: sysLaptop.id,
@@ -306,7 +310,199 @@ async function main() {
         ownerId: staffBob.id,
       },
     });
+
+    // Seed completed Action Taken for ticket 2
+    await prisma.actionTaken.upsert({
+      where: { id: 1 },
+      update: {},
+      create: {
+        id: 1,
+        ticketId: ticket2.id,
+        performedById: staffBob.id,
+        assigneeId: staffBob.id,
+        actionDateTime: new Date('2026-10-28T14:30:00Z'),
+        actionDescription: 'Ran hardware battery diagnostics and verified high cycle count with degraded cell 3.',
+        result: 'Confirmed battery requires physical replacement.',
+        isFollowUpRequired: true,
+        followUpNote: 'Order replacement battery part #BAT-9942 from vendor.',
+        attachmentNotes: 'See battery-diagnostic-report.png in attachments.',
+        status: ActionTakenStatus.COMPLETED,
+      },
+    });
+
+    await prisma.actionTaken.upsert({
+      where: { id: 2 },
+      update: {},
+      create: {
+        id: 2,
+        ticketId: ticket2.id,
+        performedById: staffBob.id,
+        assigneeId: staffBob.id,
+        actionDateTime: new Date('2026-10-29T11:00:00Z'),
+        actionDescription: 'Installed new OEM battery pack and performed full calibration cycle.',
+        result: 'Battery health reading 100% with normal discharge curve.',
+        isFollowUpRequired: false,
+        followUpNote: null,
+        attachmentNotes: null,
+        status: ActionTakenStatus.COMPLETED,
+      },
+    });
   }
+
+  // 3. Seed Lab 4 specific operational tickets for Actions Taken & Dashboard scenarios
+  console.log('Seeding Lab 4 operational tickets and Actions Taken...');
+  const sarah = await prisma.user.findUnique({ where: { email: 'sarah.johnson@example.com' } });
+
+  if (jennifer && staffAlice && staffBob && catNetwork && sysVpn) {
+    // Ticket 3: In Progress with Pending Action (Blocks Resolution Gate)
+    const ticket3 = await prisma.ticket.upsert({
+      where: { ticketNumber: 'TKT-2026-000103' },
+      update: {},
+      create: {
+        ticketNumber: 'TKT-2026-000103',
+        requesterId: reqJennifer?.id ?? 1,
+        userId: jennifer.id,
+        categoryId: catNetwork.id,
+        relatedSystemId: sysVpn.id,
+        summary: 'Intermittent packet loss on campus VPN',
+        description: 'Frequent timeout when connecting to database servers from home.',
+        requestedPriority: TicketPriority.HIGH,
+        itPriority: TicketPriority.URGENT,
+        currentStatus: TicketStatus.IN_PROGRESS,
+        ownerId: staffAlice.id,
+      },
+    });
+
+    // Action 3: Completed initial triage
+    await prisma.actionTaken.upsert({
+      where: { id: 3 },
+      update: {},
+      create: {
+        id: 3,
+        ticketId: ticket3.id,
+        performedById: staffAlice.id,
+        assigneeId: staffAlice.id,
+        actionDateTime: new Date('2026-10-30T09:00:00Z'),
+        actionDescription: 'Traced route from client IP to gateway; noticed 15% packet drop at upstream ISP node.',
+        result: 'Identified routing table misconfiguration.',
+        isFollowUpRequired: true,
+        followUpNote: 'Coordinate with campus network provider for upstream node reset.',
+        attachmentNotes: 'traceroute_log.txt',
+        status: ActionTakenStatus.COMPLETED,
+      },
+    });
+
+    // Action 4: In Progress Action (Assigned to Alice, null result for ongoing in-progress work)
+    await prisma.actionTaken.upsert({
+      where: { id: 4 },
+      update: {
+        result: null,
+      },
+      create: {
+        id: 4,
+        ticketId: ticket3.id,
+        performedById: staffAlice.id,
+        assigneeId: staffAlice.id,
+        actionDateTime: new Date('2026-10-30T10:30:00Z'),
+        actionDescription: 'Re-routing gateway traffic through secondary fiber line.',
+        result: null,
+        isFollowUpRequired: false,
+        followUpNote: null,
+        attachmentNotes: null,
+        status: ActionTakenStatus.IN_PROGRESS,
+      },
+    });
+
+    // Action 5: Pending Action assigned to Bob (Multi-staff collaboration, null result for pending work)
+    await prisma.actionTaken.upsert({
+      where: { id: 5 },
+      update: {
+        result: null,
+      },
+      create: {
+        id: 5,
+        ticketId: ticket3.id,
+        performedById: staffAlice.id,
+        assigneeId: staffBob.id,
+        actionDateTime: new Date('2026-10-30T11:00:00Z'),
+        actionDescription: 'Verify firewall ingress logs for UDP packet drops.',
+        result: null,
+        isFollowUpRequired: false,
+        followUpNote: null,
+        attachmentNotes: null,
+        status: ActionTakenStatus.PENDING,
+      },
+    });
+
+    // Action 6: Cancelled Action (Superseded task)
+    await prisma.actionTaken.upsert({
+      where: { id: 6 },
+      update: {},
+      create: {
+        id: 6,
+        ticketId: ticket3.id,
+        performedById: staffAlice.id,
+        assigneeId: staffAlice.id,
+        actionDateTime: new Date('2026-10-30T11:30:00Z'),
+        actionDescription: 'Collect legacy syslog dumps from older access switch.',
+        result: 'Superseded by secondary fiber switchover; legacy switch dump not needed.',
+        isFollowUpRequired: false,
+        followUpNote: null,
+        attachmentNotes: null,
+        status: ActionTakenStatus.CANCELLED,
+      },
+    });
+  }
+
+  if (sarah && catSoftware && sysLaptop) {
+    // Ticket 4: Unassigned Urgent Ticket (For IT Staff Dashboard Unassigned & Urgent counts)
+    await prisma.ticket.upsert({
+      where: { ticketNumber: 'TKT-2026-000104' },
+      update: {},
+      create: {
+        ticketNumber: 'TKT-2026-000104',
+        requesterId: reqSarah?.id ?? 3,
+        userId: sarah.id,
+        categoryId: catSoftware.id,
+        relatedSystemId: sysLaptop.id,
+        summary: 'BitLocker recovery key prompt on boot',
+        description: 'Employee cannot access laptop after corporate security update.',
+        requestedPriority: TicketPriority.CRITICAL,
+        itPriority: TicketPriority.URGENT,
+        currentStatus: TicketStatus.OPEN,
+        ownerId: null, // Unassigned!
+      },
+    });
+  }
+
+  if (jennifer && catNetwork && sysWifi) {
+    // Ticket 5: Waiting for Requester (For Requester Dashboard attention list)
+    await prisma.ticket.upsert({
+      where: { ticketNumber: 'TKT-2026-000105' },
+      update: {},
+      create: {
+        ticketNumber: 'TKT-2026-000105',
+        requesterId: reqJennifer?.id ?? 1,
+        userId: jennifer.id,
+        categoryId: catNetwork.id,
+        relatedSystemId: sysWifi.id,
+        summary: 'Cannot connect to Eduroam Wi-Fi in building 4',
+        description: 'Authentication times out with certificate error.',
+        requestedPriority: TicketPriority.MEDIUM,
+        itPriority: TicketPriority.MEDIUM,
+        currentStatus: TicketStatus.WAITING_FOR_REQUESTER,
+        ownerId: staffAlice?.id ?? null,
+      },
+    });
+  }
+
+  // 4. Synchronize PostgreSQL serial sequences to prevent duplicate key errors (P2002) on subsequent inserts
+  console.log('Synchronizing PostgreSQL serial sequences...');
+  await prisma.$executeRawUnsafe(`
+    SELECT setval(pg_get_serial_sequence('actions_taken', 'id'), COALESCE((SELECT MAX(id) FROM "actions_taken"), 1));
+    SELECT setval(pg_get_serial_sequence('public_comments', 'id'), COALESCE((SELECT MAX(id) FROM "public_comments"), 1));
+    SELECT setval(pg_get_serial_sequence('internal_notes', 'id'), COALESCE((SELECT MAX(id) FROM "internal_notes"), 1));
+  `);
 
   console.log('Seeding completed successfully!');
 }

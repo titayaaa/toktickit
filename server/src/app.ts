@@ -11,7 +11,8 @@ import authRouter from './routes/auth';
 import staffRouter from './routes/staff';
 import ticketsRouter from './routes/tickets';
 import adminRouter from './routes/admin';
-import { extractToken } from './middleware/auth';
+import requesterRouter from './routes/requester';
+import { extractToken, authenticate, requireRole, AuthRequest } from './middleware/auth';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -26,6 +27,38 @@ app.use('/api/auth', authRouter);
 app.use('/api/staff', staffRouter);
 app.use('/api/tickets', ticketsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/requester', requesterRouter);
+
+// Sprint 4 — Assignable staff for Actions Taken assignment
+app.get(
+  '/api/users/assignable',
+  authenticate,
+  requireRole(Role.IT_STAFF, Role.ADMINISTRATOR),
+  async (_req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const users = await prisma.user.findMany({
+        where: { isActive: true, role: { in: [Role.IT_STAFF, Role.ADMINISTRATOR] } },
+        select: { id: true, fullName: true, email: true, role: true, isActive: true },
+        orderBy: { fullName: 'asc' },
+      });
+      res.status(200).json(users);
+    } catch (_error) {
+      res.status(500).json({ error: 'Failed to fetch assignable staff' });
+    }
+  }
+);
+
+// Sprint 4 (Issue 32) — Route alias for IT Staff Dashboard
+app.use('/api/dashboard/staff', (req, res, next) => {
+  req.url = '/dashboard';
+  staffRouter(req, res, next);
+});
+
+// Sprint 4 (Issue 33) — Route alias for Requester Dashboard
+app.use('/api/dashboard/requester', (req, res, next) => {
+  req.url = '/dashboard';
+  requesterRouter(req, res, next);
+});
 
 
 // Multer configuration for attachments
@@ -496,6 +529,26 @@ app.get('/api/tickets/:id', async (req: Request, res: Response): Promise<void> =
           },
           orderBy: { id: 'asc' },
         },
+        actionsTaken: {
+          select: {
+            id: true,
+            ticketId: true,
+            performedById: true,
+            performedBy: { select: { id: true, fullName: true, email: true, role: true } },
+            assigneeId: true,
+            assignee: { select: { id: true, fullName: true, email: true, role: true } },
+            actionDateTime: true,
+            actionDescription: true,
+            result: true,
+            isFollowUpRequired: true,
+            followUpNote: true,
+            attachmentNotes: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: [{ actionDateTime: 'asc' }, { createdAt: 'asc' }],
+        },
       },
     });
 
@@ -563,6 +616,7 @@ app.get('/api/tickets/:id', async (req: Request, res: Response): Promise<void> =
       relatedSystem: ticket.relatedSystem,
       attachments: ticket.attachments,
       publicComments: ticket.publicComments,
+      actionsTaken: ticket.actionsTaken,
     });
 
   } catch (error) {

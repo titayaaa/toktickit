@@ -499,7 +499,7 @@ router.patch('/tickets/:id/status', async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    const { status } = req.body;
+    const { status, expectedUpdatedAt } = req.body;
     if (!status || typeof status !== 'string') {
       res.status(400).json({ error: 'Missing or invalid status parameter' });
       return;
@@ -521,7 +521,10 @@ router.patch('/tickets/:id/status', async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      include: { actionsTaken: true },
+    });
     if (!ticket) {
       res.status(404).json({ error: 'Ticket not found' });
       return;
@@ -544,6 +547,20 @@ router.patch('/tickets/:id/status', async (req: AuthRequest, res: Response): Pro
       return;
     }
 
+    // Concurrency Check (BR-14)
+    if (expectedUpdatedAt && typeof expectedUpdatedAt === 'string') {
+      const clientTime = new Date(expectedUpdatedAt).getTime();
+      const serverTime = new Date(ticket.updatedAt).getTime();
+      if (!isNaN(clientTime) && Math.abs(clientTime - serverTime) > 1000) {
+        res.status(409).json({
+          error: 'Ticket has been modified by another user. Please refresh and try again.',
+          code: 'STALE_UPDATE_CONFLICT',
+          currentUpdatedAt: ticket.updatedAt.toISOString(),
+        });
+        return;
+      }
+    }
+
     const updated = await prisma.ticket.update({
       where: { id: ticketId },
       data: {
@@ -554,6 +571,7 @@ router.patch('/tickets/:id/status', async (req: AuthRequest, res: Response): Pro
         relatedSystem: true,
         requester: { select: { id: true, fullName: true, email: true } },
         owner: { select: { id: true, fullName: true, email: true } },
+        actionsTaken: true,
       },
     });
 
@@ -571,6 +589,7 @@ router.patch('/tickets/:id/status', async (req: AuthRequest, res: Response): Pro
 /**
  * PATCH /api/staff/tickets/:id/resolve
  * IT Staff / Admin transitions status to RESOLVED with required resolutionSummary (3-500 chars).
+ * Enforces Resolution Gate (BR-09) and Optimistic Concurrency (BR-14).
  */
 router.patch('/tickets/:id/resolve', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -580,7 +599,7 @@ router.patch('/tickets/:id/resolve', async (req: AuthRequest, res: Response): Pr
       return;
     }
 
-    const { resolutionSummary } = req.body;
+    const { resolutionSummary, expectedUpdatedAt } = req.body;
     if (
       !resolutionSummary ||
       typeof resolutionSummary !== 'string' ||
@@ -593,7 +612,10 @@ router.patch('/tickets/:id/resolve', async (req: AuthRequest, res: Response): Pr
       return;
     }
 
-    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      include: { actionsTaken: true },
+    });
     if (!ticket) {
       res.status(404).json({ error: 'Ticket not found' });
       return;
@@ -615,6 +637,38 @@ router.patch('/tickets/:id/resolve', async (req: AuthRequest, res: Response): Pr
       return;
     }
 
+    // Concurrency Check (BR-14)
+    if (expectedUpdatedAt && typeof expectedUpdatedAt === 'string') {
+      const clientTime = new Date(expectedUpdatedAt).getTime();
+      const serverTime = new Date(ticket.updatedAt).getTime();
+      if (!isNaN(clientTime) && Math.abs(clientTime - serverTime) > 1000) {
+        res.status(409).json({
+          error: 'Ticket has been modified by another user. Please refresh and try again.',
+          code: 'STALE_UPDATE_CONFLICT',
+          currentUpdatedAt: ticket.updatedAt.toISOString(),
+        });
+        return;
+      }
+    }
+
+    // Resolution Gate Check (BR-09)
+    const activeActions = ticket.actionsTaken.filter(
+      (a) => a.status === 'PENDING' || a.status === 'IN_PROGRESS'
+    );
+    if (activeActions.length > 0) {
+      res.status(409).json({
+        error: 'Cannot resolve ticket while unresolved actions taken exist. All actions must be COMPLETED or CANCELLED.',
+        code: 'RESOLUTION_GATE_BLOCKED',
+        unresolvedCount: activeActions.length,
+        blockingActions: activeActions.map((a) => ({
+          id: a.id,
+          status: a.status,
+          description: a.actionDescription,
+        })),
+      });
+      return;
+    }
+
     const updated = await prisma.ticket.update({
       where: { id: ticketId },
       data: {
@@ -626,6 +680,7 @@ router.patch('/tickets/:id/resolve', async (req: AuthRequest, res: Response): Pr
         relatedSystem: true,
         requester: { select: { id: true, fullName: true, email: true } },
         owner: { select: { id: true, fullName: true, email: true } },
+        actionsTaken: true,
       },
     });
 
@@ -640,5 +695,178 @@ router.patch('/tickets/:id/resolve', async (req: AuthRequest, res: Response): Pr
   }
 });
 
+/**
+ * GET /api/staff/dashboard
+ * Operational metrics, urgent tickets, assigned actions, and recent tickets for IT Staff & Administrators (Issue 32)
+ */
+router.get('/dashboard', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const currentUserId = req.user!.id;
+
+    const nonTerminalStatus = {
+      notIn: [TicketStatus.RESOLVED, TicketStatus.CLOSED, TicketStatus.CANCELLED],
+    };
+
+    const [
+      unassignedTicketsCount,
+      myAssignedTicketsCount,
+      urgentTicketsCount,
+      myPendingActionsCount,
+      openTicketsCount,
+      inProgressTicketsCount,
+      urgentTickets,
+      myAssignedActions,
+      recentTickets,
+    ] = await Promise.all([
+      // Unassigned active tickets
+      prisma.ticket.count({
+        where: {
+          ownerId: null,
+          currentStatus: nonTerminalStatus,
+        },
+      }),
+      // My assigned active tickets
+      prisma.ticket.count({
+        where: {
+          ownerId: currentUserId,
+          currentStatus: nonTerminalStatus,
+        },
+      }),
+      // Urgent active tickets
+      prisma.ticket.count({
+        where: {
+          itPriority: TicketPriority.URGENT,
+          currentStatus: nonTerminalStatus,
+        },
+      }),
+      // My pending or in-progress actions
+      prisma.actionTaken.count({
+        where: {
+          assigneeId: currentUserId,
+          status: { in: ['PENDING', 'IN_PROGRESS'] },
+        },
+      }),
+      // Open / New tickets
+      prisma.ticket.count({
+        where: {
+          currentStatus: { in: [TicketStatus.NEW, TicketStatus.OPEN] },
+        },
+      }),
+      // In progress / waiting tickets
+      prisma.ticket.count({
+        where: {
+          currentStatus: { in: [TicketStatus.IN_PROGRESS, TicketStatus.WAITING_FOR_REQUESTER, TicketStatus.PENDING] },
+        },
+      }),
+      // Top 5 Urgent Tickets
+      prisma.ticket.findMany({
+        where: {
+          itPriority: TicketPriority.URGENT,
+          currentStatus: nonTerminalStatus,
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 5,
+        include: {
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+          owner: { select: { id: true, fullName: true, email: true } },
+          requester: { select: { id: true, fullName: true, email: true } },
+        },
+      }),
+      // Top 5 My Assigned Actions
+      prisma.actionTaken.findMany({
+        where: {
+          assigneeId: currentUserId,
+          status: { in: ['PENDING', 'IN_PROGRESS'] },
+        },
+        orderBy: [{ actionDateTime: 'desc' }, { id: 'desc' }],
+        take: 5,
+        include: {
+          ticket: {
+            select: {
+              id: true,
+              ticketNumber: true,
+              summary: true,
+              currentStatus: true,
+              itPriority: true,
+            },
+          },
+        },
+      }),
+      // Top 5 Recent Tickets
+      prisma.ticket.findMany({
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: 5,
+        include: {
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+          owner: { select: { id: true, fullName: true, email: true } },
+          requester: { select: { id: true, fullName: true, email: true } },
+        },
+      }),
+    ]);
+
+    const formattedUrgent = urgentTickets.map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      summary: t.summary,
+      itPriority: t.itPriority,
+      currentStatus: t.currentStatus,
+      category: t.category,
+      relatedSystem: t.relatedSystem,
+      owner: t.owner,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
+
+    const formattedActions = myAssignedActions.map((a) => ({
+      id: a.id,
+      ticketId: a.ticketId,
+      ticketNumber: a.ticket.ticketNumber,
+      ticketSummary: a.ticket.summary,
+      actionDescription: a.actionDescription,
+      status: a.status,
+      actionDateTime: a.actionDateTime.toISOString(),
+    }));
+
+    const formattedRecent = recentTickets.map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      summary: t.summary,
+      itPriority: t.itPriority,
+      currentStatus: t.currentStatus,
+      category: t.category,
+      relatedSystem: t.relatedSystem,
+      owner: t.owner,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
+
+    res.status(200).json({
+      metrics: {
+        unassignedTicketsCount,
+        myAssignedTicketsCount,
+        urgentTicketsCount,
+        myPendingActionsCount,
+        openTicketsCount,
+        inProgressTicketsCount,
+        unassigned: unassignedTicketsCount,
+        myAssigned: myAssignedTicketsCount,
+        urgent: urgentTicketsCount,
+        myPendingActions: myPendingActionsCount,
+        open: openTicketsCount,
+        inProgress: inProgressTicketsCount,
+      },
+      urgentTickets: formattedUrgent,
+      myAssignedActions: formattedActions,
+      recentTickets: formattedRecent,
+    });
+  } catch (error) {
+    console.error('Error fetching IT Staff dashboard:', error);
+    res.status(500).json({ error: 'Failed to fetch IT Staff dashboard metrics' });
+  }
+});
+
 export default router;
+
 
