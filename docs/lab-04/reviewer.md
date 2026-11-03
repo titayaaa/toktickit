@@ -24,7 +24,7 @@
 | **[PR #80](https://github.com/titayaaa/toktickit/pull/80)** | Issue 32: IT Staff Dashboard API & UI | Issue #68 | `feature/32-staff-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #81](https://github.com/titayaaa/toktickit/pull/81)** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #82](https://github.com/titayaaa/toktickit/pull/82)** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
-| **[PR #83](https://github.com/titayaaa/toktickit/pull/83)** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | ⏳ Pending Review |
+| **[PR #83](https://github.com/titayaaa/toktickit/pull/83)** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | 🔄 Changes Requested / Responded |
 | **PR-10** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `feature/36-release-and-report`| `lab4-staging` | `@jejaebubu` | 📋 Planned |
 
 ---
@@ -1033,7 +1033,7 @@
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
 - **Target Branch:** `lab4-staging`
-- **Current Status:** ⏳ Pending Peer Review
+- **Current Status:** 🔄 Changes Requested / Responded (Awaiting Re-review)
 - **Scope & Objectives:**
   - **Playwright End-to-End Test Automation (`e2e/lab-04/*.spec.ts`):**
     - `e2e/lab-04/actions-taken-flow.spec.ts` (`E2E-01`): วงจรชีวิต Actions Taken แบบครบวงจร (Requester สร้างตั๋ว -> เจ้าหน้าที่เปิดตั๋ว ตรวจสอบ Follow-up validation บันทึกสถานะ `PENDING`, ขยับเป็น `IN_PROGRESS`, และบันทึก `COMPLETED` พร้อมบังคับกรอก Result ตาม `BR-16` / `AC-15` -> Requester เปิดดูแบบ Read-only ซ่อนปุ่ม Action ทั้งหมด)
@@ -1051,6 +1051,64 @@
     - อัปเดต `docs/lab-04/ai-use.md` บันทึก Prompt 15 และ Reflection 3.9
     - อัปเดต Section 2 Checklist ข้อ 6 (Test Traceability) และ 7 (Zen Green Polish) เป็น `✅ Verified`
 
+#### 💬 Round 1 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-02 16:30 UTC+7
+- **Verdict:** 🔴 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจสอบโค้ดชุดทดสอบ Playwright E2E (e2e/lab-04/*.spec.ts), ภาพหลักฐาน Responsive (artifacts/lab-04/screenshots/), และเอกสารประกอบของ PR [#83](https://github.com/titayaaa/toktickit/pull/83) (Issue 35) อย่างละเอียดรอบด้านแล้วนะคะ
+> ขอส่งเป็น Changes Requested ก่อนนะคะ เนื่องจากพบจุดสำคัญที่ทำให้ชุดทดสอบ Playwright ล้มเหลวทันที (Immediate Test Failure) จากความไม่ตรงกันระหว่าง Selector ในไฟล์ทดสอบกับโค้ด React Component จริงของตัวโปรเจกต์ค่ะ:
+> 🔴 Blocking Issues: ต้องปรับแก้เพื่อให้ E2E รันผ่านจริง
+> 1. ฟังก์ชัน login() ใน E2E ไม่ตรงกับ Login.tsx:
+> ใน E2E ทุกไฟล์ค้นหา page.getByTestId("login-email"), login-password, และ login-submit
+> แต่ใน client/src/components/Login.tsx ปัจจุบันใช้อินพุต id="email", id="password" และปุ่ม submit โดยไม่มี data-testid ดังกล่าว ส่งผลให้ชุดทดสอบ Timeout ล้มเหลวตั้งแต่ขั้นตอนแรก
+> แนวทางแก้: เติม data-testid="login-email", data-testid="login-password", data-testid="login-submit", และ data-testid="login-card" ลงใน Login.tsx หรือปรับฟังก์ชัน helper login() ใน E2E ให้ค้นหาผ่าน #email, #password และ button[type="submit"]
+> 2. Header Navigation และการสลับหน้าจอใน App.tsx:
+> ฟังก์ชัน navigateHeader() ใน E2E ค้นหา header-nav-*, header-nav-toggle, header-user-menu, และ header-logout ซึ่งไม่มีอยู่ใน App.tsx
+> แนวทางแก้: เพิ่ม data-testid ที่เกี่ยวข้องลงใน Navigation Tabs และปุ่ม Logout ของ App.tsx เพื่อให้ชุดทดสอบคลิกสลับหน้าจอและสลับผู้ใช้งานระหว่าง Requester และ IT Staff ได้จริง
+> 3. ฟิลด์บังคับและปุ่ม Submit ใน CreateTicketForm.tsx:
+> ใน CreateTicketForm.tsx ปุ่มส่งตั๋วยังไม่มี data-testid="submit-ticket-btn" และฟอร์มมีการตรวจสอบว่าต้องเลือก categoryId และ relatedSystemId ด้วย
+> ใน actions-taken-flow.spec.ts และ ticket-resolution.spec.ts ตอนนี้กรอกเพียง Summary, Description และ Priority ทำให้ติด Validation Error
+> แนวทางแก้: เพิ่ม data-testid="submit-ticket-btn" และ data-testid="success-alert" ใน CreateTicketForm.tsx พร้อมปรับใน E2E ให้เลือก Category และ Related System ให้ครบถ้วนก่อนกด Submit
+> 4. Selector ไม่ตรงกับโค้ดจริงใน TicketDetail.tsx และ StaffTicketQueue.tsx:
+> ใน ticket-resolution.spec.ts และ actions-taken-flow.spec.ts มีการเรียกหา detail-status, back-to-my-tickets, queue-search, queue-search-btn, resolution-gate-modal ซึ่งไม่ตรงกับ TicketDetail.tsx (ที่ใช้ ticket-status-badge, ticket-detail-back-button, modal-resolution-gate-warning)
+> แนวทางแก้: ปรับจูน selector ในไฟล์ spec ให้ตรงกับ testid จริงในคอมโพเนนต์ หรือเติม testid ในคอมโพเนนต์ให้ครอบคลุม Flow การทำงาน
+> 5. Metric Card Selector ใน RequesterDashboard.tsx:
+> ใน dashboards.spec.ts ค้นหาการ์ด my-open, closed และพาเนล requester-recent-tickets-table
+> ในขณะที่คอมโพเนนต์จริงใช้ requester-metric-card-open, requester-metric-card-waiting, requester-metric-card-recent, requester-metric-card-resolved และ requester-recent-table
+> แนวทางแก้: ปรับลูปใน dashboards.spec.ts ให้ตรงกับชื่อการ์ดและตารางจริงใน RequesterDashboard.tsx
+> รบกวนช่วยปรับจูนตัวเลือกและคอมโพเนนต์ให้สอดคล้องกัน แล้วอัปเดต commit เข้ามาอีกครั้งนะคะ พร้อมตรวจซ้ำและ Approve ให้ในรอบถัดไปทันทีค่ะ ขอบคุณมากค่ะ https://github.com/titayaaa/toktickit/pull/83
+
+#### 💬 Round 1 Author Response by @titayaaa
+- **Response Date:** 2026-11-02 17:02 UTC+7
+- **Commit:** `7af52d9`
+- **Author Response (Verbatim):**
+
+> ขอบคุณสำหรับคำแนะนำและการตรวจสอบอย่างละเอียดรอบด้านมากๆ ค่ะคุณเจเจ (@jejaebubu)! 
+> 
+> ได้ดำเนินการปรับปรุงแก้ไขโค้ดและชุดทดสอบ Playwright E2E ครบทั้ง 5 จุดตามคำแนะนำเรียบร้อยแล้วใน Commit `7af52d9`:
+> 
+> 1. **Harmonize `login()` & `Login.tsx`**:
+>    - เพิ่ม `data-testid="login-card"`, `login-email`, `login-password`, และ `login-submit` ใน `Login.tsx`
+>    - ปรับฟังก์ชัน `login()` ใน E2E spec ให้รองรับ Fallback Selectors (`[data-testid="login-email"], #email`, `button[type="submit"]`) เพื่อความทนทานต่อการรัน
+> 2. **Harmonize Header Navigation & `navigateHeader()`**:
+>    - เพิ่ม `data-testid="header-user-menu"`, `header-logout`, `header-nav-dashboard`, `header-nav-admin-users`, `header-nav-staff-queue`, `header-nav-create-ticket`, `header-nav-my-tickets` ใน `App.tsx`
+>    - ปรับ `navigateHeader()` ให้ตรวจสอบแท็บที่มองเห็น (Visible Tabs) โดยตรงก่อน เพื่อรองรับทั้งมุมมอง Desktop Navbar และ Mobile Navigation Toggle
+> 3. **`CreateTicketForm.tsx` & Category/Related System Selection**:
+>    - เพิ่ม `data-testid="submit-ticket-btn"` และ `data-testid="success-alert"` ใน `CreateTicketForm.tsx`
+>    - ใน `actions-taken-flow.spec.ts` และ `ticket-resolution.spec.ts` เพิ่มคำสั่งเลือกลำดับ Category และ Related System จาก Select Options ก่อนกดสร้างตั๋ว ป้องกันฟอร์มติดสถานะ Validation Blocked
+> 4. **Harmonize Ticket Details & Queue Selectors**:
+>    - จัดระเบียบ `data-testid` ใน `TicketDetail.tsx`, `StaffTicketQueue.tsx`, และ `ActionsTaken.tsx` ให้ตรงกับมาตรฐาน React Testing Library
+>    - อัปเดต E2E Locators ให้รองรับทั้งคลาสและการเลือกสองทาง (Dual Locators) เพื่อให้เชื่อมโยงกับ Flow การทำงานได้อย่างสมบูรณ์
+> 5. **Metric Cards ใน `RequesterDashboard.tsx` & `dashboards.spec.ts`**:
+>    - ปรับ Loop ใน `dashboards.spec.ts` ให้ค้นหา `open`, `waiting`, `recent`, `resolved` และตาราง `requester-recent-table` ตรงกับ Component เป๊ะๆ
+> 
+> **ผลการทดสอบการทำงานย้อนหลัง (Regression & Build Verification):**
+> - Client Vitest Suite: ผ่านครบ **81/81 tests** (15 test files)
+> - Client Production Build (`tsc && vite build`): ผ่านสมบูรณ์ (Code 0)
+> - Server Build (`tsc`): ผ่านสมบูรณ์ (Code 0)
+> 
+> รบกวนคุณเจเจตรวจสอบอีกครั้งนะคะ หากเรียบร้อยแล้วสามารถกด Approve และ Merge เข้าสู่ branch หลักได้เลยค่ะ ขอบคุณมากๆ เลยค่ะ! 🙏✨
 
 ---
 
