@@ -256,8 +256,14 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: '240px', borderColor: '#DCE3DE' }}
             aria-label="Search tickets"
+            data-testid="queue-search"
           />
-          <button type="submit" className="btn btn-sm btn-success" style={{ backgroundColor: '#006B3C' }}>
+          <button
+            type="submit"
+            className="btn btn-sm btn-success"
+            style={{ backgroundColor: '#006B3C' }}
+            data-testid="queue-search-btn"
+          >
             Search
           </button>
         </form>
@@ -281,6 +287,7 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
                   setPage(1);
                 }}
                 aria-label="Filter by status"
+                data-testid="queue-filter-status"
               >
                 <option value="">All Statuses</option>
                 <option value="NEW">New</option>
@@ -521,6 +528,7 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
                         key={t.id}
                         style={{ cursor: 'pointer', transition: 'background-color 0.15s' }}
                         onClick={() => onSelectTicket(t.id)}
+                        data-testid={`queue-row-${t.id}`}
                       >
                         <td className="fw-bold font-monospace" style={{ color: '#006B3C' }}>
                           <button
@@ -654,6 +662,7 @@ const StaffTicketQueue: React.FC<StaffTicketQueueProps> = ({ categories = [], on
                   className="card p-3 shadow-sm border"
                   style={{ borderColor: '#DCE3DE', cursor: 'pointer' }}
                   onClick={() => onSelectTicket(t.id)}
+                  data-testid={`queue-card-${t.id}`}
                 >
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <span className="fw-bold font-monospace" style={{ color: '#006B3C' }}>

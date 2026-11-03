@@ -62,6 +62,7 @@ export interface TicketDetailData {
   attachments: AttachmentItem[];
   publicComments?: PublicCommentItem[];
   actionsTaken?: ActionTakenItem[];
+  requesterIndicatedResolved?: boolean;
 }
 
 interface TicketDetailProps {
@@ -662,7 +663,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
   const hasPendingActions = activeActionsCount > 0;
 
   return (
-    <div className="ticket-detail-container" data-testid="ticket-detail-view">
+    <div className="ticket-detail-container" data-testid="ticket-detail-view" id="ticket-detail">
       {/* Back Navigation Button */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <button
@@ -686,6 +687,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
         <div
           className={`alert alert-${operationMessage.type} alert-dismissible fade show mb-4`}
           role="alert"
+          data-testid="detail-notice"
         >
           {operationMessage.text}
           <button
@@ -698,7 +700,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
       )}
 
       {/* Main Ticket Card */}
-      <div className="zen-card p-4 mb-4">
+      <div className="zen-card p-4 mb-4" data-testid="staff-detail-card">
         {/* Header Bar */}
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 border-bottom pb-3 mb-4">
           <div>
@@ -714,7 +716,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
               )}`}
               data-testid="ticket-status-badge"
             >
-              Status: {currentTicketStatus}
+              Status: <span data-testid="detail-status">{currentTicketStatus}</span>
             </span>
             <span
               className={`badge px-3 py-2 rounded-pill fs-6 ${getPriorityBadgeClass(
@@ -769,6 +771,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     className="btn btn-outline-success btn-sm w-100 fw-semibold"
                     onClick={handleClaim}
                     disabled={isPerformingOp || ticket.ownerId === user?.id}
+                    data-testid="detail-claim"
                     title={
                       ticket.ownerId === user?.id
                         ? 'You already own this ticket'
@@ -794,6 +797,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     handleAssign(val ? parseInt(val, 10) : null);
                   }}
                   disabled={isPerformingOp}
+                  data-testid="assign-owner-select"
                 >
                   <option value="">-- Unassigned --</option>
                   {staffUsers.map((su) => (
@@ -815,6 +819,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                   value={ticket.itPriority || ticket.requestedPriority}
                   onChange={(e) => handlePriorityChange(e.target.value)}
                   disabled={isPerformingOp || isTerminal}
+                  data-testid="it-priority-select"
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
@@ -829,7 +834,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                 <label htmlFor="status-transition-select" className="form-label small text-muted mb-1">
                   Change Status
                 </label>
-                <div className="d-flex gap-1">
+                <div className="d-flex gap-1 flex-wrap">
                   <select
                     id="status-transition-select"
                     className="form-select form-select-sm"
@@ -841,6 +846,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                       }
                     }}
                     disabled={isPerformingOp || isTerminal || allowedNextStatuses.length === 0}
+                    data-testid="status-transition-select"
                   >
                     <option value="" disabled>
                       {allowedNextStatuses.length === 0 ? 'Terminal (No Changes)' : 'Transition to...'}
@@ -851,6 +857,18 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                       </option>
                     ))}
                   </select>
+
+                  {/* Dedicated In Progress Transition Button for E2E Flow */}
+                  {allowedNextStatuses.includes('IN_PROGRESS') && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm text-nowrap fw-semibold px-2"
+                      onClick={() => handleStatusChange('IN_PROGRESS')}
+                      data-testid="workflow-transition-in-progress"
+                    >
+                      In Progress
+                    </button>
+                  )}
 
                   {/* Quick Resolve Button */}
                   {allowedNextStatuses.includes('RESOLVED') && (
@@ -863,6 +881,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                         setShowResolveModal(true);
                       }}
                       title="Resolve Ticket"
+                      data-testid="workflow-resolve-btn"
                     >
                       Resolve
                     </button>
@@ -949,7 +968,10 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
 
         {/* Requester "Problem Appears Resolved" Section (For Requesters on active tickets) */}
         {!isStaffOrAdmin && !isTerminal && !isResolved && (
-          <div className="p-3 mb-4 rounded border bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div
+            className="p-3 mb-4 rounded border bg-light d-flex flex-wrap justify-content-between align-items-center gap-2"
+            data-testid="requester-resolution-gate"
+          >
             <div>
               <div className="fw-bold text-dark small mb-1">Does the problem appear resolved?</div>
               <div className="text-muted small">
@@ -962,12 +984,31 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                 className="btn btn-outline-success btn-sm fw-semibold"
                 onClick={handleResolveIndication}
                 disabled={isSubmittingIndication || hasIndicatedResolved}
+                data-testid="requester-indicate-resolved-btn"
               >
                 {hasIndicatedResolved
                   ? '✓ Indicated as Resolved'
                   : '👍 Problem Appears Resolved'}
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Requester Indicated Advisory Banner */}
+        {hasIndicatedResolved && (
+          <div className="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3" data-testid="requester-resolved-advisory">
+            <span data-testid="requester-resolved-advisory-badge">
+              Requester indicated problem resolved - Pending Staff Review
+            </span>
+          </div>
+        )}
+
+        {/* Staff-Side Requester Resolved Intent Advisory Banner */}
+        {isStaffOrAdmin && (hasIndicatedResolved || ticket.requesterIndicatedResolved) && (
+          <div className="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3" data-testid="detail-resolved-intent">
+            <span data-testid="staff-resolved-advisory-badge">
+              Requester indicated problem resolved - Pending Staff Review
+            </span>
           </div>
         )}
 
@@ -1164,7 +1205,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
           aria-modal="true"
         >
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow">
+            <div className="modal-content border-0 shadow" data-testid="resolution-gate-modal">
               <div className="modal-header bg-pale-green text-primary-green">
                 <h5 className="modal-title fw-bold">Resolve Ticket {ticket.ticketNumber}</h5>
                 <button
@@ -1187,8 +1228,8 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     role="alert"
                   >
                     <span className="fs-6">⚠️</span>
-                    <div>
-                      <strong>Active Actions Detected:</strong> There are currently {activeActionsCount} unresolved action(s) (PENDING or IN_PROGRESS). You will need to complete or cancel them before the system allows resolving this ticket.
+                    <div data-testid="resolution-gate-modal-message">
+                      <strong>Active Actions Detected:</strong> This ticket still has {activeActionsCount} unresolved action(s). Complete or cancel them before resolving the ticket.
                     </div>
                   </div>
                 )}
@@ -1245,6 +1286,7 @@ export const TicketDetail: React.FC<TicketDetailProps> = ({ ticketId, onBack }) 
                     resolutionInput.trim().length < 3 ||
                     resolutionInput.trim().length > 500
                   }
+                  data-testid="resolution-gate-confirm"
                 >
                   {isResolving ? 'Resolving...' : 'Confirm Resolution'}
                 </button>

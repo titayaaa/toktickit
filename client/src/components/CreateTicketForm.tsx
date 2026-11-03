@@ -125,7 +125,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({
         <h2 className="h4 text-success font-weight-bold mb-4">Create New Ticket</h2>
         
         {successTicketNumber && (
-          <div className="alert alert-success d-flex flex-wrap justify-content-between align-items-center" role="alert">
+          <div className="alert alert-success d-flex flex-wrap justify-content-between align-items-center" role="alert" data-testid="success-alert">
             <div>
               Ticket successfully created! Ticket Number: <strong>{successTicketNumber}</strong>
             </div>
@@ -240,6 +240,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({
               type="submit"
               className="btn btn-success btn-lg"
               disabled={submitting}
+              data-testid="submit-ticket-btn"
             >
               {submitting ? (
                 <>
