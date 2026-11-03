@@ -153,8 +153,8 @@ npm run dev
   - Non-blocking Requester Advisory Flag ("My problem is resolved") indicating user satisfaction without prematurely modifying ticket status.
   - Optimistic concurrency protection (`expectedUpdatedAt`) preventing race conditions during concurrent updates.
 - **Operational Dashboards**:
-  - **IT Staff Dashboard**: 5 operational metric cards (Open, Urgent/High, Breached/At Risk SLA, Unassigned, Pending Actions), recent ticket activity table, and interactive quick-filter drill-downs into Ticket Queue.
-  - **Requester Dashboard**: 4 personal metric cards (My Open, Awaiting Staff Action, Recent Updates, Resolved), attention-needed table, and direct actions to submit new requests.
+  - **IT Staff Dashboard**: Operational metric cards (Unassigned Tickets, My Assigned Tickets, Urgent Tickets, and My Pending Actions), recent ticket activity table, and interactive quick-filter drill-downs into Ticket Queue.
+  - **Requester Dashboard**: Personal metric cards (Total Open, Waiting for Your Input, Recently Updated, Resolved), attention-needed table, and direct actions to submit new requests.
 - **Accessibility & Zen Green Design System**:
   - Mobile, tablet, and desktop responsive layouts with zero horizontal page overflow.
   - WCAG 2.1 AA accessibility compliance: minimum 44×44px touch targets, visible focus outlines, and dynamic ARIA attributes.

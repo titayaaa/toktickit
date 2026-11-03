@@ -51,6 +51,7 @@ Sprint 4 testing ensures that the TokTickIT service desk maintains rigorous soft
 | **E2E-03** | E2E | FR-12, FR-13 | IT Staff & Requester dashboard navigation and drill-down | User clicks metric card and views filtered list | `e2e/lab-04/dashboards.spec.ts` | Pass |
 | **REG-01** | Regression | FR-15, AC-14 | Lab 1 & 2 Auth, Ticket Creation, Attachments regression | All previous test suites pass without regression | `server/tests/lab-02/*.test.ts`, `client/src/test/lab-02/*.test.tsx` | Pass |
 | **REG-02** | Regression | FR-15, AC-14 | Lab 3 Queue, Notes, Comments, Admin user management | All Lab 3 test suites pass without regression | `server/tests/lab-03/*.test.ts`, `client/src/test/lab-03/*.test.tsx` | Pass |
+| **REL-01** | Release | FR-15, Issue #36 | Full-stack Regression & Production Build verification on main branch | 112 server + 81 client tests pass (100%), Playwright across 3 viewports pass, zero build errors | `server`, `client`, `e2e` | Pass |
 
 ---
 

@@ -1856,6 +1856,52 @@
     - Production builds (`tsc` for server, `tsc && vite build` for client) compile with 0 errors
   - Sprint 4 Documentation finalized: `README.md`, `docs/lab-04/ai-use.md`, `docs/lab-04/reviewer.md`, `docs/lab-04/tests.md`, and 9-part report artifacts.
 
+#### 💬 Round 1 Review by @jejaebubu (Changes Requested)
+- **Review Date:** 2026-11-04 00:50:19 UTC+7
+- **Verdict:** 🛑 Changes Requested
+- **Review Comments (Verbatim):**
+
+> ตรวจสอบโค้ดผสานรวม (Integration Diffs), ชุดทดสอบ Full Regression, ผลการ Build และเอกสารกำกับรุ่นทั้งหมดของ PR #84 (Issue 36 / PR-10) อย่างละเอียดรอบด้านแล้วนะคะ
+> 
+> ภาพรวมการรวมโค้ดทั้ง 9 ฟีเจอร์ย่อย (PR #75–#83) เข้าสู่สาขา `main` ทำได้เรียบร้อย ไร้ข้อผิดพลาด และผลการ Build/Test ผ่าน 100% ค่ะ แต่ขอส่งเป็น **Changes Requested** ในรอบแรกก่อน เพื่อให้ปรับปรุงความถูกต้องของเอกสาร 3 จุดก่อนกด Final Approve & Merge นะคะ:
+> 
+> ### 🔴 จุดที่ต้องปรับแก้ก่อนอนุมัติ (Required Changes)
+> 
+> 1. **บันทึกประวัติการรีวิว PR #115 ใน Part 2 ของ `docs/lab-04/reviewer.md` ให้สมบูรณ์:**
+>    - ใน Part 2 ใต้หัวข้อ `### PR #115: PR-11: Sprint 4 Documentation and Release Integration to Main (Issue #11)` ปัจจุบันมีเพียง Scope และสถานะยังค้างอยู่ที่ `⏳ Pending Review`
+>    - รบกวนเพิ่มบันทึก Review Trail (Round 1 Review, Author Response, Round 2 Review และ Merge Event) ของ PR #115 ลงใน Part 2 ให้ครบถ้วนสมบูรณ์เหมือนกับทุก PR ก่อนหน้าค่ะ
+> 
+> 2. **แก้ไขข้อความบรรยาย Dashboard Metric Cards ใน `README.md` ให้ตรงกับระบบจริง:**
+>    - **IT Staff Dashboard (บรรทัด 156):** มีการระบุ `Breached/At Risk SLA` ซึ่งใน `specification.md` (Section 3.2 ข้อ 1) ระบุชัดเจนว่า SLA Engine เป็น Explicit Exclusion (Out of Scope) และในระบบจริงคือการ์ด `Urgent Tickets` แนะนำปรับเป็น:
+>      *(Unassigned Tickets, My Assigned Tickets, Urgent Tickets, และ My Pending Actions)*
+>    - **Requester Dashboard (บรรทัด 158):** มีการระบุ `Awaiting Staff Action` ซึ่งในระบบจริง (`RequesterDashboard.tsx`) และตาม FR-13 คือการ์ด `Waiting for Your Input` (`WAITING_FOR_REQUESTER`)
+> 
+> ### 🟠 ข้อเสนอแนะเพิ่มเติมเพื่อความสมบูรณ์แบบ (Improvement Suggestions)
+> 
+> 3. **เพิ่มแถวบันทึกผล Release Verification ใน `docs/lab-04/tests.md`:**
+>    - ในตาราง Section 2 ของ `tests.md` ปัจจุบันมีถึงแค่แถว `REG-02` แนะนำให้เพิ่มแถวสำหรับ Release Verification (เช่น `REL-01: Full-stack Regression & Production Build on main branch` ระบุผล 112 server + 81 client tests, Playwright 3 viewports, Zero build error) เพื่อให้ Traceability Matrix ปิดสมบูรณ์ 100% ค่ะ
+> 
+> ฝากช่วยปรับแก้ 3 จุดนี้ แล้วอัปเดต commit เข้ามาอีกครั้งนะคะ พร้อมเข้ามาตรวจซ้ำและ Approve & Merge เข้าสู่ `main` ให้ทันทีค่ะ ขอบคุณมากค่ะ
+
+#### 💬 Round 1 Author Response by @titayaaa
+- **Response Date:** 2026-11-04 01:50:00 UTC+7
+- **Author Response Details (Verbatim):**
+
+> ขอบคุณ @jejaebubu สำหรับการตรวจทาน Release PR #84 อย่างละเอียดรอบคอบมากค่ะ ดำเนินการปรับปรุงและแก้ไขครบถ้วนทั้ง 3 จุดเรียบร้อยแล้วค่ะ:
+> 
+> 1. **บันทึกประวัติการรีวิว PR #115 ใน Part 2 (`docs/lab-04/reviewer.md`)**:
+>    - บันทึกบทสนทนาการรีวิวของ PR #115 ใน Part 2 ครบถ้วนทั้ง Round 1 Review (`CHANGES_REQUESTED`), Author Response (`fc4b7b6`), และขั้นตอน Round 2 Verification ให้มีเนื้อหาแบบ Verbatim สมบูรณ์ 100% เหมือนกับทุก PR ก่อนหน้าเรียบร้อยค่ะ
+> 2. **แก้ไขข้อความบรรยาย Dashboard Metric Cards ใน `README.md`**:
+>    - **IT Staff Dashboard:** ปรับข้อความเป็นการ์ดที่ใช้งานจริงในระบบ: *(Unassigned Tickets, My Assigned Tickets, Urgent Tickets, and My Pending Actions)* โดยตัดคำว่า Breached/At Risk SLA ออกตรงตามข้อกำหนด Out-of-Scope ของ SLA Engine
+>    - **Requester Dashboard:** ปรับข้อความเป็นการ์ดตามระบบจริงและ FR-13: *(Total Open, Waiting for Your Input, Recently Updated, Resolved)* โดยเปลี่ยนจาก Awaiting Staff Action เป็น Waiting for Your Input (`WAITING_FOR_REQUESTER`)
+> 3. **เพิ่มแถวบันทึกผล Release Verification ใน `docs/lab-04/tests.md`**:
+>    - เพิ่มแถว `REL-01` ในตาราง Section 2: `REL-01: Full-stack Regression & Production Build verification on main branch` พร้อมระบุผลการรัน 112 server + 81 client tests, Playwright E2E suites บน 3 viewports, และ build bundle ผ่าน 0 errors (สถานะ Pass) ปิด Traceability Matrix ครบถ้วน 100%
+> 
+> ดำเนินการอัปเดต commit ขึ้นสาขา `release/lab04-staging-to-main` เรียบร้อยแล้วค่ะ รบกวนช่วยตรวจทานซ้ำอีกครั้งและกด Approve & Merge เข้าสู่ `main` ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
+
+#### ⏳ Round 2 Final Verification by @jejaebubu
+- **Current Status:** 🔄 Changes Addressed — Ready for Round 2 Verification & Approval into `main`.
+
 ---
 
 # Part 2: Records of Student (@titayaaa) Reviewing Partner (@jejaebubu)
