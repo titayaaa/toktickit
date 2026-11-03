@@ -25,7 +25,7 @@
 | **[PR #81](https://github.com/titayaaa/toktickit/pull/81)** | Issue 33: Requester Dashboard API & UI | Issue #69 | `feature/33-requester-dashboard` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #82](https://github.com/titayaaa/toktickit/pull/82)** | Issue 34: Final Regression & System Hardening | Issue #70 | `feature/34-final-hardening` | `lab4-staging` | `@jejaebubu` | ✅ Merged |
 | **[PR #83](https://github.com/titayaaa/toktickit/pull/83)** | Issue 35: E2E Testing, Visual Inspection & Responsive Audits | Issue #71 | `feature/35-e2e-and-visual` | `lab4-staging` | `@jejaebubu` | ✅ Merged (`b4dee7e`) |
-| **[PR #84](https://github.com/titayaaa/toktickit/pull/84)** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `release/lab04-staging-to-main`| `main` | `@jejaebubu` | ⏳ Pending Review |
+| **[PR #84](https://github.com/titayaaa/toktickit/pull/84)** | Issue 36: Release Integration, Staging-to-Main PR & Report | Issue #72 | `release/lab04-staging-to-main`| `main` | `@jejaebubu` | ✅ Merged (`06a4035`) |
 
 ---
 
@@ -1836,7 +1836,7 @@
 - **Author:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Reviewer:** `@jejaebubu` (GitHub: [jejaebubu](https://github.com/jejaebubu))
 - **Target Branch:** `main`
-- **Current Status:** ⏳ Pending Peer Review by @jejaebubu
+- **Current Status:** ✅ Approved & Merged (`06a4035`)
 - **Scope & Objectives:**
   - Release Integration for Sprint 4 (Lab 4): Promote fully verified and peer-reviewed code from `lab4-staging` into `main`.
   - Integrates all 9 Sprint 4 feature increments:
@@ -1899,8 +1899,30 @@
 > 
 > ดำเนินการอัปเดต commit ขึ้นสาขา `release/lab04-staging-to-main` เรียบร้อยแล้วค่ะ รบกวนช่วยตรวจทานซ้ำอีกครั้งและกด Approve & Merge เข้าสู่ `main` ได้เลยนะคะ ขอบคุณมากค่ะ! ✨
 
-#### ⏳ Round 2 Final Verification by @jejaebubu
-- **Current Status:** 🔄 Changes Addressed — Ready for Round 2 Verification & Approval into `main`.
+#### 💬 Round 2 Final Verification & Approval by @jejaebubu
+- **Review Date:** 2026-11-04 02:53:54 UTC+7
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ตรวจสอบ Commit `b21bff9` ซ้ำอย่างละเอียดรอบด้านแล้วนะคะ ดำเนินการปรับปรุงแก้ไขทั้ง 3 จุดได้อย่างยอดเยี่ยม รวดเร็ว และประณีตมากค่ะ:
+> 
+> 1. **Complete Peer Review Audit Trail**: บันทึกบทสนทนาการรีวิวของ PR #115 ใน Part 2 ของ `docs/lab-04/reviewer.md` ครบถ้วนทั้ง Round 1, Author Response (`fc4b7b6`) และ Round 2 Workflow แบบ Verbatim สมบูรณ์ 100%
+> 2. **Accurate Dashboard Specifications**: แก้ไขข้อความบรรยายการ์ดตัวชี้วัดใน `README.md` ทั้งฝั่ง IT Staff และ Requester ให้ตรงกับข้อกำหนดใน `specification.md` และคอมโพเนนต์จริงในระบบ
+> 3. **Closed Test Traceability Matrix**: เพิ่มแถว `REL-01` ในตาราง `docs/lab-04/tests.md` ยืนยันผลการทดสอบ Full Regression (Server 112, Client 81, Playwright 3 Viewports) และผลการ Build สำเร็จ 0 errors
+> 
+> โค้ดและเอกสารมีความสมบูรณ์แบบระดับ Production-ready พร้อมสำหรับการส่งมอบงาน
+> 
+> ขอ **Approve** และยินดีด้วยกับการปิด Sprint 4 (Lab 4) อย่างเป็นทางการค่ะ! พร้อมให้ดำเนินการ Merge สาขา `release/lab04-staging-to-main` เข้าสู่ `main` ได้ทันทีค่ะ
+
+#### 🔀 Merge Event by Reviewer @jejaebubu
+- **Merged PR URL:** [titayaaa/toktickit#84](https://github.com/titayaaa/toktickit/pull/84)
+- **Merged by:** `@jejaebubu` (Peer Reviewer)
+- **Target Branch:** `main`
+- **Merge Commit SHA:** `06a40356e0f653f3c67f5b5126d885907bbc0e92`
+- **Merged At:** 2026-11-04 02:57:48 UTC+7
+- **Status:** ✅ Merged successfully — **Closes #72**
 
 ---
 
@@ -1946,7 +1968,7 @@
 | **[PR #112](https://github.com/jejaebubu/toktickit/pull/112)** | test(e2e): Lab 4 Playwright E2E flows for Actions Taken, Resolution Gate, and Dashboards | Issue #8 | `test/e2e-lab4-flows` | `lab4-staging` | `@titayaaa` | ✅ Merged (`0ce99e8`) |
 | **[PR #113](https://github.com/jejaebubu/toktickit/pull/113)** | test(regression): full regression of Lab 1-3 suites with Lab 4 features | Issue #9 | `test/regression-hardening` | `lab4-staging` | `@titayaaa` | ✅ Merged (`5158f3a`) |
 | **[PR #114](https://github.com/jejaebubu/toktickit/pull/114)** | PR-10: Zen Green UI polish, accessibility, responsive viewports, and screenshots | Issue #10 | `polish/zen-green-a11y` | `lab4-staging` | `@titayaaa` | ✅ Merged (`d785a4c`) |
-| **[PR #115](https://github.com/jejaebubu/toktickit/pull/115)** | PR-11: Sprint 4 Documentation and Release Integration to Main | Issue #11 | `release/lab04-staging-to-main` | `main` | `@titayaaa` | ⏳ Changes Addressed (`fc4b7b6`), Pending Merge |
+| **[PR #115](https://github.com/jejaebubu/toktickit/pull/115)** | PR-11: Sprint 4 Documentation and Release Integration to Main | Issue #11 | `release/lab04-staging-to-main` | `main` | `@titayaaa` | ✅ Merged (`fe99888`) |
 
 ---
 
@@ -2992,7 +3014,7 @@
 - **Author:** `@jejaebubu`
 - **Reviewer:** `@titayaaa` (ฑิตญา ผ่องสกุล)
 - **Target Branch:** `main`
-- **Current Status:** ⏳ Changes Addressed (`fc4b7b6`), Pending Merge
+- **Current Status:** ✅ Approved & Merged (`fe99888`)
 - **Scope & Objectives:**
   - Release Integration for Sprint 4 (Lab 4) to promote `release/lab04-staging-to-main` into `main` after all 10 feature PRs (PR-01 through PR-10) are merged.
   - Complete verification (235/235 tests passed - Server 112, Client 96, Playwright 27 runs across Desktop, Tablet, Mobile).
@@ -3053,6 +3075,24 @@
 >
 > รบกวน @titayaaa ตรวจทานอีกครั้งและกด **Approve & Merge** เข้าสู่ `main` ได้เลยนะคะ ขอบคุณมากค่ะ
 
-#### ⏳ Round 2 Review & Merge Workflow
-- **Current State:** `@jejaebubu` has pushed commit `fc4b7b6` addressing all 3 review requests (PR hyperlink in Section 2, PR URL in Section 3.11, and PR reference in tests.md).
-- **Next Action:** Peer Reviewer `@titayaaa` to perform final verification of commit `fc4b7b6` on GitHub, submit Round 2 Approval review, and merge PR #115 into `main`.
+#### 💬 Round 2 Review & Approval by @titayaaa
+- **Review Date:** 2026-11-04 03:10:05 UTC+7
+- **Verdict:** 🟢 Approved
+- **Review Comments (Verbatim):**
+
+> ### ✅ การตรวจประเมินรอบที่ 2 (Round 2 Review — APPROVED)
+> 
+> ตรวจสอบการแก้ไขใน commit `fc4b7b6` ของ PR #115 เรียบร้อยครบถ้วนทั้ง 3 จุดแล้วค่ะ:
+> 1. เติมไฮเปอร์ลิงก์ `[GitHub #115]` ในตาราง Section 2 ของ `docs/lab-04/reviewer.md` เรียบร้อย
+> 2. เพิ่มฟิลด์ `- **PR URL:** [jejaebubu/toktickit#115](https://github.com/jejaebubu/toktickit/pull/115)` ใน Section 3.11 ครบถ้วน
+> 3. ระบุหมายเลข `**Pass** (PR #115, review pending)` ในตารางผลการทดสอบ `docs/lab-04/tests.md` สอดคล้องกับทุก PR
+> 
+> เอกสารและผลการทดสอบของ Sprint 4 สมบูรณ์แบบ 100% ปราศจากข้อบกพร่อง ขออนุมัติ (Approve) และยินดีดำเนินการกด Merge เข้าสู่สาขาหลัก `main` ให้ทันทีค่ะ! 🎉🚀
+
+#### 🔀 Merge Event by Reviewer @titayaaa
+- **Merged PR URL:** [jejaebubu/toktickit#115](https://github.com/jejaebubu/toktickit/pull/115)
+- **Merged by:** `@titayaaa` (Peer Reviewer)
+- **Target Branch:** `main`
+- **Merge Commit SHA:** `fe998888062671336826ee2b08ac6f0bb54461b3`
+- **Merged At:** 2026-11-04 03:10:16 UTC+7
+- **Status:** ✅ Merged successfully — **Closes #11**
